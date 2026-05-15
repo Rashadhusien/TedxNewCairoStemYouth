@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1778851916516,
+      "tag": "0000_large_sugar_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778853000000,
+      "tag": "0001_accounts_oauth",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778854110648,
+      "tag": "0002_fine_scalphunter",
+      "breakpoints": true
+    }
+  ]
+}
