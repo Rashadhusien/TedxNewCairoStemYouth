@@ -4,7 +4,7 @@ function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-[10000px]">
       <Navbar />
-      <main className="mt-20">{children}</main>
+      <main className="">{children}</main>
     </div>
   );
 }
