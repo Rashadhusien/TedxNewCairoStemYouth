@@ -105,7 +105,9 @@ export const users = pgTable(
   "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    // Auth.js adapter (OAuth display name); keep fullName for app profile
+    // Auth.js adapter display name (OAuth); synced with fullName for credentials users
+    name: varchar("name", { length: 255 }),
+    // App profile display name (registration form)
     fullName: varchar("full_name", { length: 255 }),
     email: varchar("email", { length: 255 }).notNull().unique(),
     image: text("image"),

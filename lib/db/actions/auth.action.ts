@@ -337,6 +337,7 @@ export const registerWithCredentails = async (
     const [newUser] = await db
       .insert(users)
       .values({
+        name,
         fullName: name,
         email: normalizedEmail,
         phone,
