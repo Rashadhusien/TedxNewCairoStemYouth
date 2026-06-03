@@ -48,6 +48,8 @@ async function loadUserAuthProfile(userId: string) {
       id: users.id,
       role: users.role,
       isActive: users.isActive,
+      fullName: users.fullName,
+      email: users.email,
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -121,6 +123,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("Account is deactivated. Contact support.");
         }
 
+        if (!user.emailVerified) {
+          throw new Error(
+            "Please verify your email. Check your inbox for the verification code.",
+          );
+        }
+
         const [credentialAccount] = await db
           .select({ password: accounts.password })
           .from(accounts)
@@ -184,14 +192,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
 
     async jwt({ token, user, trigger, session }) {
-      if (user?.id) {
-        const profile = await loadUserAuthProfile(user.id);
+      const userId = user?.id ?? (token.id as string | undefined);
+
+      if (userId) {
+        const profile = await loadUserAuthProfile(userId);
         if (profile) {
           token.id = profile.id;
           token.role = profile.role;
           token.ticketStatus = profile.ticketStatus;
+          token.name = profile.fullName ?? token.name;
+          token.email = profile.email ?? token.email;
         }
       }
+
+      if (user?.name) token.name = user.name;
+      if (user?.email) token.email = user.email;
 
       if (trigger === "update" && session) {
         if (session.role) token.role = session.role;
@@ -208,6 +223,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.ticketStatus = token.ticketStatus as string | null;
+        if (token.name) session.user.name = token.name as string;
+        if (token.email) session.user.email = token.email as string;
       }
       return session;
     },

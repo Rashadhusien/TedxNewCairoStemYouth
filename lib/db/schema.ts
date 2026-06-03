@@ -49,11 +49,11 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
 ]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
-  "pending_payment",   // registered, no screenshot yet
+  "pending_payment", // registered, no screenshot yet
   "payment_submitted", // screenshot uploaded, awaiting admin
-  "confirmed",         // admin approved
-  "rejected",          // admin rejected
-  "checked_in",        // scanned at venue door
+  "confirmed", // admin approved
+  "rejected", // admin rejected
+  "checked_in", // scanned at venue door
   "cancelled",
 ]);
 
@@ -67,24 +67,24 @@ export const sponsorTierEnum = pgEnum("sponsor_tier", [
 ]);
 
 export const scanRequestStatusEnum = pgEnum("scan_request_status", [
-  "pending",   // attendee scanned, waiting for sponsor
-  "approved",  // sponsor confirmed
-  "rejected",  // sponsor rejected
-  "expired",   // timed out (5 min)
+  "pending", // attendee scanned, waiting for sponsor
+  "approved", // sponsor confirmed
+  "rejected", // sponsor rejected
+  "expired", // timed out (5 min)
 ]);
 
 export const gameTypeEnum = pgEnum("game_type", [
-  "pre_event_trivia",  // available before event on website
-  "booth_quest",       // QR scan at booths during break
-  "be_the_speaker",    // random attendee selected on stage
-  "lightning_talk",    // submit idea, random winner speaks
+  "pre_event_trivia", // available before event on website
+  "booth_quest", // QR scan at booths during break
+  "be_the_speaker", // random attendee selected on stage
+  "lightning_talk", // submit idea, random winner speaks
   "custom",
 ]);
 
 export const gameStatusEnum = pgEnum("game_status", [
-  "locked",   // not yet available
-  "open",     // active and playable
-  "closed",   // ended
+  "locked", // not yet available
+  "open", // active and playable
+  "closed", // ended
 ]);
 
 export const pointReasonEnum = pgEnum("point_reason", [
@@ -106,7 +106,6 @@ export const users = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     // Auth.js adapter (OAuth display name); keep fullName for app profile
-    name: varchar("name", { length: 255 }),
     fullName: varchar("full_name", { length: 255 }),
     email: varchar("email", { length: 255 }).notNull().unique(),
     image: text("image"),
@@ -120,7 +119,6 @@ export const users = pgTable(
     major: varchar("major", { length: 255 }),
     graduationYear: smallint("graduation_year"),
     age: smallint("age"),
-    dateOfBirth: date("date_of_birth"),
 
     // Multi-select skills (stored as Postgres text array)
     // Options: 'Software & AI' | 'Robotics & Electronics' | 'Mechanical & Industrial Engineering'
@@ -147,7 +145,7 @@ export const users = pgTable(
   (t) => ({
     emailIdx: index("users_email_idx").on(t.email),
     roleIdx: index("users_role_idx").on(t.role),
-  })
+  }),
 );
 
 // OAuth + credentials linked accounts (Auth.js / Drizzle adapter)
@@ -159,7 +157,9 @@ export const accounts = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     type: varchar("type", { length: 255 }).notNull(),
     provider: varchar("provider", { length: 255 }).notNull(),
-    providerAccountId: varchar("provider_account_id", { length: 255 }).notNull(),
+    providerAccountId: varchar("provider_account_id", {
+      length: 255,
+    }).notNull(),
     refresh_token: text("refresh_token"),
     access_token: text("access_token"),
     expires_at: integer("expires_at"),
@@ -173,7 +173,7 @@ export const accounts = pgTable(
   (t) => ({
     pk: primaryKey({ columns: [t.provider, t.providerAccountId] }),
     userIdx: index("accounts_user_id_idx").on(t.userId),
-  })
+  }),
 );
 
 // NextAuth v5 sessions (stored in DB)
@@ -197,7 +197,7 @@ export const verificationTokens = pgTable(
   },
   (t) => ({
     pk: unique().on(t.identifier, t.token),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -258,7 +258,7 @@ export const tickets = pgTable(
     userIdx: index("tickets_user_idx").on(t.userId),
     statusIdx: index("tickets_status_idx").on(t.status),
     qrCodeIdx: index("tickets_qr_code_idx").on(t.qrCode),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -338,7 +338,7 @@ export const booths = pgTable(
   (t) => ({
     qrCodeIdx: index("booths_qr_code_idx").on(t.qrCode),
     sponsorIdx: index("booths_sponsor_idx").on(t.sponsorId),
-  })
+  }),
 );
 
 // Pool of questions for each booth — a random one is shown per scan
@@ -365,7 +365,7 @@ export const boothQuestions = pgTable(
   },
   (t) => ({
     boothIdx: index("booth_questions_booth_idx").on(t.boothId),
-  })
+  }),
 );
 
 // When attendee scans a booth QR, a pending request is created
@@ -407,7 +407,7 @@ export const boothScanRequests = pgTable(
     uniquePendingRequest: index("bsr_user_booth_idx").on(t.userId, t.boothId),
     statusIdx: index("bsr_status_idx").on(t.status),
     sponsorIdx: index("bsr_sponsor_idx").on(t.sponsorId),
-  })
+  }),
 );
 
 // Final record of a completed (approved) booth scan
@@ -437,7 +437,7 @@ export const boothScans = pgTable(
     // A user can only earn points from a booth once (enforced by maxScansPerUser logic too)
     uniqueUserBooth: unique("unique_user_booth").on(t.userId, t.boothId),
     userIdx: index("booth_scans_user_idx").on(t.userId),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -506,7 +506,7 @@ export const surveyResponses = pgTable(
     uniqueUserSurvey: unique("unique_user_survey").on(t.userId, t.surveyId),
     surveyIdx: index("survey_responses_survey_idx").on(t.surveyId),
     userIdx: index("survey_responses_user_idx").on(t.userId),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -590,7 +590,7 @@ export const gameEntries = pgTable(
     uniqueUserGame: unique("unique_user_game").on(t.userId, t.gameId),
     gameIdx: index("game_entries_game_idx").on(t.gameId),
     userIdx: index("game_entries_user_idx").on(t.userId),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -630,7 +630,7 @@ export const pointTransactions = pgTable(
   (t) => ({
     userIdx: index("pt_user_idx").on(t.userId),
     createdAtIdx: index("pt_created_at_idx").on(t.createdAt),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────
@@ -644,20 +644,21 @@ export const leaderboardView = pgView("leaderboard_view").as((qb) =>
       userId: pointTransactions.userId,
       fullName: users.fullName,
       university: users.university,
-      totalPoints: sql<number>`CAST(SUM(${pointTransactions.points}) AS INTEGER)`.as(
-        "total_points"
-      ),
+      totalPoints:
+        sql<number>`CAST(SUM(${pointTransactions.points}) AS INTEGER)`.as(
+          "total_points",
+        ),
       rank: sql<number>`RANK() OVER (ORDER BY SUM(${pointTransactions.points}) DESC)`.as(
-        "rank"
+        "rank",
       ),
       transactionCount: sql<number>`COUNT(*)::INTEGER`.as("transaction_count"),
       lastActivityAt: sql<Date>`MAX(${pointTransactions.createdAt})`.as(
-        "last_activity_at"
+        "last_activity_at",
       ),
     })
     .from(pointTransactions)
     .innerJoin(users, sql`${pointTransactions.userId} = ${users.id}`)
-    .groupBy(pointTransactions.userId, users.fullName, users.university)
+    .groupBy(pointTransactions.userId, users.fullName, users.university),
 );
 
 // ─────────────────────────────────────────────
@@ -741,7 +742,7 @@ export const boothScanRequestsRelations = relations(
       fields: [boothScanRequests.id],
       references: [boothScans.scanRequestId],
     }),
-  })
+  }),
 );
 
 export const gamesRelations = relations(games, ({ one, many }) => ({
@@ -773,7 +774,7 @@ export const pointTransactionsRelations = relations(
       references: [users.id],
       relationName: "point_awarder",
     }),
-  })
+  }),
 );
 
 // ─────────────────────────────────────────────

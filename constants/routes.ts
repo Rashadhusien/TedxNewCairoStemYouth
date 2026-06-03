@@ -7,7 +7,13 @@ export const ROUTES = {
   CONTACT: "/contact",
   LOGIN: "/login",
   REGISTER: "/register",
+  TERMESANDCONDITION: "termes-and-conditions",
+  PRIVACYPOLICY: "privacy-policy",
+  VERIFY_EMAIL: "/verify-email",
+  UNAUTHORIZED: "/unauthorized",
+  MY_TICKET: "/my-ticket",
   ADMIN: {
+    HOME: "/admin",
     LOGIN: "/admin/login",
     DASHBOARD: "/admin/dashboard",
     USERS: "/admin/users",
@@ -15,5 +21,9 @@ export const ROUTES = {
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",
+  },
+  SPONSOR: {
+    HOME: "/sponsor",
+    DASHBOARD: "/sponsor/dashboard",
   },
 };
