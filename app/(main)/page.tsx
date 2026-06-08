@@ -38,7 +38,7 @@ const Home = () => {
 
       <AboutSection />
 
-      <SpeakersSection />
+      <SpeakersSection hideKeyholders />
 
       <SponsorsSection />
 

@@ -75,10 +75,12 @@ function UserLoginFrom() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full sm:max-w-xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Login</CardTitle>
-        <CardDescription className="text-sm text-muted-foreground">
+        <CardTitle className="text-3xl text-center font-bold">
+          Welcome back !
+        </CardTitle>
+        <CardDescription className="text-sm text-muted-foreground text-center mt-2">
           Enter your email and password to login.
         </CardDescription>
       </CardHeader>

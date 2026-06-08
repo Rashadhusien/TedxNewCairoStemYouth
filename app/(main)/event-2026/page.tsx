@@ -1,5 +1,9 @@
 import SectionTitle from "@/components/layout/section-title";
 import MissionVissionSection from "../components/mission-vission-section";
+import SpeakersSection from "../components/speakers-section";
+import SponsorsSection from "../components/sponsors-section";
+import TheaterParallax from "../components/theater-parallex";
+import ThemeSection from "../components/theme-section";
 
 const Event = () => {
   return (
@@ -7,10 +11,18 @@ const Event = () => {
       <SectionTitle
         eyebrow="Event"
         title="Event 2026"
-        subTitle="lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quod."
+        subTitle="The TEDxNewCairoSTEMYouth 2026 event will be held on Saturday, November 15, 2025, at Ain Shams University."
       />
 
       <MissionVissionSection />
+
+      <ThemeSection />
+
+      <TheaterParallax />
+
+      <SpeakersSection hideExploreLink={true} />
+
+      <SponsorsSection />
     </div>
   );
 };

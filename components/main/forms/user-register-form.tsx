@@ -91,7 +91,7 @@ function UserRegisterFrom() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full sm:max-w-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Register</CardTitle>
         <CardDescription className="text-sm text-muted-foreground">

@@ -8,10 +8,8 @@ export const metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <div className="flex-center">
-      <Suspense fallback={null}>
-        <AdminLoginForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={null}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

@@ -9,7 +9,7 @@ export default function UnauthorizedPage() {
       <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
         403
       </p>
-      <h1 className="mt-2 font-syne text-3xl font-bold">Access denied</h1>
+      <h1 className="mt-2   text-3xl font-bold">Access denied</h1>
       <p className="mt-3 max-w-md text-muted-foreground">
         You don&apos;t have permission to view this page. If you think this is a
         mistake, sign in with a different account or contact support.

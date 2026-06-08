@@ -64,9 +64,19 @@ export const VerifyEmailSchema = z.object({
 export const VerifyEmailActionSchema = z.object({
   email: z.email("Invalid email address"),
   otp: otpFieldSchema,
-  password: z.string().min(8, "Password must be at least 8 characters").optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional(),
 });
 
 export const ResendVerificationSchema = z.object({
   email: z.email("Invalid email address"),
+});
+
+export const ContactFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.email("Invalid email address"),
+  inquiry: z.enum(["sponsor", "general"]).optional(),
+  message: z.string().min(5, "must be atleast 5 characters"),
 });

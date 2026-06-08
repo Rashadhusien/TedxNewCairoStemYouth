@@ -35,7 +35,8 @@ function GridTexture() {
 
 export default function SpeakersSection({
   hideExploreLink = false,
-}: { hideExploreLink?: boolean } = {}) {
+  hideKeyholders = false,
+}: { hideExploreLink?: boolean; hideKeyholders?: boolean } = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const mainGridRef = useRef<HTMLDivElement>(null);
@@ -365,7 +366,7 @@ export default function SpeakersSection({
       ref={sectionRef}
       id="speakers"
       aria-labelledby="speakers-heading"
-      className="relative py-28 sm:py-36 overflow-hidden bg-black"
+      className="relative py-10 sm:py-16 overflow-hidden bg-black"
     >
       {/* Immersive background glow */}
       <div className="absolute inset-0 bg-linear-to-b from-[#050505] via-black to-[#050000] pointer-events-none" />
@@ -385,7 +386,10 @@ export default function SpeakersSection({
             id="speakers-heading"
             className="text-4xl md:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tight animate-on-scroll "
           >
-            Four Elements. One <span className="text-tedred drop-shadow-[0_0_15px_rgba(230,0,0,0.2)]">Explosion.</span>
+            Four Elements. One{" "}
+            <span className="text-tedred drop-shadow-[0_0_15px_rgba(230,0,0,0.2)]">
+              Explosion.
+            </span>
           </h2>
           <p className="text-white/45 text-sm sm:text-base max-w-[480px] mx-auto leading-relaxed animate-on-scroll ">
             Our main speakers embody the classical elements — forces of nature
@@ -401,7 +405,7 @@ export default function SpeakersSection({
           {mainSpeakers.map((speaker) => (
             <div
               key={speaker.id}
-              className="group/card speaker-card relative h-[480px] lg:h-[420px] overflow-hidden rounded-2xl border border-white/5 bg-neutral-950/70 backdrop-blur-sm transition-shadow duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer animate-on-scroll "
+              className="group/card speaker-card relative h-[480px] lg:h-[420px] overflow-hidden rounded border border-white/5 bg-neutral-950/70 backdrop-blur-sm transition-shadow duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer animate-on-scroll "
               onMouseMove={onMouseMoveMain}
               onMouseEnter={onMouseEnterCard}
               onMouseLeave={(e) => {
@@ -410,9 +414,11 @@ export default function SpeakersSection({
               }}
             >
               {/* Outer Glowing Border */}
-              <div className={`card-border absolute inset-0 rounded-2xl pointer-events-none  z-1 bg-linear-to-br ${speaker.accent} p-px`} />
+              <div
+                className={`card-border absolute inset-0 rounded pointer-events-none  z-1 bg-linear-to-br ${speaker.accent} p-px`}
+              />
               {/* Core card inner background */}
-              <div className="absolute inset-px bg-[#070707]/95 rounded-2xl z-2" />
+              <div className="absolute inset-px bg-[#070707]/95 rounded z-2" />
 
               {/* Dynamic Interactive Glow */}
               <div
@@ -423,7 +429,7 @@ export default function SpeakersSection({
               />
 
               {/* Grid texture */}
-              <div className="absolute inset-0 rounded-2xl overflow-hidden z-3">
+              <div className="absolute inset-0 rounded overflow-hidden z-3">
                 <GridTexture />
               </div>
 
@@ -471,93 +477,103 @@ export default function SpeakersSection({
         </div>
 
         {/* ── Keyholders Header ── */}
-        <div ref={keyholdersHeaderRef} className="text-center mb-12 sm:mb-16 mt-24">
-          <div className="flex items-center justify-center gap-4 mb-4 animate-on-scroll ">
-            <div className="h-px w-8 bg-white/15" />
-            <span className="text-white/30 text-[10px] font-bold tracking-[0.3em] uppercase">
-              VIP Guests & Keyholders
-            </span>
-            <div className="h-px w-8 bg-white/15" />
+        {!hideKeyholders && (
+          <div
+            ref={keyholdersHeaderRef}
+            className="text-center mb-12 sm:mb-16 mt-24"
+          >
+            <div className="flex items-center justify-center gap-4 mb-4 animate-on-scroll ">
+              <div className="h-px w-8 bg-white/15" />
+              <span className="text-white/30 text-[10px] font-bold tracking-[0.3em] uppercase">
+                VIP Guests & Keyholders
+              </span>
+              <div className="h-px w-8 bg-white/15" />
+            </div>
+            <p className="text-white/40 text-sm max-w-sm mx-auto leading-relaxed animate-on-scroll ">
+              Not just attendees — door-openers holding access to specific
+              domains of knowledge.
+            </p>
           </div>
-          <p className="text-white/40 text-sm max-w-sm mx-auto leading-relaxed animate-on-scroll ">
-            Not just attendees — door-openers holding access to specific domains
-            of knowledge.
-          </p>
-        </div>
+        )}
 
         {/* ── Keyholders Grid ── */}
-        <div
-          ref={keyholdersGridRef}
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 mb-16"
-        >
-          {keyholders.map((k) => (
-            <div
-              key={k.id}
-              className="group/keyholder key-border relative aspect-3/4 overflow-hidden rounded-xl border border-white/5 bg-[#060606]/95 backdrop-blur-md cursor-pointer animate-on-scroll "
-              onMouseEnter={onMouseEnterKeyholder}
-              onMouseLeave={onMouseLeaveKeyholder}
-            >
-              {/* Red sweep line on hover */}
-              <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-tedred z-5 scale-x-0 origin-left" />
+        {!hideKeyholders && (
+          <div
+            ref={keyholdersGridRef}
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 mb-16"
+          >
+            {keyholders.map((k) => (
+              <div
+                key={k.id}
+                className="group/keyholder key-border relative aspect-3/4 overflow-hidden rounded border border-white/5 bg-[#060606]/95 backdrop-blur-md cursor-pointer animate-on-scroll "
+                onMouseEnter={onMouseEnterKeyholder}
+                onMouseLeave={onMouseLeaveKeyholder}
+              >
+                {/* Red sweep line on hover */}
+                <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-tedred z-5 scale-x-0 origin-left" />
 
-              {/* Initials background watermark */}
-              <div className="absolute inset-0 bg-white/1 flex items-center justify-center z-2">
-                <span className="font-black text-6xl text-white/3 select-none transition-colors duration-300">
-                  {k.initials}
-                </span>
-              </div>
+                {/* Initials background watermark */}
+                <div className="absolute inset-0 bg-white/1 flex items-center justify-center z-2">
+                  <span className="font-black text-6xl text-white/3 select-none transition-colors duration-300">
+                    {k.initials}
+                  </span>
+                </div>
 
-              {/* Keyholder Image */}
-              <Image
-                src={k.image}
-                alt={k.name}
-                width={400}
-                height={400}
-                className="key-image absolute inset-0 w-full h-full object-cover opacity-15 grayscale select-none pointer-events-none z-3"
-              />
+                {/* Keyholder Image */}
+                <Image
+                  src={k.image}
+                  alt={k.name}
+                  width={400}
+                  height={400}
+                  className="key-image absolute inset-0 w-full h-full object-cover opacity-15 grayscale select-none pointer-events-none z-3"
+                />
 
-              {/* Neon Key icon */}
-              <div className="absolute top-3.5 right-3.5 z-5 bg-black/40 border border-white/5 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-xs">
-                <svg
-                  className="key-icon opacity-15 stroke-white"
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="7" cy="7" r="4" />
-                  <line x1="10.83" y1="10.83" x2="20" y2="20" />
-                  <line x1="18" y1="18" x2="20" y2="20" />
-                  <line x1="15" y1="15" x2="16" y2="16" />
-                </svg>
-              </div>
+                {/* Neon Key icon */}
+                <div className="absolute top-3.5 right-3.5 z-5 bg-black/40 border border-white/5 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-xs">
+                  <svg
+                    className="key-icon opacity-15 stroke-white"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="7" cy="7" r="4" />
+                    <line x1="10.83" y1="10.83" x2="20" y2="20" />
+                    <line x1="18" y1="18" x2="20" y2="20" />
+                    <line x1="15" y1="15" x2="16" y2="16" />
+                  </svg>
+                </div>
 
-              {/* Info overlay */}
-              <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-4 z-4">
-                <span className="text-tedred/60 text-[9px] font-black tracking-[0.2em] uppercase mb-1 line-clamp-1">
-                  {k.role}
-                </span>
-                <h3 className="text-white text-[13px] font-black leading-snug tracking-tight">
-                  {k.name}
-                </h3>
-                
-                {/* Expand tagline on hover using GSAP */}
-                <div className="key-tagline overflow-hidden h-0 ">
-                  <p className="text-white/40 text-[9.5px] leading-snug border-l border-tedred/30 pl-2">
-                    {k.tagline}
-                  </p>
+                {/* Info overlay */}
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-4 z-4">
+                  <span className="text-tedred/60 text-[9px] font-black tracking-[0.2em] uppercase mb-1 line-clamp-1">
+                    {k.role}
+                  </span>
+                  <h3 className="text-white text-[13px] font-black leading-snug tracking-tight">
+                    {k.name}
+                  </h3>
+
+                  {/* Expand tagline on hover using GSAP */}
+                  <div className="key-tagline overflow-hidden h-0 ">
+                    <p className="text-white/40 text-[9.5px] leading-snug border-l border-tedred/30 pl-2">
+                      {k.tagline}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* ── Explore link ── */}
         {!hideExploreLink && (
-          <div ref={exploreRef} className="text-center mt-12 animate-on-scroll ">
+          <div
+            ref={exploreRef}
+            className="text-center mt-12 animate-on-scroll "
+          >
             <Link
               href="/event-2026"
               className="group/btn inline-flex items-center gap-2.5 text-white/50 hover:text-white text-[11px] font-black tracking-[0.22em] uppercase transition-colors duration-300 border-b border-white/10 hover:border-white/55 pb-1.5"

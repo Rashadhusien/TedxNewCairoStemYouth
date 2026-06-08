@@ -64,7 +64,7 @@ export function AdminLoginForm() {
   }
 
   return (
-    <Card className="w-full sm:max-w-md">
+    <Card className="w-full sm:max-w-xl">
       <CardHeader>
         <CardTitle className="text-2xl font-bold">Admin login</CardTitle>
         <CardDescription className="text-sm text-muted-foreground">
@@ -79,7 +79,9 @@ export function AdminLoginForm() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-admin-login-email">Email</FieldLabel>
+                  <FieldLabel htmlFor="form-admin-login-email">
+                    Email
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="form-admin-login-email"

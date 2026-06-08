@@ -130,14 +130,14 @@ function VerifyEmailForm() {
   }
 
   return (
-    <Card className="mx-auto w-full max-w-md border-border bg-card shadow-lg">
+    <Card className="mx-auto w-full max-w-xl border-border bg-card shadow-lg">
       <CardContent className="space-y-8 p-8">
         <div className="flex flex-col items-center text-center">
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
             <Mail className="h-7 w-7 text-primary" />
           </div>
 
-          <h1 className="font-syne text-2xl font-bold">Verify Your Email</h1>
+          <h1 className="  text-2xl font-bold">Verify Your Email</h1>
 
           <p className="mt-2 text-sm text-muted-foreground">
             We&apos;ve sent a verification code to

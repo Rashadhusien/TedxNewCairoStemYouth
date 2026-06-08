@@ -13,8 +13,8 @@ const Navbar = async () => {
   const session = await auth();
 
   return (
-    <nav className="relative container mx-auto bg-transparent ">
-      <div className="absolute  py-4 flex-between w-full z-20">
+    <nav className="relative container mx-auto bg-transparent">
+      <div className="absolute px-6 lg:px-10  py-4 flex-between w-full z-20">
         <Link href={ROUTES.HOME} className="cursor-pointer">
           <Image
             src={"/logo.png"}
@@ -36,7 +36,7 @@ const Navbar = async () => {
             ) : (
               <div className="flex items-center gap-2">
                 <Link href={ROUTES.LOGIN}>
-                  <Button size="sm" className="rounded-full px-5 h-8 text-sm">
+                  <Button size="sm" className=" px-5 h-8 text-sm">
                     Log in
                   </Button>
                 </Link>
@@ -44,7 +44,7 @@ const Navbar = async () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="rounded-full px-5 h-8 text-sm"
+                    className=" px-5 h-8 text-sm"
                   >
                     Register
                   </Button>

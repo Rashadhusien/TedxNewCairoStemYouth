@@ -6,13 +6,16 @@ import { useGSAP } from "@gsap/react";
 import { splitText } from "@/hooks/use-split-text";
 import { useRef } from "react";
 
-
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
+interface sectionTitleProps {
+  eyebrow: string;
+  title: string;
+  subTitle: string;
+}
 
-const SectionTitle = ({ eyebrow, title, subTitle }: any) => {
-
-    const ref = useRef<HTMLDivElement>(null);
+const SectionTitle = ({ eyebrow, title, subTitle }: sectionTitleProps) => {
+  const ref = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -74,18 +77,17 @@ const SectionTitle = ({ eyebrow, title, subTitle }: any) => {
     { scope: ref },
   );
 
-  
   return (
     <div ref={ref} className="max-w-6xl mx-auto text-center">
       <div className="st-badge mb-2 flex items-center justify-center gap-2">
         <span className="block h-px w-12 bg-primary" />
-          <p className="font-medium uppercase tracking-widest text-primary">
+        <p className="font-medium uppercase tracking-widest text-primary">
           {eyebrow}
         </p>
         <span className="block h-px w-12 bg-primary" />
       </div>
       <div>
-        <h2 className="st-title text-4xl font-syne! font-extrabold uppercase leading-tight text-foreground sm:text-5xl md:text-6xl">
+        <h2 className="st-title text-4xl  font-extrabold  leading-tight text-foreground sm:text-5xl md:text-6xl">
           {title}
         </h2>
       </div>

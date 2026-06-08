@@ -67,7 +67,7 @@ const TermsAndConditions = () => {
   return (
     <main className="container mx-auto max-w-4xl px-6 py-24">
       <div className="mb-12">
-        <h1 className="font-syne text-4xl font-bold tracking-tight">
+        <h1 className="  text-4xl font-bold tracking-tight">
           Terms & Conditions
         </h1>
 

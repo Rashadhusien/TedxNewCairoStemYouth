@@ -44,7 +44,7 @@ export function UserDropdown({
         <Button
           variant="ghost"
           className={cn(
-            "rounded-full bg-transparent hover:bg-accent/50 transition-colors h-10 px-3 gap-2",
+            " bg-transparent hover:bg-accent/50 transition-colors h-10 px-3 gap-2",
             isMobile && "h-12 px-4 gap-3 w-full justify-start",
           )}
         >

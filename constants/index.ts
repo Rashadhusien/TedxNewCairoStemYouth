@@ -1,5 +1,13 @@
+import {
+  FacebookIcon,
+  GlobeIcon,
+  InstagramIcon,
+  LinkedinIcon,
+  LinkIcon,
+} from "@animateicons/react/lucide";
 import { ROUTES } from "./routes";
 import { Flame, Clock, Users, ArrowRight } from "lucide-react";
+import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 export const mainLinks = [
   {
@@ -129,4 +137,43 @@ export const faculties = [
   { id: 7, label: "Education" },
   { id: 8, label: "Arts" },
   { id: 9, label: "Other" },
+];
+export const EMAIL = "tedxnewcairostemyouth@gmail.com";
+export const socialLinks = [
+  {
+    icon: FacebookIcon,
+    label: "Facebook",
+    href: "https://www.facebook.com/tedxnewcairostemyouth",
+  },
+  {
+    icon: InstagramIcon,
+    label: "Instagram",
+    href: "https://www.instagram.com/tedxnewcairostemyouth",
+  },
+  // linkedin tiktok whatsapp linktree offical tedx website
+  {
+    icon: LinkedinIcon,
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/company/tedxnewcairostemyouth",
+  },
+  {
+    icon: GlobeIcon,
+    label: "TikTok",
+    href: "https://www.tiktok.com/@tedxnewcairostemyouth",
+  },
+  {
+    icon: IconBrandWhatsappFilled,
+    label: "WhatsApp",
+    href: "https://wa.me/966555555555",
+  },
+  {
+    icon: LinkIcon,
+    label: "Linktree",
+    href: "https://linktr.ee/tedxnewcairostemyouth",
+  },
+  {
+    icon: GlobeIcon,
+    label: "Official TEDx Website",
+    href: "https://tedxnewcairostemyouth.com",
+  },
 ];
