@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 
-import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings } from "lucide-react";
+import {
+  CircleHelp,
+  ClipboardList,
+  Command,
+  Database,
+  File,
+  Search,
+  Settings,
+} from "lucide-react";
 // import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -21,6 +29,7 @@ import { sidebarItems } from "@/constants/sidebar-items";
 
 import { NavMain } from "@/components/layout/sidebar/nav-main";
 import { NavUser } from "@/components/layout/sidebar/nav-user";
+import { ROUTES } from "@/constants/routes";
 
 const _data = {
   navSecondary: [
@@ -77,9 +86,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link prefetch={false} href="/dashboard/default">
+              <Link prefetch={false} href={ROUTES.HOME}>
                 <Command />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <span className="font-semibold text-base">
+                  {APP_CONFIG.name}
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

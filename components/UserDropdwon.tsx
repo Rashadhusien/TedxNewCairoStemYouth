@@ -6,6 +6,7 @@ import {
   ChevronRightIcon,
   LayoutDashboardIcon,
   LogOutIcon,
+  TicketIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
@@ -88,11 +89,11 @@ export function UserDropdown({
           )}
           <DropdownMenuItem asChild>
             <Link
-              href={ROUTES.HOME}
+              href={ROUTES.MY_TICKET}
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm"
             >
-              <BadgeCheckIcon className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Profile</span>
+              <TicketIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">My Ticket</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>

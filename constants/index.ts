@@ -9,6 +9,46 @@ import { ROUTES } from "./routes";
 import { Flame, Clock, Users, ArrowRight } from "lucide-react";
 import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
+export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
+
+export const PAYMENT_METHODS = {
+  cash: {
+    label: "Cash",
+    instructions:
+      "Pay in cash at the TEDxNewCairoSTEMYouth registration desk. Bring exact change and keep your receipt.",
+  },
+  instapay: {
+    label: "InstaPay",
+    account: "01000000000",
+    instructions:
+      "Send the exact amount via InstaPay to the number above. Upload a screenshot of the successful transfer.",
+  },
+  bank_transfer: {
+    label: "Bank Transfer",
+    iban: "EG00XXXX000000000000000000000",
+    instructions:
+      "Transfer the exact amount to the bank account above. Upload a screenshot of the transfer confirmation.",
+  },
+} as const;
+export const ALLOWED_TYPES = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+];
+
+const getEnvVar = (key: string): string | undefined => {
+  const value = process.env[key];
+  return value || undefined;
+};
+
+export const CLOUDINARY_CLOUD_NAME = getEnvVar(
+  "NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME",
+);
+export const CLOUDINARY_UPLOAD_PRESET = getEnvVar(
+  "NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET",
+);
+
 export const mainLinks = [
   {
     route: ROUTES.HOME,

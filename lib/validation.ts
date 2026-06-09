@@ -80,3 +80,119 @@ export const ContactFormSchema = z.object({
   inquiry: z.enum(["sponsor", "general"]).optional(),
   message: z.string().min(5, "must be atleast 5 characters"),
 });
+
+const ticketTypeSchema = z.enum(["vip", "ip", "np"]);
+const couponTypeSchema = z.enum(["fixed", "percentage"]);
+const offerTypeSchema = z.enum([
+  "early_bird",
+  "group",
+  "bundle",
+  "promotional",
+]);
+const paymentMethodSchema = z.enum(["cash", "instapay", "bank_transfer"]);
+
+export const CouponSchema = z
+  .object({
+    code: z
+      .string()
+      .min(2, "Code must be at least 2 characters")
+      .max(50, "Code must be at most 50 characters"),
+    description: z.string().optional(),
+    type: couponTypeSchema,
+    discountAmount: z.number().int().min(0).default(0),
+    percentageOff: z.number().int().min(0).max(100).default(0),
+    applicableTicketTypes: z.array(ticketTypeSchema).optional(),
+    maxUses: z.number().int().positive().nullable().optional(),
+    maxUsesPerUser: z.number().int().positive().default(1),
+    validFrom: z.coerce.date().nullable().optional(),
+    validUntil: z.coerce.date().nullable().optional(),
+    minOrderAmount: z.number().int().min(0).default(0),
+    isActive: z.boolean().default(true),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "fixed" && data.discountAmount <= 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Fixed discount must be greater than 0",
+        path: ["discountAmount"],
+      });
+    }
+    if (data.type === "percentage" && data.percentageOff <= 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Percentage must be greater than 0",
+        path: ["percentageOff"],
+      });
+    }
+  });
+
+export const OfferSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  type: offerTypeSchema,
+  discountedPrice: z.number().int().min(0).nullable().optional(),
+  originalPrice: z.number().int().min(0).nullable().optional(),
+  applicableTicketTypes: z.array(ticketTypeSchema).optional(),
+  minQuantity: z.number().int().positive().nullable().optional(),
+  remainingSlots: z.number().int().min(0).nullable().optional(),
+  startsAt: z.coerce.date().nullable().optional(),
+  endsAt: z.coerce.date().nullable().optional(),
+  badgeLabel: z.string().max(50).optional(),
+  displayOrder: z.number().int().min(0).default(0),
+  isFeatured: z.boolean().default(false),
+  isActive: z.boolean().default(true),
+});
+
+export const TicketPurchaseSchema = z.object({
+  ticketType: ticketTypeSchema,
+  paymentMethod: paymentMethodSchema,
+  senderName: z.string().min(1, "Sender name is required"),
+  senderPhone: z.string().min(1, "Sender phone is required"),
+  screenshotUrl: z.url("A valid screenshot URL is required"),
+  screenshotPublicId: z.string().optional(),
+  couponCode: z.string().optional(),
+  transactionRef: z.string().max(100).optional(),
+  notes: z.string().max(500).optional(),
+});
+
+export const ValidateCouponSchema = z.object({
+  code: z.string().min(1, "Coupon code is required"),
+  ticketType: ticketTypeSchema,
+});
+
+export const TicketReviewSchema = z
+  .object({
+    ticketId: z.string().uuid(),
+    action: z.enum(["approve", "reject"]),
+    rejectionReason: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.action === "reject" && !data.rejectionReason?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Rejection reason is required",
+        path: ["rejectionReason"],
+      });
+    }
+  });
+
+export const CheckInSchema = z.object({
+  qrCode: z.string().uuid("Invalid QR code"),
+});
+
+export const TicketListSchema = z.object({
+  status: z
+    .enum([
+      "all",
+      "pending_payment",
+      "payment_submitted",
+      "confirmed",
+      "rejected",
+      "checked_in",
+      "cancelled",
+    ])
+    .default("all"),
+  search: z.string().optional(),
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().max(100).default(20),
+});

@@ -7,10 +7,24 @@ import {
   VerifyEmailActionSchema,
   VerifyEmailSchema,
 } from "@/lib/validation";
+export type ActionError = {
+  message: string;
+  details?: Record<string, string[]>;
+};
+
 export interface ActionResponse<T = unknown> {
   success: boolean;
   data?: T;
-  error?: string;
+  error?: ActionError | string;
+}
+
+export function getActionErrorMessage(
+  result: Pick<ActionResponse, "error">,
+  fallback = "Something went wrong",
+): string {
+  if (!result.error) return fallback;
+  if (typeof result.error === "string") return result.error;
+  return result.error.message;
 }
 
 export interface PaginatedResponse<T = unknown> extends ActionResponse<T[]> {

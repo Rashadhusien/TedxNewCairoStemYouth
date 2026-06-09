@@ -31,6 +31,8 @@ import { ADMIN_ACCESS_ROLES } from "@/lib/auth/route-guards";
 import { db } from "..";
 import { accounts, users } from "../schema";
 import { ROUTES } from "@/constants/routes";
+import { getClientIp } from "@/lib/get-ip";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const CREDENTIALS_PROVIDER = "credentials";
 const BCRYPT_ROUNDS = 12;
@@ -104,6 +106,27 @@ export const signInWithCredentials = async (
     params,
     schema: UserLoginFormSchema,
   });
+
+  const ip = await getClientIp();
+
+  // Check both vectors in parallel
+  const [ipLimit, emailLimit] = await Promise.all([
+    checkRateLimit("login", ip),
+    checkRateLimit("login", `email:${params.email}`),
+  ]);
+
+  if (!ipLimit.success || !emailLimit.success) {
+    const retryAfter = Math.max(
+      ipLimit.success ? 0 : ipLimit.retryAfterSeconds,
+      emailLimit.success ? 0 : emailLimit.retryAfterSeconds,
+    );
+    return {
+      success: false,
+      error: {
+        message: `Too many login attempts. Please try again in ${retryAfter} seconds.`,
+      },
+    };
+  }
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as SignInErrorResponse;
@@ -186,7 +209,26 @@ export const signInAdminWithCredentials = async (
     params,
     schema: AdminLoginFormSchema,
   });
+  const ip = await getClientIp();
 
+  // Check both vectors in parallel
+  const [ipLimit, emailLimit] = await Promise.all([
+    checkRateLimit("login", ip),
+    checkRateLimit("login", `email:${params.email}`),
+  ]);
+
+  if (!ipLimit.success || !emailLimit.success) {
+    const retryAfter = Math.max(
+      ipLimit.success ? 0 : ipLimit.retryAfterSeconds,
+      emailLimit.success ? 0 : emailLimit.retryAfterSeconds,
+    );
+    return {
+      success: false,
+      error: {
+        message: `Too many login attempts. Please try again in ${retryAfter} seconds.`,
+      },
+    };
+  }
   if (validationResult instanceof Error) {
     return handleError(validationResult) as SignInErrorResponse;
   }
@@ -242,10 +284,7 @@ export const signInAdminWithCredentials = async (
       .where(eq(users.email, normalizedEmail))
       .limit(1);
 
-    if (
-      !signedInUser ||
-      !ADMIN_ACCESS_ROLES.has(signedInUser.role)
-    ) {
+    if (!signedInUser || !ADMIN_ACCESS_ROLES.has(signedInUser.role)) {
       await signOut({ redirect: false });
       return {
         success: false,
@@ -294,6 +333,18 @@ export const registerWithCredentails = async (
     params,
     schema: UserRegisterFormSchema,
   });
+
+  const ip = await getClientIp();
+  const rl = await checkRateLimit("register", ip);
+
+  if (!rl.success) {
+    return {
+      success: false,
+      error: {
+        message: `Too many registration attempts. Please try again in ${rl.retryAfterSeconds} seconds.`,
+      },
+    } as ErrorResponse;
+  }
 
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
@@ -391,6 +442,18 @@ export const verifyEmail = async (params: {
     schema: VerifyEmailActionSchema,
   });
 
+  const ip = await getClientIp();
+  const rl = await checkRateLimit("verify-email", ip);
+
+  if (!rl.success) {
+    return {
+      success: false,
+      error: {
+        message: `Too many verification attempts. Please try again in ${rl.retryAfterSeconds} seconds.`,
+      },
+    } as ErrorResponse;
+  }
+
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }
@@ -464,7 +527,17 @@ export const resendVerificationEmail = async (params: {
     params,
     schema: ResendVerificationSchema,
   });
+  const ip = await getClientIp();
+  const rl = await checkRateLimit("resend-verification", ip);
 
+  if (!rl.success) {
+    return {
+      success: false,
+      error: {
+        message: `Please wait ${rl.retryAfterSeconds} seconds before requesting another email.`,
+      },
+    } as ErrorResponse;
+  }
   if (validationResult instanceof Error) {
     return handleError(validationResult) as ErrorResponse;
   }

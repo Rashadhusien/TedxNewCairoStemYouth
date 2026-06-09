@@ -46,6 +46,8 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
   "general",
   "vip",
   "organizer",
+  "ip",   // Industry Professional
+  "np",   // Non-Profit / Partner
 ]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
@@ -55,6 +57,18 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
   "rejected", // admin rejected
   "checked_in", // scanned at venue door
   "cancelled",
+]);
+
+export const couponTypeEnum = pgEnum("coupon_type", [
+  "fixed",       // Deduct a flat amount in piastres (e.g. 5000 = 50 EGP off)
+  "percentage",  // Deduct a percentage of the ticket price (0–100)
+]);
+
+export const offerTypeEnum = pgEnum("offer_type", [
+  "early_bird",      // Time-limited discounted price
+  "group",           // Discount triggered by quantity (e.g. buy 3 get 20% off)
+  "bundle",          // Specific ticket type combo deal
+  "promotional",     // Generic banner/campaign with optional discount
 ]);
 
 export const sponsorTierEnum = pgEnum("sponsor_tier", [
@@ -96,6 +110,7 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "manual_admin",
   "bonus",
 ]);
+
 
 // ─────────────────────────────────────────────
 // USERS & AUTH
@@ -220,7 +235,7 @@ export const tickets = pgTable(
     // UUID used to generate the QR code image — this is what door scanner reads
     qrCode: uuid("qr_code").notNull().unique().defaultRandom(),
 
-    // Pricing — stored in EGP piastres (integer, no float rounding issues)
+     // Final amount charged in EGP piastres (after coupon + offer deductions)
     // 50000 = 500.00 EGP | 0 = free (organizer comps)
     pricePaid: integer("price_paid").notNull().default(0),
     currency: varchar("currency", { length: 3 }).notNull().default("EGP"),
@@ -252,6 +267,19 @@ export const tickets = pgTable(
     // Soft delete
     cancelledAt: timestamp("cancelled_at"),
     cancelledReason: text("cancelled_reason"),
+    // Which coupon (if any) was applied at checkout
+    couponId: uuid("coupon_id").references(() => coupons.id),
+
+    // Discount value realised in piastres (snapshot at time of purchase)
+    // Stored so it remains accurate even if the coupon is later changed
+    couponDiscountApplied: integer("coupon_discount_applied").notNull().default(0),
+
+    // Which offer (if any) was active when the ticket was purchased
+    offerId: uuid("offer_id").references(() => offers.id),
+
+    // Snapshot of the offer's discounted price at purchase time
+    offerPriceApplied: integer("offer_price_applied"),
+    // ───────  
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -262,7 +290,122 @@ export const tickets = pgTable(
     qrCodeIdx: index("tickets_qr_code_idx").on(t.qrCode),
   }),
 );
+// ─────────────────────────────────────────────
+// COUPONS
+// ─────────────────────────────────────────────
 
+
+
+export const coupons = pgTable(
+  "coupons",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // The code the user types in at checkout (case-insensitive at the app layer)
+    code: varchar("code", { length: 50 }).notNull().unique(),
+
+    description: text("description"),
+
+    type: couponTypeEnum("type").notNull(),
+
+    // For type='fixed':      amount in EGP piastres (e.g. 5000 = 50.00 EGP)
+    // For type='percentage': ignored — use percentageOff instead
+    discountAmount: integer("discount_amount").notNull().default(0),
+
+    // For type='percentage': 0–100 (e.g. 20 = 20% off)
+    // For type='fixed':      ignored
+    percentageOff: integer("percentage_off").notNull().default(0),
+
+    // Optionally restrict to specific ticket types
+    // null = valid for all types
+    applicableTicketTypes: text("applicable_ticket_types")
+      .array()
+      .$type<Array<"general" | "vip" | "organizer" | "ip" | "np">>(),
+
+    // null = unlimited
+    maxUses: integer("max_uses"),
+    usedCount: integer("used_count").notNull().default(0),
+
+    // Per-user cap (null = unlimited)
+    maxUsesPerUser: integer("max_uses_per_user").notNull().default(1),
+
+    // Validity window
+    validFrom: timestamp("valid_from"),
+    validUntil: timestamp("valid_until"),
+
+    // Minimum ticket price in piastres before the coupon applies
+    minOrderAmount: integer("min_order_amount").notNull().default(0),
+
+    isActive: boolean("is_active").notNull().default(true),
+
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    codeIdx: index("coupons_code_idx").on(t.code),
+    activeIdx: index("coupons_active_idx").on(t.isActive),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// OFFERS
+// ─────────────────────────────────────────────
+
+
+export const offers = pgTable(
+  "offers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    title: varchar("title", { length: 255 }).notNull(),
+    // e.g. "Early Bird — Save 100 EGP before June 30"
+
+    description: text("description"),
+
+    type: offerTypeEnum("type").notNull(),
+
+    // Discounted price in piastres (the price the user pays under this offer)
+    // null = offer is purely informational / banner (no price override)
+    discountedPrice: integer("discounted_price"),
+
+    // Original price in piastres (shown struck-through in the UI)
+    originalPrice: integer("original_price"),
+
+    // Which ticket types this offer applies to
+    // null = applies to all types
+    applicableTicketTypes: text("applicable_ticket_types")
+      .array()
+      .$type<Array<"general" | "vip" | "organizer" | "ip" | "np">>(),
+
+    // group offer: how many tickets must be purchased together to qualify
+    minQuantity: integer("min_quantity"),
+
+    // Remaining slots (null = unlimited)
+    // Decrement atomically when a ticket using this offer is confirmed
+    remainingSlots: integer("remaining_slots"),
+
+    // Schedule
+    startsAt: timestamp("starts_at"),
+    endsAt: timestamp("ends_at"),
+
+    // Homepage / tickets page display
+    badgeLabel: varchar("badge_label", { length: 50 }),
+    // e.g. "🔥 Only 20 left!" — overrides auto-badge in UI
+    displayOrder: smallint("display_order").notNull().default(0),
+    isFeatured: boolean("is_featured").notNull().default(false),
+
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    activeIdx: index("offers_active_idx").on(t.isActive),
+    typeIdx: index("offers_type_idx").on(t.type),
+    endsAtIdx: index("offers_ends_at_idx").on(t.endsAt),
+  }),
+);
 // ─────────────────────────────────────────────
 // SPONSORS & BOOTHS
 // ─────────────────────────────────────────────
@@ -698,6 +841,32 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
     references: [users.id],
     relationName: "ticket_reviewer",
   }),
+  coupon: one(coupons, {
+    fields: [tickets.couponId],
+    references: [coupons.id],
+  }),
+  offer: one(offers, {
+    fields: [tickets.offerId],
+    references: [offers.id],
+  }),
+}));
+
+export const couponsRelations = relations(coupons, ({ one, many }) => ({
+  createdByUser: one(users, {
+    fields: [coupons.createdBy],
+    references: [users.id],
+    relationName: "coupon_creator",
+  }),
+  tickets: many(tickets),
+}));
+
+export const offersRelations = relations(offers, ({ one, many }) => ({
+  createdByUser: one(users, {
+    fields: [offers.createdBy],
+    references: [users.id],
+    relationName: "offer_creator",
+  }),
+  tickets: many(tickets),
 }));
 
 export const sponsorsRelations = relations(sponsors, ({ one, many }) => ({
@@ -772,7 +941,7 @@ export const pointTransactionsRelations = relations(
       references: [users.id],
     }),
     awardedByUser: one(users, {
-      fields: [pointTransactions.awardedBy],
+      fields: [pointTransactions.awardedBy],  
       references: [users.id],
       relationName: "point_awarder",
     }),
@@ -792,6 +961,12 @@ export type NewAccount = typeof accounts.$inferInsert;
 
 export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
+
+export type Coupon = typeof coupons.$inferSelect;
+export type NewCoupon = typeof coupons.$inferInsert;
+
+export type Offer = typeof offers.$inferSelect;
+export type NewOffer = typeof offers.$inferInsert;
 
 export type Sponsor = typeof sponsors.$inferSelect;
 export type NewSponsor = typeof sponsors.$inferInsert;

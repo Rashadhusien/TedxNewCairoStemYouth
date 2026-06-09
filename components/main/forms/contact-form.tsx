@@ -5,7 +5,6 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
 import emailjs from "@emailjs/browser";
 import { Button } from "@/components/ui/button";
 
