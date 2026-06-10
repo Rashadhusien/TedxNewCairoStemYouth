@@ -1,14 +1,13 @@
-import AdminTicketsClient from "@/components/admin/admin-tickets-client";
 import { ticketColumns } from "@/components/admin/tables/tickets/columns";
-import { DataTable } from "@/components/admin/tables/tickets/data-table";
+import { DataTable } from "@/components/admin/tables/data-table";
+import { TICKETS_STATUS } from "@/constants";
+import { ROUTES } from "@/constants/routes";
 import { listTickets } from "@/lib/db/actions/ticket.action";
 
+import { SearchParams } from "@/types";
+
 interface AdminTicketsPageProps {
-  searchParams: Promise<{
-    status?: string;
-    search?: string;
-    page?: string;
-  }>;
+  searchParams: Promise<SearchParams>;
 }
 
 export default async function AdminTicketsPage({
@@ -29,7 +28,7 @@ export default async function AdminTicketsPage({
     status,
     search: params.search,
     page: Number(params.page) || 1,
-    pageSize: 20,
+    pageSize: 10,
   });
 
   const data =
@@ -37,17 +36,26 @@ export default async function AdminTicketsPage({
       ? result.data
       : { items: [], total: 0, page: 1, pageSize: 20 };
 
-  console.log(data);
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">Ticket Verification</h1>
+        <p className="text-muted-foreground text-sm">
+          Review payment proofs and approve or reject tickets.
+        </p>
+      </div>
 
-  return <DataTable columns={ticketColumns} data={data.items} />;
-}
-{
-  /* <AdminTicketsClient
-items={data.items}
-total={data.total}
-page={data.page}
-pageSize={data.pageSize}
-status={params.status ?? "payment_submitted"}
-search={params.search ?? ""}
-/> */
+      <DataTable
+        columns={ticketColumns}
+        data={data.items}
+        search={params.search || ""}
+        total={data.total}
+        pageSize={data.pageSize}
+        page={data.page}
+        status={params.status ?? "all"}
+        selectItems={TICKETS_STATUS}
+        route={ROUTES.ADMIN.TICKETS}
+      />
+    </div>
+  );
 }

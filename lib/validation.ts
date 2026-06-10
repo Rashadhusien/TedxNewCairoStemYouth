@@ -180,6 +180,11 @@ export const CheckInSchema = z.object({
   qrCode: z.string().uuid("Invalid QR code"),
 });
 
+const paginationSchema = z.object({
+  page: z.number().int().positive().default(1),
+  pageSize: z.number().int().positive().max(100).default(20),
+});
+
 export const TicketListSchema = z.object({
   status: z
     .enum([
@@ -193,6 +198,21 @@ export const TicketListSchema = z.object({
     ])
     .default("all"),
   search: z.string().optional(),
-  page: z.number().int().positive().default(1),
-  pageSize: z.number().int().positive().max(100).default(20),
+  ...paginationSchema.shape,
+});
+
+export const CouponListSchema = z.object({
+  status: z
+    .enum(["all", "active", "inactive"])
+    .default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const OfferListSchema = z.object({
+  status: z
+    .enum(["all", "active", "inactive"])
+    .default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
 });

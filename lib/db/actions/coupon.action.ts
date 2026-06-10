@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { isAdminRole } from "@/lib/auth/route-guards";
@@ -16,6 +16,7 @@ import {
   type PurchasableTicketType,
 } from "@/lib/pricing";
 import {
+  CouponListSchema,
   CouponSchema,
   TicketListSchema,
   ValidateCouponSchema,
@@ -25,6 +26,8 @@ import type { z } from "zod";
 
 type CouponInput = z.infer<typeof CouponSchema>;
 import type { CouponValidationResult } from "@/types/ticket";
+
+type CouponListInput = z.infer<typeof CouponListSchema>;
 
 import { db } from "..";
 import { coupons, offers, tickets } from "../schema";
@@ -217,7 +220,7 @@ export async function updateCoupon(
 }
 
 export async function listCoupons(
-  params: { page?: number; pageSize?: number } = {},
+  params: CouponListInput ,
 ): Promise<
   ActionResponse<{
     items: (typeof coupons.$inferSelect)[];
@@ -227,13 +230,8 @@ export async function listCoupons(
   }>
 > {
   const validationResult = await action({
-    params: {
-      status: "all" as const,
-      page: params.page ?? 1,
-      pageSize: params.pageSize ?? 50,
-      search: undefined,
-    },
-    schema: TicketListSchema,
+    params,
+    schema: CouponListSchema,
   });
 
   if (validationResult instanceof Error) {
@@ -242,15 +240,35 @@ export async function listCoupons(
 
   try {
     await requireAdmin();
-    const { page, pageSize } = validationResult.params!;
+    const { page, pageSize , status, search } = validationResult.params!;
+
+    const conditions = []
+
+    if (status !== "all") {
+      conditions.push(eq(coupons.isActive, status === "active"));
+    }
+
+    if (search?.trim()) {
+      const term = `%${search.trim()}%`;
+      conditions.push(
+        or(
+          ilike(coupons.code, term),
+          ilike(coupons.description, term),
+        ),
+      );
+    }
+
+    const whereClause = conditions.length ? and(...conditions) : undefined;
 
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
-      .from(coupons);
+      .from(coupons)
+      .where(whereClause);
 
     const items = await db
       .select()
       .from(coupons)
+      .where(whereClause)
       .orderBy(desc(coupons.createdAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize);

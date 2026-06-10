@@ -7,6 +7,7 @@ import { MyTicketData, TicketWithRelations } from "@/types/ticket";
 import { ColumnDef } from "@tanstack/react-table";
 import { div } from "framer-motion/client";
 import { ReactNode } from "react";
+import TicketReviewDialog from "../../ticket-review-dialog";
 
 export const ticketColumns: ColumnDef<TicketWithRelations>[] = [
   {
@@ -60,13 +61,16 @@ export const ticketColumns: ColumnDef<TicketWithRelations>[] = [
     },
   },
   {
-    accessorKey: "actions",
+    id: "actions",
     header: "Actions",
     cell: ({ row }) => {
       return (
-        <div>
-          <Button>View</Button>
-        </div>
+        <TicketReviewDialog
+          ticket={row.original}
+          // open={false}
+          // onOpenChange={setDialogOpen}
+          // onReviewed={() => router.refresh()}
+        />
       );
     },
   },

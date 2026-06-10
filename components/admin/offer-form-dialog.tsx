@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -38,6 +39,7 @@ import {
   TICKET_TIERS,
 } from "@/lib/pricing";
 import type { Offer } from "@/lib/db/schema";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -57,18 +59,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface OfferFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   offer?: Offer | null;
-  onSaved: () => void;
 }
 
-export default function OfferFormDialog({
-  open,
-  onOpenChange,
-  offer,
-  onSaved,
-}: OfferFormDialogProps) {
+export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -105,7 +100,7 @@ export default function OfferFormDialog({
     } else {
       form.reset();
     }
-  }, [offer, form, open]);
+  }, [offer, form]);
 
   const onSubmit = async (data: FormValues) => {
     const payload = {
@@ -140,12 +135,20 @@ export default function OfferFormDialog({
     }
 
     toast.success(offer ? "Offer updated" : "Offer created");
-    onOpenChange(false);
-    onSaved();
+    router.refresh();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog>
+      <DialogTrigger asChild>
+        {offer ? (
+          <Button variant="outline">Edit</Button>
+        ) : (
+          <Button size={"lg"}>
+            <Plus className="size-4" /> Create Offer
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{offer ? "Edit Offer" : "Create Offer"}</DialogTitle>

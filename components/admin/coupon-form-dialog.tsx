@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Field,
@@ -33,6 +34,7 @@ import { createCoupon, updateCoupon } from "@/lib/db/actions/coupon.action";
 import { getActionErrorMessage } from "@/types/actions";
 import { egpToPiastres } from "@/lib/pricing";
 import type { Coupon } from "@/lib/db/schema";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   code: z.string().min(2, "Code must be at least 2 characters"),
@@ -49,18 +51,11 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface CouponFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
   coupon?: Coupon | null;
-  onSaved: () => void;
 }
 
-export default function CouponFormDialog({
-  open,
-  onOpenChange,
-  coupon,
-  onSaved,
-}: CouponFormDialogProps) {
+export default function CouponFormDialog({ coupon }: CouponFormDialogProps) {
+  const router = useRouter();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -91,7 +86,7 @@ export default function CouponFormDialog({
     } else {
       form.reset();
     }
-  }, [coupon, form, open]);
+  }, [coupon, form]);
 
   const couponType = form.watch("type");
 
@@ -119,12 +114,21 @@ export default function CouponFormDialog({
     }
 
     toast.success(coupon ? "Coupon updated" : "Coupon created");
-    onOpenChange(false);
-    onSaved();
+
+    router.refresh();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog>
+      <DialogTrigger asChild>
+        {coupon ? (
+          <Button variant="outline">Edit</Button>
+        ) : (
+          <Button size={"lg"}>
+            <Plus className="mr-2 size-4" /> Create
+          </Button>
+        )}
+      </DialogTrigger>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{coupon ? "Edit Coupon" : "Create Coupon"}</DialogTitle>
@@ -138,8 +142,14 @@ export default function CouponFormDialog({
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel>Code</FieldLabel>
-                  <Input {...field} placeholder="SUMMER20" className="uppercase" />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  <Input
+                    {...field}
+                    placeholder="SUMMER20"
+                    className="uppercase"
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />
@@ -175,7 +185,9 @@ export default function CouponFormDialog({
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
                   </Field>
                 )}
               />
@@ -193,7 +205,9 @@ export default function CouponFormDialog({
                       {...field}
                       onChange={(e) => field.onChange(Number(e.target.value))}
                     />
-                    {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
                   </Field>
                 )}
               />
@@ -233,7 +247,11 @@ export default function CouponFormDialog({
             />
           </FieldGroup>
 
-          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
             {form.formState.isSubmitting ? (
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (

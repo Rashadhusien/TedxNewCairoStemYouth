@@ -12,26 +12,23 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { reviewTicket } from "@/lib/db/actions/ticket.action";
 import { getActionErrorMessage } from "@/types/actions";
 import { formatPiastres } from "@/lib/pricing";
 import type { TicketWithRelations } from "@/types/ticket";
+import { useRouter } from "next/navigation";
 
 interface TicketReviewDialogProps {
   ticket: TicketWithRelations | null;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onReviewed: () => void;
 }
 
 export default function TicketReviewDialog({
   ticket,
-  open,
-  onOpenChange,
-  onReviewed,
 }: TicketReviewDialogProps) {
+  const router = useRouter();
   const [rejectionReason, setRejectionReason] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -59,12 +56,14 @@ export default function TicketReviewDialog({
 
     toast.success(action === "approve" ? "Ticket approved" : "Ticket rejected");
     setRejectionReason("");
-    onOpenChange(false);
-    onReviewed();
+    router.refresh();
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog onOpenChange={() => {}}>
+      <DialogTrigger asChild>
+        <Button>view</Button>
+      </DialogTrigger>
       <DialogContent className="max-w-lg w-full sm:min-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -111,7 +110,7 @@ export default function TicketReviewDialog({
                 alt="Payment proof"
                 width={600}
                 height={400}
-                className="w-full rounded-lg border max-h-[400px] object-contain "
+                className="w-full rounded-lg border max-h-100 object-contain "
               />
             </div>
           )}

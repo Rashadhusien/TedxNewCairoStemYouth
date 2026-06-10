@@ -1,6 +1,6 @@
 "use server";
 
-import { and, asc, desc, eq, gte, isNull, lte, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
 
 import { auth } from "@/auth";
 import { isAdminRole } from "@/lib/auth/route-guards";
@@ -13,12 +13,12 @@ import {
   pickBestOffer,
   type PurchasableTicketType,
 } from "@/lib/pricing";
-import { OfferSchema, TicketListSchema } from "@/lib/validation";
+import { OfferSchema, TicketListSchema, OfferListSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type { z } from "zod";
 
 type OfferInput = z.infer<typeof OfferSchema>;
-
+type OfferListInput = z.infer<typeof OfferListSchema>;
 import { db } from "..";
 import { offers } from "../schema";
 import type { Offer } from "../schema";
@@ -137,7 +137,7 @@ export async function updateOffer(
 }
 
 export async function listOffers(
-  params: { page?: number; pageSize?: number } = {},
+  params:OfferListInput,
 ): Promise<
   ActionResponse<{
     items: Offer[];
@@ -147,13 +147,8 @@ export async function listOffers(
   }>
 > {
   const validationResult = await action({
-    params: {
-      status: "all" as const,
-      page: params.page ?? 1,
-      pageSize: params.pageSize ?? 50,
-      search: undefined,
-    },
-    schema: TicketListSchema,
+    params,
+    schema: OfferListSchema,
   });
 
   if (validationResult instanceof Error) {
@@ -162,15 +157,35 @@ export async function listOffers(
 
   try {
     await requireAdmin();
-    const { page, pageSize } = validationResult.params!;
+    const { page, pageSize, status, search } = validationResult.params!;
+
+    const condition = [];
+
+    if (status !== "all") {
+      condition.push(eq(offers.isActive, status === "active"));
+    }
+
+    if (search) {
+      const term = `%${search.trim()}%`;
+      condition.push(
+        or(
+          ilike(offers.title, term),
+          ilike(offers.description, term),
+        ),
+      );
+    }
+
+    const whereClause = condition.length ? and(...condition) : undefined;
 
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
-      .from(offers);
+      .from(offers)
+      .where(whereClause);
 
     const items = await db
       .select()
       .from(offers)
+      .where(whereClause)
       .orderBy(asc(offers.displayOrder), desc(offers.createdAt))
       .limit(pageSize)
       .offset((page - 1) * pageSize);

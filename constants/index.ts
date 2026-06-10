@@ -37,6 +37,65 @@ export const ALLOWED_TYPES = [
   "image/webp",
 ];
 
+export const DEFAULT_PAGE_SIZE = 10;
+
+export const TICKETS_STATUS =[
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "payment_submitted",
+    label: "Awaiting Review",
+  },
+  {
+    value: "confirmed",
+    label: "Confirmed",
+  },
+  {
+    value: "rejected",
+    label: "Rejected",
+  },
+  {
+    value: "checked_in",
+    label: "Checked In",
+  },
+  {
+    value: "pending_payment",
+    label: "Pending Payment",
+  },
+] ;
+
+export const COUPONS_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+] ;
+
+export const OFFERS_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+] ;
+
 const getEnvVar = (key: string): string | undefined => {
   const value = process.env[key];
   return value || undefined;
