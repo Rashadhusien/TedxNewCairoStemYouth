@@ -11,7 +11,7 @@ const Event = () => {
       <SectionTitle
         eyebrow="Event"
         title="Event 2026"
-        subTitle="The TEDxNewCairoSTEMYouth 2026 event will be held on Saturday, November 15, 2025, at Ain Shams University."
+        subTitle="The TEDxNewCairoSTEMYouth 2026 event will be held on July 31, 2026, at Hilton Nile Maadi — Grand Ballroom & Conference Hall."
       />
 
       <MissionVissionSection />

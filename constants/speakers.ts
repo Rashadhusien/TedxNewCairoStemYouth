@@ -45,6 +45,30 @@ export const mainSpeakers = [
     roleColor: "text-[#aa66ee]/70 group-hover:text-[#aa66ee]",
     image: "/images/speakers/ahmed-hatem.png",
   },
+  {
+    id: "voice",
+    name: "Youssef Ali Farouk",
+    role: "The Voice",
+    description: "Content creator & faith-centered storyteller",
+    tagline:
+      "Because meaningful conversations create communities that last.",
+    symbol: "♪",
+    accent: "from-[#008866] to-[#00cc99]",
+    roleColor: "text-[#00aa77]/70 group-hover:text-[#00aa77]",
+    image: "/images/speakers/youssef-ali.png",
+  },
+  {
+    id: "story",
+    name: "Youssef Medhat",
+    role: "The Storyteller",
+    description: "Content creator with 333K+ followers across platforms",
+    tagline:
+      "Because vulnerability is the birthplace of honest connection.",
+    symbol: "✦",
+    accent: "from-[#cc6600] to-[#ff9933]",
+    roleColor: "text-[#dd7700]/70 group-hover:text-[#dd7700]",
+    image: "/images/speakers/youssef-medhat.png",
+  },
 ];
 
 export const keyholders = [
@@ -122,10 +146,18 @@ export const keyholders = [
   },
   {
     id: "k10",
-    name: "Youssef Ali Farouk",
-    initials: "YF",
-    role: "The Voice",
-    tagline: "Holds key to: Authentic connection with youth",
-    image: "/images/speakers/youssef-ali.png",
+    name: "Jessica Hossam El-Din",
+    initials: "JH",
+    role: "The Rising Star",
+    tagline: "Holds key to: Courage through artistic expression",
+    image: "/images/speakers/jessica-hossam.png",
+  },
+  {
+    id: "k11",
+    name: "Anas Elbarky",
+    initials: "AE",
+    role: "The Mindful Guide",
+    tagline: "Holds key to: Behavioral psychology & inner clarity",
+    image: "/images/speakers/anas-elbarky.png",
   },
 ];

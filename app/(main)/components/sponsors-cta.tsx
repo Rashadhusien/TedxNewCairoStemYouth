@@ -5,7 +5,7 @@ import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { Handshake, ArrowUpRight, Award, Zap, Shield, Flame } from "lucide-react";
+import { ArrowUpRight, Award, Zap, Shield, Flame } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -25,11 +25,10 @@ function GridTexture() {
 }
 
 const SPONSOR_TIERS = [
-  { id: "t1", name: "Platinum Partner", icon: Shield, description: "Lead stage presence" },
-  { id: "t2", name: "Gold Partner", icon: Award, description: "Brand integration" },
-  { id: "t3", name: "Silver Partner", icon: Zap, description: "Community activation" },
-  { id: "t4", name: "Innovation Partner", icon: Flame, description: "Tech showcases" },
-
+  { id: "t1", name: "Strategic Partner", icon: Shield, description: "Main stage + Mega Booth" },
+  { id: "t2", name: "Gold Sponsor", icon: Award, description: "Quest Zone + 4-screen presence" },
+  { id: "t3", name: "Silver Sponsor", icon: Zap, description: "Exhibition area + digital presence" },
+  { id: "t4", name: "Custom Package", icon: Flame, description: "Tailor-made partnership" },
 ];
 
 export default function SponsorsCTA() {
@@ -239,7 +238,7 @@ export default function SponsorsCTA() {
                 </h2>
 
                 <p className="text-white/45 text-sm sm:text-base leading-relaxed mb-8 max-w-[480px]">
-                  Connect your brand with over 500 future leaders, technical visionaries, and community builders. Partnering with TEDxNewCairoSTEMYouth gives your brand high-impact physical and digital activation, direct recruitment channels, and prime exposure.
+                  Connect your brand with over 1,000 elite STEM youth, future leaders, and technical visionaries at the Hilton Nile Maadi. Partnering with TEDxNewCairoSTEMYouth gives your brand high-impact physical and digital activation, direct recruitment channels, and prime exposure.
                 </p>
 
                 {/* CTAs */}

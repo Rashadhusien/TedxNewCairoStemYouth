@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MapPin } from "lucide-react";
 
 import SectionTitle from "@/components/layout/section-title";
 import SponsorsCtaSection from "../components/sponsors/sponsors-cta-section";
@@ -7,6 +8,7 @@ import SponsorsJourneySection from "../components/sponsors/sponsors-journey-sect
 import SponsorsPartnersSection from "../components/sponsors/sponsors-partners-section";
 import SponsorsQuestSection from "../components/sponsors/sponsors-quest-section";
 import SponsorsRoiSection from "../components/sponsors/sponsors-roi-section";
+import SponsorsSponsorsSection from "../components/sponsors/sponsors-sponsors-section";
 import SponsorsTiersSection from "../components/sponsors/sponsors-tiers-section";
 
 export const metadata: Metadata = {
@@ -24,15 +26,22 @@ export default function SponsorsPage() {
           title="Sponsors & Partners"
           subTitle="An independently organized TEDx event—licensed by TED—built for brands that invest in ideas worth spreading and youth worth empowering."
         />
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <MapPin className="size-3.5 text-primary/60" />
+          <span className="text-[11px] font-medium tracking-[0.15em] uppercase text-muted-foreground">
+            Hilton Nile Maadi — Cairo
+          </span>
+        </div>
       </div>
 
-      {/* <SponsorsHero /> */}
-     <SponsorsRoiSection />
+      <SponsorsHero />
+      <SponsorsRoiSection />
       <SponsorsQuestSection />
+      <SponsorsSponsorsSection />
       <SponsorsPartnersSection />
       <SponsorsJourneySection />
       <SponsorsTiersSection />
-      <SponsorsCtaSection /> 
+      <SponsorsCtaSection />
     </div>
   );
 }

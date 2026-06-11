@@ -19,13 +19,13 @@ const syne = Syne({
 
 export const metadata: Metadata = {
  title: 'TEDxNewCairoSTEMYouth — Luminous Darkness',
-  description: 'TEDxNewCairoSTEMYouth at Ain Shams University. Theme: Luminous Darkness. Even in the deepest darkness, there is always a hidden light inside every person.',
-  keywords: ['TEDx', 'TEDxNewCairoSTEM', 'Luminous Darkness', 'Ain Shams University', 'Cairo', 'STEM', 'Youth'],
+  description: 'TEDxNewCairoSTEMYouth at Hilton Nile Maadi. Theme: Luminous Darkness. Even in the deepest darkness, there is always a hidden light inside every person.',
+  keywords: ['TEDx', 'TEDxNewCairoSTEM', 'Luminous Darkness', 'Hilton Nile Maadi', 'Cairo', 'STEM', 'Youth'],
   authors: [{ name: 'TEDxNewCairoSTEMYouth' }],
   metadataBase: new URL('https://tedxnewcairostemyouth.org'),
   openGraph: {
     title: 'TEDxNewCairoSTEMYouth — Luminous Darkness',
-    description: 'Discover the light hidden within the darkness. Join TEDxNewCairoSTEMYouth at Ain Shams University.',
+    description: 'Discover the light hidden within the darkness. Join TEDxNewCairoSTEMYouth at Hilton Nile Maadi.',
     url: 'https://tedxnewcairostemyouth.org',
     siteName: 'TEDxNewCairoSTEMYouth',
     type: 'website',

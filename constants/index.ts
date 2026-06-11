@@ -6,7 +6,7 @@ import {
   LinkIcon,
 } from "@animateicons/react/lucide";
 import { ROUTES } from "./routes";
-import { Flame, Clock, Users, ArrowRight } from "lucide-react";
+import { Flame, Clock, Users } from "lucide-react";
 import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 export const mainLinks = [
@@ -19,8 +19,8 @@ export const mainLinks = [
     label: "Event 2026",
   },
   {
-    route: ROUTES.SPONSERS,
-    label: "Sponsers",
+    route: ROUTES.SPONSORS,
+    label: "Sponsors",
   },
   {
     route: ROUTES.TICKETS,
@@ -59,7 +59,7 @@ export const PILLARS = [
   {
     icon: Clock,
     title: "One Day. One Stage.",
-    text: "From 11 AM to 7 PM on July 31 at Ain Shams University — an immersive day where speakers, performers, and thinkers share a single spotlight.",
+    text: "From 11 AM to 7 PM on July 31 at Hilton Nile Maadi — an immersive day where speakers, performers, and thinkers share a single spotlight.",
   },
   {
     icon: Users,
@@ -71,24 +71,17 @@ export const PILLARS = [
 export const confirmedSponsors = [
   { id: 1, label: "EraaSoft", initials: "ES" },
   { id: 2, label: "NB Companies", initials: "NB" },
+  { id: 3, label: "Alorica Egypt", initials: "AE" },
 ];
 
 export const openTiers = [
   {
-    id: "visionary",
-    label: "Visionary",
-    symbol: "✦",
+    id: "strategic",
+    label: "Strategic",
+    symbol: "★",
     color:
-      "border-yellow-500/20 hover:border-yellow-400/35 hover:bg-yellow-400/[0.03]",
-    symbolColor: "text-yellow-400/40",
-  },
-  {
-    id: "platinum",
-    label: "Platinum",
-    symbol: "◈",
-    color:
-      "border-slate-400/20 hover:border-slate-300/35 hover:bg-slate-300/[0.03]",
-    symbolColor: "text-slate-300/40",
+      "border-red-500/20 hover:border-red-400/35 hover:bg-red-400/[0.03]",
+    symbolColor: "text-red-400/40",
   },
   {
     id: "gold",
@@ -105,6 +98,14 @@ export const openTiers = [
     color:
       "border-zinc-400/20 hover:border-zinc-300/35 hover:bg-zinc-300/[0.03]",
     symbolColor: "text-zinc-300/40",
+  },
+  {
+    id: "custom",
+    label: "Custom",
+    symbol: "◈",
+    color:
+      "border-violet-400/20 hover:border-violet-300/35 hover:bg-violet-300/[0.03]",
+    symbolColor: "text-violet-300/40",
   },
 ];
 

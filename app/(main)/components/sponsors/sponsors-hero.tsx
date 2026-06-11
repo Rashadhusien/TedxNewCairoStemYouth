@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import {
   SPONSOR_CONTACT_EMAIL,
   sponsorDocuments,
-  sponsorRoiStats,
 } from "@/constants/sponsors-page";
 import { cn } from "@/lib/utils";
 
@@ -45,12 +44,6 @@ export default function SponsorsHero() {
           { opacity: 0, y: 20 },
           { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 },
           "-=0.4",
-        )
-        .fromTo(
-          ".sp-hero-stat",
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.55, stagger: 0.08 },
-          "-=0.25",
         );
     },
     { scope: ref },
@@ -120,25 +113,6 @@ export default function SponsorsHero() {
               </Link>
             </Button>
           </div>
-        </div>
-
-        <div className="sp-hero-stat mx-auto mt-12 grid max-w-5xl grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-4">
-          {sponsorRoiStats.map((stat) => (
-            <div
-              key={stat.label}
-              className="flex flex-col gap-1 bg-card px-4 py-6 text-center sm:px-6 sm:py-8"
-            >
-              <span className="text-2xl font-black tabular-nums leading-none tracking-tight text-primary sm:text-3xl md:text-4xl">
-                {stat.value}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-foreground">
-                {stat.label}
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                {stat.detail}
-              </span>
-            </div>
-          ))}
         </div>
       </div>
     </section>

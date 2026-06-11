@@ -347,3 +347,24 @@
     0 0 20px rgba(255, 255, 255, 0.5),
     0 0 40px rgba(255, 255, 255, 0.2);
 }
+
+@utility perspective-1000 {
+  perspective: 1000px;
+}
+
+@utility preserve-3d {
+  transform-style: preserve-3d;
+}
+
+@utility backface-hidden {
+  backface-visibility: hidden;
+}
+
+@utility flip-back {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
+}
+
+@utility flip-active {
+  transform: rotateY(180deg);
+}

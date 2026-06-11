@@ -6,16 +6,10 @@ import { useGSAP } from "@gsap/react";
 
 import { teamDepartments } from "@/constants/team";
 
-const memberCount = teamDepartments.reduce((total, dept) => {
-  if (dept.type === "hub") {
-    return (
-      total +
-      1 +
-      dept.subDepartments.reduce((sub, group) => sub + group.members.length, 0)
-    );
-  }
-  return total + dept.members.length;
-}, 0);
+const memberCount = teamDepartments.reduce(
+  (total, dept) => total + dept.members.length,
+  0,
+);
 
 export default function AboutHeroStrip() {
   const ref = useRef<HTMLElement>(null);

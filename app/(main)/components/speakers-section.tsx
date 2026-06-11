@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 import { mainSpeakers, keyholders } from "@/constants/speakers";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -386,21 +385,21 @@ export default function SpeakersSection({
             id="speakers-heading"
             className="text-4xl md:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tight animate-on-scroll "
           >
-            Four Elements. One{" "}
+            The Voices. One{" "}
             <span className="text-tedred drop-shadow-[0_0_15px_rgba(230,0,0,0.2)]">
-              Explosion.
+              Stage.
             </span>
           </h2>
           <p className="text-white/45 text-sm sm:text-base max-w-[480px] mx-auto leading-relaxed animate-on-scroll ">
-            Our main speakers embody the classical elements — forces of nature
-            ready to ignite the darkness.
+            Six distinct voices — each carrying a unique dimension of human
+            potential, ready to ignite the darkness.
           </p>
         </div>
 
-        {/* ── Main 4 Element Speakers Grid ── */}
+        {/* ── Main Speakers Grid ── */}
         <div
           ref={mainGridRef}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-14"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14"
         >
           {mainSpeakers.map((speaker) => (
             <div
@@ -468,7 +467,7 @@ export default function SpeakersSection({
                 {/* Tagline — GSAP-animated expansion on hover */}
                 <div className="card-tagline overflow-hidden h-0 ">
                   <p className="text-white/70 text-[11px]  italic border-l border-white/20 pl-3 leading-relaxed">
-                    "{speaker.tagline}"
+                    &ldquo;{speaker.tagline}&rdquo;
                   </p>
                 </div>
               </div>

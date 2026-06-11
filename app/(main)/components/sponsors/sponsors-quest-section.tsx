@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
+import { Landmark, Cpu, GraduationCap, ShoppingBag } from "lucide-react";
 import { luminousQuestFeatures } from "@/constants/sponsors-page";
 import {
   Card,
@@ -13,6 +14,33 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SponsorsSectionHeader } from "./sponsors-section-header";
+
+const sectorExamples = [
+  {
+    icon: Landmark,
+    sector: "Banking & FinTech",
+    objective: "Financial Literacy",
+    activation: 'Gamified "Budgeting Challenge"',
+  },
+  {
+    icon: Cpu,
+    sector: "Tech & Telecom",
+    objective: "Innovation Image",
+    activation: "Tech Demo Hub + QR Quizzes",
+  },
+  {
+    icon: GraduationCap,
+    sector: "EdTech & Hiring",
+    objective: "Talent Acquisition",
+    activation: "CV Drop-off & Skills Survey",
+  },
+  {
+    icon: ShoppingBag,
+    sector: "FMCG",
+    objective: "Product Trial",
+    activation: "Interactive Sampling Station",
+  },
+];
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,6 +123,41 @@ export default function SponsorsQuestSection() {
             approves or rejects in real time → verified leads export after the
             event.
           </p>
+        </div>
+
+        <div className="mt-12">
+          <h3 className="text-center text-lg font-semibold text-foreground sm:text-xl">
+            Sector Tailoring
+          </h3>
+          <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-muted-foreground">
+            Every activation is customized to your industry goals — here are
+            some examples of how partners leverage the Quest Zone.
+          </p>
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {sectorExamples.map(({ icon: Icon, sector, objective, activation }) => (
+              <div
+                key={sector}
+                className="group relative overflow-hidden rounded-xl border border-border bg-card/60 p-5 transition-colors hover:border-primary/30 hover:bg-card sm:p-6"
+              >
+                <div
+                  className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100"
+                  aria-hidden
+                />
+                <div className="mb-4 flex size-10 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary">
+                  <Icon className="size-5" aria-hidden />
+                </div>
+                <h4 className="text-sm font-bold text-foreground">
+                  {sector}
+                </h4>
+                <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.15em] text-primary/70">
+                  {objective}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                  {activation}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

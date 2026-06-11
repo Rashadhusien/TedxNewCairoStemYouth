@@ -49,9 +49,9 @@ export default function TheaterParallax() {
             fontFamily: "'Bebas Neue', sans-serif",
           }}
         >
-          Ain Shams
+          Hilton Nile
           <br />
-          <span className="text-primary">University</span>
+          <span className="text-primary">Maadi</span>
         </motion.h2>
 
         <p className=" text-[10px] font-bold tracking-[0.2em] uppercase mb-5">
@@ -67,7 +67,7 @@ export default function TheaterParallax() {
         >
           <MapPin className="size-3 text-primary shrink-0" />
           <span className="text-[11px] font-semibold text-white/65 tracking-wide">
-            Faculty of Sciences, Ain Shams University · Cairo, Egypt
+            Hilton Nile Maadi — Grand Ballroom & Conference Hall · Cairo, Egypt
           </span>
         </motion.div>
       </div>

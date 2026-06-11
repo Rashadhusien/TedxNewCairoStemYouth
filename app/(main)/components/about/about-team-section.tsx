@@ -7,9 +7,7 @@ import { useGSAP } from "@gsap/react";
 
 import {
   teamDepartments,
-  type HubTeamDepartment,
   type StandardTeamDepartment,
-  type TeamDepartment,
 } from "@/constants/team";
 import { cn } from "@/lib/utils";
 import { AboutSectionHeader } from "./about-section-header";
@@ -66,6 +64,7 @@ function StandardDepartmentBlock({
   department: StandardTeamDepartment;
   index: number;
 }) {
+  const isCompact = department.members.length === 1;
   return (
     <div className="ab-dept-block mb-16 last:mb-0 sm:mb-20">
       <DepartmentHeader
@@ -75,92 +74,14 @@ function StandardDepartmentBlock({
       />
       <div className={getMemberGridClass(department.members.length)}>
         {department.members.map((member) => (
-          <TeamMemberCard key={member.id} member={member} />
+          <TeamMemberCard
+            key={member.id}
+            member={member}
+            compact={isCompact}
+          />
         ))}
       </div>
     </div>
-  );
-}
-
-function HubDepartmentBlock({
-  department,
-  index,
-}: {
-  department: HubTeamDepartment;
-  index: number;
-}) {
-  return (
-    <div className="ab-dept-block mb-16 last:mb-0 sm:mb-20">
-      <DepartmentHeader
-        index={index}
-        name={department.name}
-        description={department.description}
-      />
-
-      <div className="mb-8 overflow-hidden rounded-2xl border border-primary/20 bg-linear-to-br from-primary/10 via-card/80 to-card p-1 sm:mb-10">
-     
-        <TeamMemberCard
-          member={department.lead}
-          variant="lead"
-          className="border-0 bg-transparent shadow-none hover:border-0"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 max-sm:grid-cols-1 gap-8 xl:grid-cols-3 xl:gap-6">
-        {department.subDepartments.map((sub) => (
-          <div
-            key={sub.id}
-            className="flex flex-col rounded-xl border border-border bg-muted/20 p-5 sm:p-6"
-          >
-            <div className="mb-5 border-b border-border/80 pb-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary/80">
-                Sub-department
-              </p>
-              <h4 className="mt-1   text-lg font-bold  tracking-tight text-foreground sm:text-xl">
-                {sub.name}
-              </h4>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                {sub.description}
-              </p>
-              <p className="mt-3 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/80">
-                {sub.members.length} member
-                {sub.members.length === 1 ? "" : "s"}
-              </p>
-            </div>
-
-            <div className="flex flex-1 flex-col gap-4">
-              {sub.members.map((member) => (
-                <TeamMemberCard
-                  key={member.id}
-                  member={member}
-                  className="h-full"
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function renderDepartment(department: TeamDepartment, index: number) {
-  if (department.type === "hub") {
-    return (
-      <HubDepartmentBlock
-        key={department.id}
-        department={department}
-        index={index}
-      />
-    );
-  }
-
-  return (
-    <StandardDepartmentBlock
-      key={department.id}
-      department={department}
-      index={index}
-    />
   );
 }
 
@@ -209,10 +130,18 @@ export default function AboutTeamSection() {
               Meet the <span className="text-primary">light bearers</span>
             </>
           }
-          description="The humans behind TEDxNewCairoSTEMYouth—organized by department, with Social Media uniting creative, video, and content under one strategic hub."
+          description="The humans behind TEDxNewCairoSTEMYouth—organized by department, each one a vital part of the light."
         />
 
-        <div className="mt-4">{teamDepartments.map(renderDepartment)}</div>
+        <div className="mt-4">
+          {teamDepartments.map((department, index) => (
+            <StandardDepartmentBlock
+              key={department.id}
+              department={department}
+              index={index}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
