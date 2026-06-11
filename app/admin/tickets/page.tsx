@@ -1,6 +1,6 @@
 import { ticketColumns } from "@/components/admin/tables/tickets/columns";
 import { DataTable } from "@/components/admin/tables/data-table";
-import { TICKETS_STATUS } from "@/constants";
+import { TICKETS_STATUS } from "@/constants/select";
 import { ROUTES } from "@/constants/routes";
 import { listTickets } from "@/lib/db/actions/ticket.action";
 

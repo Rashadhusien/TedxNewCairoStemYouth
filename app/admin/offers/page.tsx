@@ -1,7 +1,7 @@
-import OfferFormDialog from "@/components/admin/offer-form-dialog";
+import OfferFormDialog from "@/components/admin/Dialogs/offer-form-dialog";
 import { DataTable } from "@/components/admin/tables/data-table";
 import { offerColumns } from "@/components/admin/tables/offers/page";
-import { OFFERS_STATUS } from "@/constants";
+import { OFFERS_STATUS } from "@/constants/select";
 import { ROUTES } from "@/constants/routes";
 import { listOffers } from "@/lib/db/actions/offer.action";
 import { SearchParams } from "@/types";

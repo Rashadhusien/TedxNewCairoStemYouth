@@ -72,7 +72,7 @@ export const sidebarItems: NavGroup[] = [
     items: [
       {
         title: "Sponsors",
-        url: ROUTES.ADMIN.SPONSORS,
+        url: ROUTES.ADMIN.SPONSORS.HOME,
         icon: LayersMinusIcon,
       },
     ],

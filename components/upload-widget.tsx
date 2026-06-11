@@ -1,8 +1,10 @@
+"use client";
 import { MAX_FILE_SIZE } from "@/constants";
-import type { UploadWidgetValue } from "@/types";
+import { UploadWidgetValue } from "@/types";
 import { UploadCloud, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { CldImage } from "next-cloudinary";
 
 interface ImageUploadWidgetProps {
   value?: UploadWidgetValue | null;
@@ -77,7 +79,7 @@ const ImageUploadWidget = ({
           cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
           uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET,
           multiple: false,
-          folder: "classroom",
+          folder: "tedx",
           maxFileSize: MAX_FILE_SIZE,
           clientAllowedFormats: ["png", "jpg", "jpeg", "webp"],
         },
@@ -129,7 +131,7 @@ const ImageUploadWidget = ({
     return (
       <div className="upload-preview">
         <div className="relative group">
-          <Image
+          <CldImage
             src={preview.url}
             alt="Image preview"
             width={400}

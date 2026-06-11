@@ -67,11 +67,11 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* <Script
+        <Script
           src="https://upload-widget.cloudinary.com/latest/global/all.js"
           type="text/javascript"
           strategy="beforeInteractive"
-        /> */}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider

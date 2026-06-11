@@ -4,7 +4,7 @@ import { formatPiastres } from "@/lib/pricing";
 import { ColumnDef } from "@tanstack/react-table";
 import { Coupon } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
-import CouponFormDialog from "../../coupon-form-dialog";
+import CouponFormDialog from "../../Dialogs/coupon-form-dialog";
 
 export const couponColumns: ColumnDef<Coupon>[] = [
   {

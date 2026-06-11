@@ -1,7 +1,7 @@
-import CouponFormDialog from "@/components/admin/coupon-form-dialog";
+import CouponFormDialog from "@/components/admin/Dialogs/coupon-form-dialog";
 import { couponColumns } from "@/components/admin/tables/coupons/columns";
 import { DataTable } from "@/components/admin/tables/data-table";
-import { COUPONS_STATUS } from "@/constants";
+import { COUPONS_STATUS } from "@/constants/select";
 import { ROUTES } from "@/constants/routes";
 import { listCoupons } from "@/lib/db/actions/coupon.action";
 import { SearchParams } from "@/types";

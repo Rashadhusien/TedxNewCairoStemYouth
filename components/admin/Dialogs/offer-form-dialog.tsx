@@ -40,6 +40,7 @@ import {
 } from "@/lib/pricing";
 import type { Offer } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
+import { OFFER_TYPES } from "@/constants/select";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -192,10 +193,14 @@ export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="early_bird">Early Bird</SelectItem>
-                      <SelectItem value="promotional">Promotional</SelectItem>
-                      <SelectItem value="group">Group</SelectItem>
-                      <SelectItem value="bundle">Bundle</SelectItem>
+                      {OFFER_TYPES.map((offerType) => (
+                        <SelectItem
+                          key={offerType.value}
+                          value={offerType.value}
+                        >
+                          {offerType.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </Field>

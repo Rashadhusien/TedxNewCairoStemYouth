@@ -162,7 +162,7 @@ export default function CouponFormDialog({ coupon }: CouponFormDialogProps) {
                   <FieldLabel>Type</FieldLabel>
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger>
-                      <SelectValue />
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="fixed">Fixed Amount (EGP)</SelectItem>

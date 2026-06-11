@@ -19,7 +19,11 @@ export const ROUTES = {
     USERS: "/admin/users",
     TICKETS: "/admin/tickets",
     COUPONS: "/admin/coupons",
-    SPONSORS: "/admin/sponsors",
+    SPONSORS: {
+      HOME: "/admin/sponsors",
+      CREATE: "/admin/sponsors/create",
+      EDIT: (id: string) => `/admin/sponsors/edit/${id}`,
+    },
     OFFERS: "/admin/offers",
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",

@@ -4,9 +4,9 @@ import { formatPiastres } from "@/lib/pricing";
 import { ColumnDef } from "@tanstack/react-table";
 import { Offer } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
-import CouponFormDialog from "../../coupon-form-dialog";
+import CouponFormDialog from "../../Dialogs/coupon-form-dialog";
 import { Infinity } from "lucide-react";
-import OfferFormDialog from "../../offer-form-dialog";
+import OfferFormDialog from "../../Dialogs/offer-form-dialog";
 
 export const offerColumns: ColumnDef<Offer>[] = [
   {
