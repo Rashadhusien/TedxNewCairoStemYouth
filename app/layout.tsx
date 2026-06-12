@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "sonner";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -95,6 +96,19 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZQHHHCSM3F"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZQHHHCSM3F');
+    `}
+        </Script>
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-full flex flex-col">
