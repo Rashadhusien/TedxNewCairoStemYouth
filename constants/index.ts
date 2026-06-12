@@ -186,11 +186,11 @@ export const socialLinks = [
     label: "LinkedIn",
     href: "https://www.linkedin.com/company/tedxnewcairostemyouth",
   },
-  {
-    icon: GlobeIcon,
-    label: "TikTok",
-    href: "https://www.tiktok.com/@tedxnewcairostemyouth",
-  },
+  // {
+  //   icon: GlobeIcon,
+  //   label: "TikTok",
+  //   href: "https://www.tiktok.com/@tedxnewcairostemyouth",
+  // },
   {
     icon: IconBrandWhatsappFilled,
     label: "WhatsApp",
@@ -204,6 +204,6 @@ export const socialLinks = [
   {
     icon: GlobeIcon,
     label: "Official TEDx Website",
-    href: "https://tedxnewcairostemyouth.com",
+    href: "https://www.ted.com/tedx/events/68964",
   },
 ];

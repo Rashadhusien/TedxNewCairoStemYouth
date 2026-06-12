@@ -3,21 +3,12 @@
 import { Button } from "@/components/ui/button";
 import { ExternalLink } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
-
-/** Maps hero scroll progress → playback rate with soft plateaus at start/end. */
-// function scrollProgressToPlaybackRate(progress: number) {
-//   const edge = 0.18;
-//   if (progress <= edge || progress >= 1 - edge) return 1;
-//   const inner = (progress - edge) / (1 - 2 * edge);
-//   const shaped = gsap.parseEase("power2.inOut")(inner);
-//   return 1 + shaped * 0.55;
-// }
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -28,148 +19,31 @@ const Hero = () => {
   const buttonsRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // useGSAP(
-  //   () => {
-  //     const video = videoRef.current;
-  //     const container = containerRef.current;
-  //     if (!video || !container) return;
-
-  //     const scrollTriggers: ScrollTrigger[] = [];
-
-  //     // ── Mount: fade in + gentle speed ramp (never 0× — browsers stutter) ──
-  //     gsap.set(video, { opacity: 0, playbackRate: 0.65, scale: 1.04 });
-  //     void video.play().catch(() => {});
-
-  //     const mountTl = gsap.timeline({ delay: 0.1 });
-  //     mountTl.to(video, {
-  //       opacity: 0.55,
-  //       playbackRate: 1,
-  //       scale: 1,
-  //       duration: 3.4,
-
-  //       ease: "power1.inOut",
-  //     });
-
-  //     // ── Entrance stagger ───────────────────────────────────────────────────
-  //     const entranceTl = gsap.timeline({ delay: 0.35 });
-
-  //     entranceTl
-  //       .fromTo(
-  //         overlayRef.current,
-  //         { opacity: 0 },
-  //         { opacity: 1, duration: 1.6, ease: "power2.out" },
-  //       )
-  //       .fromTo(
-  //         badgeRef.current,
-  //         { opacity: 0, y: -12, filter: "blur(4px)" },
-  //         {
-  //           opacity: 1,
-  //           y: 0,
-  //           filter: "blur(0px)",
-  //           duration: 0.85,
-  //           ease: "power3.out",
-  //         },
-  //         "-=1.1",
-  //       )
-  //       .fromTo(
-  //         headingRef.current,
-  //         { opacity: 0, y: 32, filter: "blur(6px)" },
-  //         {
-  //           opacity: 1,
-  //           y: 0,
-  //           filter: "blur(0px)",
-  //           duration: 1,
-  //           ease: "power3.out",
-  //         },
-  //         "-=0.55",
-  //       )
-  //       .fromTo(
-  //         paragraphRef.current,
-  //         { opacity: 0, y: 18 },
-  //         { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" },
-  //         "-=0.6",
-  //       )
-  //       .fromTo(
-  //         buttonsRef.current,
-  //         { opacity: 0, y: 16 },
-  //         { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" },
-  //         "-=0.5",
-  //       );
-
-  //     // ── Scroll → video speed (single quickTo, no stacked tweens) ───────────
-  //     // const setPlaybackRate = gsap.quickTo(video, "playbackRate", {
-  //     //   duration: 1.1,
-  //     //   ease: "power2.out",
-  //     // });
-
-  //     // const speedSt = ScrollTrigger.create({
-  //     //   trigger: container,
-  //     //   start: "top top",
-  //     //   end: "bottom top",
-  //     //   scrub: 2.6,
-  //     //   onUpdate: (self) => {
-  //     //     setPlaybackRate(scrollProgressToPlaybackRate(self.progress));
-  //     //   },
-  //     // });
-  //     // scrollTriggers.push(speedSt);
-
-  //     // Subtle zoom-out while scrolling — masks speed changes, feels cinematic
-  //     // const videoZoom = gsap.to(video, {
-  //     //   scale: 1.06,
-  //     //   ease: "none",
-  //     //   scrollTrigger: {
-  //     //     trigger: container,
-  //     //     start: "top top",
-  //     //     end: "bottom top",
-  //     //     scrub: true,
-  //     //   },
-  //     // });
-  //     // scrollTriggers.push(videoZoom.scrollTrigger!);
-
-  //     // ── Parallax (lighter + scrub lag) ───────────────────────────────────
-  //     const headingTween = gsap.to(headingRef.current, {
-  //       y: -36,
-  //       ease: "none",
-  //       scrollTrigger: {
-  //         trigger: container,
-  //         start: "top top",
-  //         end: "bottom top",
-  //         scrub: 1.6,
-  //       },
-  //     });
-  //     scrollTriggers.push(headingTween.scrollTrigger!);
-
-  //     const paragraphTween = gsap.to(paragraphRef.current, {
-  //       y: -18,
-  //       ease: "none",
-  //       scrollTrigger: {
-  //         trigger: container,
-  //         start: "top top",
-  //         end: "bottom top",
-  //         scrub: 1.6,
-  //       },
-  //     });
-  //     scrollTriggers.push(paragraphTween.scrollTrigger!);
-
-  //     return () => {
-  //       mountTl.kill();
-  //       entranceTl.kill();
-  //       scrollTriggers.forEach((st) => st.kill());
-  //       gsap.killTweensOf(video);
-  //     };
-  //   },
-  //   { scope: containerRef },
-  // );
+  const [videoReady, setVideoReady] = useState(false);
 
   return (
     <div ref={containerRef} className="relative h-screen overflow-hidden">
+      {/* Poster image shown until video can play */}
+      <Image
+        src="/images/hero-poster.jpeg"
+        alt="hero-poster"
+        fill
+        priority
+        className={`absolute -z-1 inset-0 object-cover aspect-auto will-change-[opacity,transform]  transition-opacity duration-700 ${
+          videoReady ? "opacity-0" : "opacity-100"
+        }`}
+      />
+
       <video
         ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
-        className="w-full absolute -z-1 inset-0 min-h-screen aspect-auto object-cover origin-center will-change-[opacity,transform]"
+        onCanPlay={() => setVideoReady(true)}
+        className={`w-full absolute -z-1 inset-0 min-h-screen aspect-auto object-cover origin-center will-change-[opacity,transform] transition-opacity duration-700 ${
+          videoReady ? "opacity-100" : "opacity-0"
+        }`}
       >
         <source src="/hero-theater.mp4" type="video/mp4" />
       </video>
@@ -221,11 +95,11 @@ const Hero = () => {
             ref={buttonsRef}
             className=" grid grid-cols-2 gap-4 w-full max-w-md max-sm:px-4"
           >
-            <Button className="py-6  sm:text-base cursor-pointer transition-transform active:scale-95">
+            <Button className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95">
               Explore the Experience
             </Button>
             <Button
-              className="py-6  sm:text-base transition-transform active:scale-95"
+              className="py-6 sm:text-base transition-transform active:scale-95"
               variant="outline"
             >
               Partner With Us
