@@ -18,22 +18,62 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
- title: 'TEDxNewCairoSTEMYouth — Luminous Darkness',
-  description: 'TEDxNewCairoSTEMYouth at Hilton Nile Maadi. Theme: Luminous Darkness. Even in the deepest darkness, there is always a hidden light inside every person.',
-  keywords: ['TEDx', 'TEDxNewCairoSTEM', 'Luminous Darkness', 'Hilton Nile Maadi', 'Cairo', 'STEM', 'Youth'],
-  authors: [{ name: 'TEDxNewCairoSTEMYouth' }],
-  metadataBase: new URL('https://tedxnewcairostemyouth.org'),
-  openGraph: {
-    title: 'TEDxNewCairoSTEMYouth — Luminous Darkness',
-    description: 'Discover the light hidden within the darkness. Join TEDxNewCairoSTEMYouth at Hilton Nile Maadi.',
-    url: 'https://tedxnewcairostemyouth.org',
-    siteName: 'TEDxNewCairoSTEMYouth',
-    type: 'website',
+  metadataBase: new URL("https://www.tedxnewcairostemyouth.org"),
+
+  title: {
+    default: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+    template: "%s | TEDxNewCairoSTEMYouth",
   },
+
+  description:
+    "TEDxNewCairoSTEMYouth 2026. Discover inspiring ideas, visionary speakers, and Egypt's brightest STEM youth under the theme Luminous Darkness.",
+
+  keywords: [
+    "TEDx",
+    "TEDxNewCairoSTEMYouth",
+    "TEDx Egypt",
+    "TEDx Cairo",
+    "Luminous Darkness",
+    "STEM",
+    "Youth",
+    "Innovation",
+    "Technology",
+    "Leadership",
+  ],
+
+  authors: [
+    {
+      name: "TEDxNewCairoSTEMYouth",
+    },
+  ],
+
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.tedxnewcairostemyouth.org",
+    siteName: "TEDxNewCairoSTEMYouth",
+    title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+    description:
+      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
+  },
+
   twitter: {
-    card: 'summary_large_image',
-    title: 'TEDxNewCairoSTEMYouth — Luminous Darkness',
-    description: 'Discover the light hidden within the darkness.',
+    card: "summary_large_image",
+    title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+    description:
+      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 

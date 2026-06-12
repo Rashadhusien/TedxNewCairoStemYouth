@@ -1,5 +1,9 @@
 import React from "react";
-
+export const metadata = {
+  title: "Privacy Policy",
+  description:
+    "Read the Privacy Policy of TEDxNewCairoSTEMYouth and learn how we collect, use, and protect your information.",
+};
 const sections = [
   {
     title: "Information We Collect",

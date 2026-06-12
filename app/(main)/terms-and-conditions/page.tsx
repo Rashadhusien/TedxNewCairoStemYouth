@@ -1,5 +1,9 @@
 import React from "react";
-
+export const metadata = {
+  title: "Terms & Conditions",
+  description:
+    "Review the terms and conditions governing participation in TEDxNewCairoSTEMYouth events and services.",
+};
 const sections = [
   {
     title: "1. Acceptance of Terms",

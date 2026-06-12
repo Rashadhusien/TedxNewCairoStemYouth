@@ -1,9 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-
+export const metadata = {
+  title: "Tickets",
+  description:
+    "Reserve your seat at TEDxNewCairoSTEMYouth 2026 and experience a day filled with ideas worth spreading.",
+};
 const Tickets = () => {
-  return     <div className="bg-black min-h-screen flex flex-col items-center justify-center overflow-hidden relative py-20">
+  return (
+    <div className="bg-black min-h-screen flex flex-col items-center justify-center overflow-hidden relative py-20">
       {/* Ambient */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/8 blur-[120px]" />
@@ -83,7 +88,9 @@ const Tickets = () => {
               <div className="text-white/20 text-xs tracking-widest mb-1">
                 DATE
               </div>
-              <div className="text-primary font-bold text-sm">July 31, 2026</div>
+              <div className="text-primary font-bold text-sm">
+                July 31, 2026
+              </div>
             </div>
             <div className="hidden md:block h-10 w-px border-l border-dashed border-white/10" />
             <div className="text-center md:text-right">
@@ -122,7 +129,8 @@ const Tickets = () => {
           </Link>
         </motion.div>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Tickets;

@@ -1,15 +1,13 @@
-import type { Metadata } from "next";
-
 import SectionTitle from "@/components/layout/section-title";
 import AboutHeroStrip from "../components/about/about-hero-strip";
 import AboutStorySection from "../components/about/about-story-section";
 import AboutTeamSection from "../components/about/about-team-section";
 import AboutTedxSection from "../components/about/about-tedx-section";
 
-export const metadata: Metadata = {
-  title: "About Us | TEDxNewCairoSTEMYouth",
+export const metadata = {
+  title: "About Us",
   description:
-    "Meet the team behind TEDxNewCairoSTEMYouth—an independently organized TEDx event licensed by TED, built for Egypt's brightest young STEM minds.",
+    "Learn more about TEDxNewCairoSTEMYouth, our mission, vision, and commitment to empowering Egypt's future leaders.",
 };
 
 export default function AboutPage() {

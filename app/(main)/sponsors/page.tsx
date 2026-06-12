@@ -11,10 +11,10 @@ import SponsorsRoiSection from "../components/sponsors/sponsors-roi-section";
 import SponsorsSponsorsSection from "../components/sponsors/sponsors-sponsors-section";
 import SponsorsTiersSection from "../components/sponsors/sponsors-tiers-section";
 
-export const metadata: Metadata = {
-  title: "Sponsors & Partners | TEDxNewCairoSTEMYouth",
+export const metadata = {
+  title: "Sponsors & Partners",
   description:
-    "Partner with TEDxNewCairoSTEMYouth for measurable ROI, verified Gen-Z STEM leads, and flagship visibility at Egypt's premier youth ideas conference.",
+    "Partner with TEDxNewCairoSTEMYouth and connect with Egypt's brightest STEM youth through impactful sponsorship opportunities.",
 };
 
 export default function SponsorsPage() {
