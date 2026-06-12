@@ -69,9 +69,39 @@ export const PILLARS = [
 ] as const;
 
 export const confirmedSponsors = [
-  { id: 1, label: "EraaSoft", initials: "ES" },
-  { id: 2, label: "NB Companies", initials: "NB" },
-  { id: 3, label: "Alorica Egypt", initials: "AE" },
+  // {
+  //   id: 1,
+  //   label: "EraaSoft",
+  //   logo: "/images/sponsor/eraa-soft.jpeg",
+  //   initials: "ES",
+  // },
+  {
+    id: 1,
+    label: "NB Companies",
+    logo: "/images/sponsor/nb.jpeg",
+    description: "marketing and communication agency",
+    initials: "NB",
+  },
+  {
+    id: 2,
+    label: "soon",
+    // logo: "/images/sponsor/nb.jpeg",
+    description: "coming soon with great impact ",
+    initials: "?",
+  },
+  {
+    id: 3,
+    label: "soon",
+    // logo: "/images/sponsor/nb.jpeg",
+    description: "coming soon with great impact",
+    initials: "?",
+  },
+  // {
+  //   id: 3,
+  //   label: "Alorica Egypt",
+  //   // logo: "/images/sponsor/alorica.jpeg",
+  //   initials: "AE",
+  // },
 ];
 
 export const openTiers = [
@@ -79,8 +109,7 @@ export const openTiers = [
     id: "strategic",
     label: "Strategic",
     symbol: "★",
-    color:
-      "border-red-500/20 hover:border-red-400/35 hover:bg-red-400/[0.03]",
+    color: "border-red-500/20 hover:border-red-400/35 hover:bg-red-400/[0.03]",
     symbolColor: "text-red-400/40",
   },
   {
@@ -110,9 +139,9 @@ export const openTiers = [
 ];
 
 export const stats = [
-  { value: "1000+", label: "STEM Youth" },
-  { value: "14", label: "Speakers" },
+  { value: "11", label: "Speakers" },
   { value: "8hrs", label: "Of Ideas" },
+  { value: "1000+", label: "STEM Youth" },
 ];
 
 // major skills

@@ -383,10 +383,10 @@ export default function SpeakersSection({
           </div>
           <h2
             id="speakers-heading"
-            className="text-4xl md:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tight animate-on-scroll "
+            className="text-2xl md:text-6xl font-black text-white mb-6 leading-[1.05] tracking-tight animate-on-scroll "
           >
-            The Voices. One{" "}
-            <span className="text-tedred drop-shadow-[0_0_15px_rgba(230,0,0,0.2)]">
+            The Voices One{" "}
+            <span className="text-primary drop-shadow-[0_0_15px_rgba(230,0,0,0.2)]">
               Stage.
             </span>
           </h2>
@@ -397,6 +397,77 @@ export default function SpeakersSection({
         </div>
 
         {/* ── Main Speakers Grid ── */}
+        {/* <div
+          ref={mainGridRef}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14"
+        >
+          {mainSpeakers.map((speaker) => (
+            <div
+              key={speaker.id}
+              className="group/card speaker-card relative h-[480px] lg:h-[420px] overflow-hidden rounded border border-white/5 bg-neutral-950/70 backdrop-blur-sm transition-shadow duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer animate-on-scroll "
+              onMouseMove={onMouseMoveMain}
+              onMouseEnter={onMouseEnterCard}
+              onMouseLeave={(e) => {
+                onMouseLeaveMain(e);
+                onMouseLeaveCard(e);
+              }}
+            >
+              <div
+                className={`card-border absolute inset-0 rounded pointer-events-none  z-1 bg-linear-to-br ${speaker.accent} p-px`}
+              />
+              <div className="absolute inset-px bg-[#070707]/95 rounded z-2" />
+
+              <div
+                className="card-glow pointer-events-none absolute left-0 top-0  z-3 w-96 h-96 rounded-full blur-3xl"
+                style={{
+                  background: `radial-gradient(circle, ${GLOW_COLORS[speaker.id]} 0%, transparent 70%)`,
+                }}
+              />
+
+              <div className="absolute inset-0 rounded overflow-hidden z-3">
+                <GridTexture />
+              </div>
+
+              <div className="card-symbol absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[-60%] font-black text-[120px] leading-none opacity-[0.03] select-none pointer-events-none z-3 transition-all">
+                {speaker.symbol}
+              <div className="card-symbol absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[-60%] font-black text-[120px] leading-none opacity-[0.03] select-none pointer-events-none z-3 transition-all">
+                {speaker.symbol}
+              </div>
+
+              <Image
+                src={speaker.image}
+                alt={speaker.name}
+                width={400}
+                height={400}
+                className="card-image absolute inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all"
+              />
+
+              <div className="absolute inset-0 bg-linear-to-t from-black via-black/35 to-transparent flex flex-col justify-end p-6 sm:p-7 z-5">
+                <div className="mb-3">
+                  <span
+                    className={`inline-block px-3 py-1 text-[9px] font-black tracking-[0.25em] uppercase rounded-full bg-white/03 border border-white/08 transition-colors duration-300 ${speaker.roleColor}`}
+                  >
+                    {speaker.role}
+                  </span>
+                </div>
+
+                <h3 className="font-black text-white text-xl lg:text-3xl leading-tight tracking-tight mb-1.5">
+                  {speaker.name}
+                </h3>
+                <p className="text-white/40 text-[12px] font-medium tracking-wide">
+                  {speaker.description}
+                </p>
+
+                <div className="card-tagline overflow-hidden h-0 ">
+                  <p className="text-white/70 text-[11px]  italic border-l border-white/20 pl-3 leading-relaxed">
+                    &ldquo;{speaker.tagline}&rdquo;
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div> */}
+
         <div
           ref={mainGridRef}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14"
@@ -433,18 +504,22 @@ export default function SpeakersSection({
               </div>
 
               {/* Large element symbol behind text */}
-              <div className="card-symbol absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-[-60%] font-black text-[120px] leading-none opacity-[0.03] select-none pointer-events-none z-3 transition-all">
+              {/* <div className="card-symbol absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-black text-[120px] leading-none opacity-[0.03] select-none pointer-events-none z-3 transition-all">
                 {speaker.symbol}
-              </div>
+              </div> */}
 
               {/* Speaker Grayscale to Color Image */}
-              <Image
+              {/* <Image
                 src={speaker.image}
                 alt={speaker.name}
                 width={400}
                 height={400}
                 className="card-image absolute inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all"
-              />
+              /> */}
+
+              <span className="card-image absolute flex items-center justify-center text-9xl inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all">
+                ?
+              </span>
 
               {/* Content overlay */}
               <div className="absolute inset-0 bg-linear-to-t from-black via-black/35 to-transparent flex flex-col justify-end p-6 sm:p-7 z-5">
@@ -457,8 +532,9 @@ export default function SpeakersSection({
                   </span>
                 </div>
 
-                <h3 className="font-black text-white text-2xl lg:text-3xl leading-tight tracking-tight mb-1.5">
-                  {speaker.name}
+                <h3 className="font-black text-white text-xl lg:text-3xl leading-tight tracking-tight mb-1.5">
+                  {/* {speaker.name} */}
+                  <span className="text-white/40">-</span>
                 </h3>
                 <p className="text-white/40 text-[12px] font-medium tracking-wide">
                   {speaker.description}
@@ -496,7 +572,7 @@ export default function SpeakersSection({
         )}
 
         {/* ── Keyholders Grid ── */}
-        {!hideKeyholders && (
+        {/* {!hideKeyholders && (
           <div
             ref={keyholdersGridRef}
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 mb-16"
@@ -508,17 +584,14 @@ export default function SpeakersSection({
                 onMouseEnter={onMouseEnterKeyholder}
                 onMouseLeave={onMouseLeaveKeyholder}
               >
-                {/* Red sweep line on hover */}
-                <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-tedred z-5 scale-x-0 origin-left" />
+                <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-primary z-5 scale-x-0 origin-left" />
 
-                {/* Initials background watermark */}
                 <div className="absolute inset-0 bg-white/1 flex items-center justify-center z-2">
                   <span className="font-black text-6xl text-white/3 select-none transition-colors duration-300">
                     {k.initials}
                   </span>
                 </div>
 
-                {/* Keyholder Image */}
                 <Image
                   src={k.image}
                   alt={k.name}
@@ -527,7 +600,6 @@ export default function SpeakersSection({
                   className="key-image absolute inset-0 w-full h-full object-cover opacity-15 grayscale select-none pointer-events-none z-3"
                 />
 
-                {/* Neon Key icon */}
                 <div className="absolute top-3.5 right-3.5 z-5 bg-black/40 border border-white/5 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-xs">
                   <svg
                     className="key-icon opacity-15 stroke-white"
@@ -546,18 +618,84 @@ export default function SpeakersSection({
                   </svg>
                 </div>
 
-                {/* Info overlay */}
                 <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-4 z-4">
-                  <span className="text-tedred/60 text-[9px] font-black tracking-[0.2em] uppercase mb-1 line-clamp-1">
+                  <span className="text-primary/60 text-[9px] font-black tracking-[0.2em] uppercase mb-1 line-clamp-1">
                     {k.role}
                   </span>
                   <h3 className="text-white text-[13px] font-black leading-snug tracking-tight">
                     {k.name}
                   </h3>
 
-                  {/* Expand tagline on hover using GSAP */}
                   <div className="key-tagline overflow-hidden h-0 ">
-                    <p className="text-white/40 text-[9.5px] leading-snug border-l border-tedred/30 pl-2">
+                    <p className="text-white/40 text-[9.5px] leading-snug border-l border-primary/30 pl-2">
+                      {k.tagline}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )} */}
+        {!hideKeyholders && (
+          <div
+            ref={keyholdersGridRef}
+            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 mb-16"
+          >
+            {keyholders.map((k) => (
+              <div
+                key={k.id}
+                className="group/keyholder key-border relative aspect-3/4 overflow-hidden rounded border border-white/5 bg-[#060606]/95 backdrop-blur-md cursor-pointer animate-on-scroll "
+                onMouseEnter={onMouseEnterKeyholder}
+                onMouseLeave={onMouseLeaveKeyholder}
+              >
+                <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-primary z-5 scale-x-0 origin-left" />
+
+                <div className="absolute inset-0 bg-white/1 flex items-center justify-center z-2">
+                  <span className="font-black text-6xl text-white/3 select-none transition-colors duration-300">
+                    {k.initials}
+                  </span>
+                </div>
+
+                {/* <Image
+                  src={k.image}
+                  alt={k.name}
+                  width={400}
+                  height={400}
+                  className="key-image absolute inset-0 w-full h-full object-cover opacity-15 grayscale select-none pointer-events-none z-3"
+                /> */}
+                <span className="card-image absolute flex items-center justify-center text-9xl inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all">
+                  ?
+                </span>
+
+                <div className="absolute top-3.5 right-3.5 z-5 bg-black/40 border border-white/5 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-xs">
+                  <svg
+                    className="key-icon opacity-15 stroke-white"
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="7" cy="7" r="4" />
+                    <line x1="10.83" y1="10.83" x2="20" y2="20" />
+                    <line x1="18" y1="18" x2="20" y2="20" />
+                    <line x1="15" y1="15" x2="16" y2="16" />
+                  </svg>
+                </div>
+
+                <div className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-transparent flex flex-col justify-end p-4 z-4">
+                  <span className="text-primary/60 text-[9px] font-black tracking-[0.2em] uppercase mb-1 line-clamp-1">
+                    {k.role}
+                  </span>
+                  <h3 className="text-white text-[13px] font-black leading-snug tracking-tight">
+                    {/* {k.name} */}
+                    soon
+                  </h3>
+
+                  <div className="key-tagline overflow-hidden h-0 ">
+                    <p className="text-white/40 text-[9.5px] leading-snug border-l border-primary/30 pl-2">
                       {k.tagline}
                     </p>
                   </div>

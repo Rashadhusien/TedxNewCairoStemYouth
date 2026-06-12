@@ -72,14 +72,12 @@ export default function SponsorsHero() {
           <p className="sp-hero-eyebrow mb-5 text-[11px] font-medium uppercase tracking-[0.3em] text-primary">
             An investment in Egypt&apos;s future
           </p>
-          <h1 className="sp-hero-title   text-4xl font-extrabold uppercase leading-[0.92] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-            <span className="block">Sponsors &</span>
-            <span className="block text-primary">Partners</span>
+          <h1 className="sp-hero-title   text-4xl font-extrabold  leading-[0.92] tracking-tight text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
+            Sponsors & <span className="text-primary">Partners</span>
           </h1>
           <p className="sp-hero-lead mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
-            Move beyond brand awareness. Partner with TEDxNewCairoSTEMYouth for
-            unprecedented access, measurable ROI, and actionable intelligence on
-            Egypt&apos;s brightest Gen-Z innovators.
+            Move beyond brand awareness. Partner with us for actionable
+            intelligence on Egypt&apos;s brightest Gen-Z innovators.
           </p>
 
           <div className="sp-hero-actions mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">

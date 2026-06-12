@@ -20,7 +20,7 @@ export const metadata: Metadata = {
 export default function SponsorsPage() {
   return (
     <div className="pt-24">
-      <div className="container mx-auto px-4 pb-10 sm:px-6 lg:px-8">
+      {/* <div className="container mx-auto px-4 pb-10 sm:px-6 lg:px-8">
         <SectionTitle
           eyebrow="Partnerships"
           title="Sponsors & Partners"
@@ -32,12 +32,12 @@ export default function SponsorsPage() {
             Hilton Nile Maadi — Cairo
           </span>
         </div>
-      </div>
+      </div> */}
 
       <SponsorsHero />
       <SponsorsRoiSection />
       <SponsorsQuestSection />
-      <SponsorsSponsorsSection />
+      {/* <SponsorsSponsorsSection /> */}
       <SponsorsPartnersSection />
       <SponsorsJourneySection />
       <SponsorsTiersSection />

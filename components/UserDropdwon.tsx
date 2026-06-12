@@ -16,13 +16,16 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import UserAvatar from "./UserAvatar";
 import { ROUTES } from "@/constants/routes";
 import { signOutAction } from "@/lib/db/actions/auth.action";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Separator } from "./ui/separator";
 
 function getDisplayName(session: Session) {
   return session.user.name ?? session.user.email?.split("@")[0] ?? "Account";
@@ -36,6 +39,7 @@ export function UserDropdown({
   isMobile?: boolean;
 }) {
   const role = session.user.role;
+  const user = session.user;
   const displayName = getDisplayName(session);
 
   return (
@@ -74,6 +78,27 @@ export function UserDropdown({
         align="end"
         className={cn("w-48 min-w-0", isMobile && "w-56")}
       >
+        {" "}
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar className="h-8 w-8 rounded-full">
+              <AvatarImage
+                src={user.image || undefined}
+                alt={user.name || "user name"}
+              />
+              <AvatarFallback className="rounded-full">
+                {getInitials(user.name || "U")}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-muted-foreground text-xs">
+                {user.email}
+              </span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <Separator />
         <DropdownMenuGroup className="p-1">
           {role === "admin" && (
             <DropdownMenuItem asChild>
@@ -86,7 +111,7 @@ export function UserDropdown({
               </Link>
             </DropdownMenuItem>
           )}
-          <DropdownMenuItem asChild>
+          {/* <DropdownMenuItem asChild>
             <Link
               href={ROUTES.HOME}
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm"
@@ -94,9 +119,8 @@ export function UserDropdown({
               <BadgeCheckIcon className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Profile</span>
             </Link>
-          </DropdownMenuItem>
+          </DropdownMenuItem> */}
         </DropdownMenuGroup>
-        <DropdownMenuSeparator className="my-1" />
         <DropdownMenuItem
           onClick={() =>
             signOut({

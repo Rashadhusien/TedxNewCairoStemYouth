@@ -65,7 +65,7 @@ export function SponsorsSectionHeader({
         {eyebrow}
         <span className="block h-px w-8 shrink-0 bg-primary/60" aria-hidden />
       </div>
-      <h2 className="  text-3xl font-extrabold  leading-[0.95] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+      <h2 className="  text-2xl font-extrabold  leading-[0.95] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-[3.25rem]">
         {title}
       </h2>
       {description ? (

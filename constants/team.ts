@@ -88,7 +88,7 @@ export const teamDepartments: StandardTeamDepartment[] = [
           instagram: "",
           phone: "01060802741",
         },
-        image: "/images/team/mohamed-boghdady.png",
+        image: "/images/team/mohamed-boghdady.jpeg",
       },
     ],
   },
@@ -118,8 +118,7 @@ export const teamDepartments: StandardTeamDepartment[] = [
     type: "standard",
     id: "social-media",
     name: "Social Media",
-    description:
-      "Broadcasting the light to every corner of the digital world.",
+    description: "Broadcasting the light to every corner of the digital world.",
     members: [
       {
         id: "aml",
@@ -247,13 +246,17 @@ export const teamDepartments: StandardTeamDepartment[] = [
         id: "radwa-khaled",
         name: "Radwa Khaled",
         role: "Content Writing Leader",
-        description: "",
+        description:
+          "A content writer with a passion for storytelling and a talent for crafting engaging narratives. With a background in journalism and a love for words, she brings creativity and precision to every piece of content she creates.",
         social: {
-          linkedin: "",
+          linkedin:
+            "https://www.linkedin.com/in/radwa-khaled-3184b3214?utm_source=share_via&utm_content=profile&utm_medium=member_ios",
+          facebook:
+            "https://www.facebook.com/share/1JavAUBeXZ/?mibextid=wwXIfr",
+          phone: "01099301627",
           instagram: "",
-          phone: "",
         },
-        image: null,
+        image: "/images/team/radwa.jpeg",
       },
       {
         id: "hager-saber",
@@ -293,11 +296,14 @@ export const teamDepartments: StandardTeamDepartment[] = [
         id: "mathew",
         name: "Mathew",
         role: "Video Editor",
-        description: "",
+        description:
+          "passionate about transforming ideas and stories into vibrant visual experiences",
         social: {
           linkedin: "",
-          instagram: "",
-          phone: "",
+          instagram:
+            "https://www.instagram.com/matthew_maged2?igsh=bDIybmM5OGRvZmhx",
+          phone: "01220372215",
+          facebook: "https://www.facebook.com/share/1Ah5dSFVZK/",
         },
         image: null,
       },
@@ -343,7 +349,7 @@ export const teamDepartments: StandardTeamDepartment[] = [
           instagram: "",
           phone: "",
         },
-        image: null,
+        image: "/images/team/belal.jpeg",
       },
       {
         id: "abdallah-mohamed",

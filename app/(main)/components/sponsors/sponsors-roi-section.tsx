@@ -108,10 +108,10 @@ export default function SponsorsRoiSection() {
                   className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100"
                   aria-hidden
                 />
-                <p className="text-3xl font-black tabular-nums leading-none text-foreground sm:text-4xl">
+                <p className="text-xl font-black tabular-nums leading-none text-foreground sm:text-4xl">
                   {stat.value}
                 </p>
-                <p className="mt-2 text-xs font-bold uppercase tracking-[0.18em] text-primary">
+                <p className="mt-2 text-xs font-bold uppercase  text-primary">
                   {stat.label}
                 </p>
                 <p className="mt-1 text-[11px] text-muted-foreground">

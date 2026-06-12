@@ -18,7 +18,7 @@ const Event = () => {
 
       <ThemeSection />
 
-      <TheaterParallax />
+      {/* <TheaterParallax /> */}
 
       <SpeakersSection hideExploreLink={true} />
 

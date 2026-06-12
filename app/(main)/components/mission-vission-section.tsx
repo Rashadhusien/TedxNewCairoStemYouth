@@ -26,7 +26,7 @@ const MissionVisionSection = () => {
 
       <div className="relative max-w-7xl mx-auto">
         {/* Intro */}
-          {/* <motion.div
+        {/* <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -54,17 +54,17 @@ const MissionVisionSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="rounded border bg-card/50 backdrop-blur-sm p-8"
+            className="rounded border bg-card/50 backdrop-blur-sm p-4 sm:p-8"
           >
             <span className="text-primary uppercase tracking-[0.3em] text-sm">
               Our Purpose
             </span>
 
-            <h3 className="text-4xl md:text-5xl font-bold mt-3 mb-6">
+            <h3 className="text-2xl sm:text-4xl md:text-5xl font-bold mt-3 mb-6">
               Mission
             </h3>
 
-            <p className="text-lg leading-relaxed text-muted-foreground">
+            <p className="text-sm sm:text-lg leading-relaxed text-muted-foreground">
               To create a transformative platform where Egypt's brightest young
               minds can share ideas that matter. We curate experiences that
               challenge conventional thinking and ignite innovation in every
@@ -107,15 +107,17 @@ const MissionVisionSection = () => {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="rounded border bg-card/50 backdrop-blur-sm p-8"
+            className="rounded border bg-card/50 backdrop-blur-sm p-4 sm:p-8"
           >
-            <span className="text-primary uppercase tracking-[0.3em] text-sm">
+            <span className="text-primary uppercase tracking-[0.3em] text-lg">
               Our Future
             </span>
 
-            <h3 className="text-4xl md:text-5xl font-bold mt-3 mb-6">Vision</h3>
+            <h3 className="text-2xl sm:text-4xl md:text-5xl font-bold mt-3 mb-6">
+              Vision
+            </h3>
 
-            <p className="text-lg leading-relaxed text-muted-foreground">
+            <p className="text-sm sm:text-lg leading-relaxed text-muted-foreground">
               A generation that doesn't fear the dark because they know they
               carry the light. We envision a future where every young Egyptian
               discovers that their voice is powerful and their ideas can change

@@ -187,21 +187,21 @@ const Hero = () => {
         <div className="flex flex-col gap-4 mt-[140px] sm:mt-[160px] items-center">
           <div ref={badgeRef} className="">
             <div className="inline-flex items-center gap-1.5 text-[12px] tracking-[0.06em] text-white/55 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm">
-              Official TEDx Event —{" "}
+              Visit Our —{" "}
               <Link
                 href="https://www.ted.com/tedx/events/68964"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary font-medium hover:underline inline-flex items-center gap-1 transition-opacity hover:opacity-80"
               >
-                ted.com <ExternalLink className="size-3" />
+                Official Page on TED <ExternalLink className="size-3" />
               </Link>
             </div>
           </div>
 
           <h1
             ref={headingRef}
-            className=" text-3xl sm:text-6xl  font-extrabold text-center leading-tight"
+            className=" text-2xl sm:text-6xl  font-extrabold text-center leading-tight"
           >
             Without darkness <br />
             <span className="text-glow-white">Light </span> has no meaning.
@@ -212,9 +212,7 @@ const Hero = () => {
             className=" text-sm md:text-base max-w-2xl mx-auto leading-relaxed mb-6 text-center text-white/70"
           >
             When others saw despair, we saw potential.{" "}
-            <span className="text-primary font-medium">
-              TEDxNewCairoSTEMYouth
-            </span>{" "}
+            <span className=" font-bold">TEDxNewCairoSTEMYouth</span>{" "}
             <br className="hidden sm:block" />
             exists to turn darkness into light and ideas into impact.
           </p>
@@ -223,11 +221,11 @@ const Hero = () => {
             ref={buttonsRef}
             className=" grid grid-cols-2 gap-4 w-full max-w-md max-sm:px-4"
           >
-            <Button className="py-6 text-sm sm:text-base cursor-pointer transition-transform active:scale-95">
+            <Button className="py-6  sm:text-base cursor-pointer transition-transform active:scale-95">
               Explore the Experience
             </Button>
             <Button
-              className="py-6 text-sm sm:text-base transition-transform active:scale-95"
+              className="py-6  sm:text-base transition-transform active:scale-95"
               variant="outline"
             >
               Partner With Us

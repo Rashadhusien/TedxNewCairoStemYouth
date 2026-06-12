@@ -1,7 +1,6 @@
 import type { Session } from "next-auth";
 import Link from "next/link";
 import Image from "next/image";
-import { MenuIcon } from "@animateicons/react/lucide";
 
 import { UserDropdown } from "@/components/UserDropdwon";
 import { Button } from "@/components/ui/button";
@@ -16,6 +15,7 @@ import {
 import { ROUTES } from "@/constants/routes";
 
 import NavLinks from "./NavLinks";
+import { Menu } from "lucide-react";
 
 const MobileNavigation = async ({ session }: { session: Session | null }) => {
   return (
@@ -27,12 +27,7 @@ const MobileNavigation = async ({ session }: { session: Session | null }) => {
           className="lg:hidden rounded-lg cursor-pointer"
           aria-label="Open navigation menu"
         >
-          <MenuIcon
-            size={80}
-            duration={1}
-            color="#ffffff"
-            className="size-20"
-          />
+          <Menu className="size-5" />
         </Button>
       </SheetTrigger>
 
@@ -72,7 +67,9 @@ const MobileNavigation = async ({ session }: { session: Session | null }) => {
             <>
               <SheetClose asChild>
                 <Link href={ROUTES.LOGIN} className="w-full">
-                  <Button className="w-full rounded-lg h-9 text-sm">Log in</Button>
+                  <Button className="w-full rounded-lg h-9 text-sm">
+                    Log in
+                  </Button>
                 </Link>
               </SheetClose>
               <SheetClose asChild>

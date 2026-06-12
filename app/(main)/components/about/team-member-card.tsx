@@ -124,6 +124,8 @@ export function TeamMemberCard({
                 src={member.image}
                 alt={member.name}
                 fill
+                priority
+                quality={80}
                 className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
               />
             ) : (
