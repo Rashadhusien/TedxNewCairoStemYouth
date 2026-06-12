@@ -1,11 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import Link from "next/link";
-export const metadata = {
-  title: "Tickets",
-  description:
-    "Reserve your seat at TEDxNewCairoSTEMYouth 2026 and experience a day filled with ideas worth spreading.",
-};
+
 const Tickets = () => {
   return (
     <div className="bg-black min-h-screen flex flex-col items-center justify-center overflow-hidden relative py-20">
