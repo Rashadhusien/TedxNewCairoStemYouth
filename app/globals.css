@@ -350,17 +350,15 @@
   }
 }
 
-.upload-preview {
+/* .upload-preview {
   @apply relative w-full;
 
   img {
     @apply size-full object-cover rounded-md;
   }
 
-  button {
-    @apply absolute top-2 right-3 z-10 cursor-pointer;
-  }
-}
+
+} */
 
 @utility flex-center {
   @apply flex justify-center items-center;

@@ -129,14 +129,14 @@ const ImageUploadWidget = ({
     if (!preview) return null;
 
     return (
-      <div className="upload-preview">
+      <div className="relative w-full">
         <div className="relative group">
           <CldImage
             src={preview.url}
             alt="Image preview"
             width={400}
             height={128}
-            className="w-full h-32 object-cover rounded-lg border"
+            className="w-full size-full object-cover rounded-lg border"
           />
           {!disabled && (
             <button
@@ -165,7 +165,7 @@ const ImageUploadWidget = ({
         renderPreview()
       ) : (
         <div
-          className="upload-dropzone"
+          className="flex flex-col items-center justify-center gap-4 min-h-40 border-2 border-dashed border-foreground/20 bg-primary/5 w-full mt-3 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed rounded-md"
           role="button"
           tabIndex={0}
           onClick={openWidget}
@@ -176,8 +176,8 @@ const ImageUploadWidget = ({
             }
           }}
         >
-          <div className="upload-prompt">
-            <UploadCloud className="icon" />
+          <div className="flex flex-col items-center justify-center gap-4 p-5">
+            <UploadCloud className="size-10 text-primary" />
             <p>Click to upload image</p>
             <p>PNG, JPG, WebP up to 3MB</p>
           </div>
