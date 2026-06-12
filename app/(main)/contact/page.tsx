@@ -1,40 +1,36 @@
 import SectionTitle from "@/components/layout/section-title";
 import ContactForm from "@/components/main/forms/contact-form";
 import { socialLinks } from "@/constants";
-
+export const metadata = {
+  title: "Contact Us",
+  description:
+    "Get in touch with the TEDxNewCairoSTEMYouth team for partnerships, sponsorships, media inquiries, and event information.",
+};
 const Contact = () => {
-
   return (
-      <div className="bg-black min-h-screen">
+    <div className="bg-black min-h-screen">
       {/* PAGE HERO */}
       <section className="relative pt-28  overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0000] to-black pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
 
-       <SectionTitle 
-       eyebrow="Reach Out"
-       title="Let&apos;s Connect"
-       subTitle="Whether you want to sponsor, partner, or simply learn more — we are listening."
-       />
+        <SectionTitle
+          eyebrow="Reach Out"
+          title="Let's Connect"
+          subTitle="Whether you want to sponsor, partner, or simply learn more — we are listening."
+        />
       </section>
 
       {/* FORM + SOCIAL */}
       <section className="relative py-16">
         <div className="max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-5 gap-16">
           {/* Form — 3 cols */}
-          <div
-          
-            className="lg:col-span-3"
-          >
-         
+          <div className="lg:col-span-3">
             <ContactForm />
           </div>
 
           {/* Sidebar — 2 cols */}
-          <div
-           
-            className="lg:col-span-2 space-y-8"
-          >
+          <div className="lg:col-span-2 space-y-8">
             {/* Direct contact */}
             {/* <div className="p-6 border border-white/5 bg-white/1 rounded-sm">
               <h3 className="text-white font-bold text-sm tracking-wide mb-4">

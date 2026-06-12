@@ -69,7 +69,7 @@ export default function SponsorsTiersSection() {
 
         <div
           ref={gridRef}
-          className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5"
+          className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
         >
           {sponsorshipTiers.map((tier) => (
             <article
@@ -101,7 +101,7 @@ export default function SponsorsTiersSection() {
               ) : null}
               <h3
                 className={cn(
-                  "  text-2xl font-extrabold uppercase tracking-tight sm:text-2xl",
+                  "  text-2xl font-extrabold  tracking-tight sm:text-2xl",
                   tier.featured ? "text-primary" : "text-foreground",
                 )}
               >

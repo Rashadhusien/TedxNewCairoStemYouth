@@ -20,32 +20,62 @@ const syne = Syne({
 });
 
 export const metadata: Metadata = {
-  title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+  metadataBase: new URL("https://www.tedxnewcairostemyouth.org"),
+
+  title: {
+    default: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+    template: "%s | TEDxNewCairoSTEMYouth",
+  },
+
   description:
-    "TEDxNewCairoSTEMYouth at Ain Shams University. Theme: Luminous Darkness. Even in the deepest darkness, there is always a hidden light inside every person.",
+    "TEDxNewCairoSTEMYouth 2026. Discover inspiring ideas, visionary speakers, and Egypt's brightest STEM youth under the theme Luminous Darkness.",
+
   keywords: [
     "TEDx",
-    "TEDxNewCairoSTEM",
+    "TEDxNewCairoSTEMYouth",
+    "TEDx Egypt",
+    "TEDx Cairo",
     "Luminous Darkness",
-    "Ain Shams University",
-    "Cairo",
     "STEM",
     "Youth",
+    "Innovation",
+    "Technology",
+    "Leadership",
   ],
-  authors: [{ name: "TEDxNewCairoSTEMYouth" }],
-  metadataBase: new URL("https://tedxnewcairostemyouth.org"),
+
+  authors: [
+    {
+      name: "TEDxNewCairoSTEMYouth",
+    },
+  ],
+
   openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.tedxnewcairostemyouth.org",
+    siteName: "TEDxNewCairoSTEMYouth",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
     description:
-      "Discover the light hidden within the darkness. Join TEDxNewCairoSTEMYouth at Ain Shams University.",
-    url: "https://tedxnewcairostemyouth.org",
-    siteName: "TEDxNewCairoSTEMYouth",
-    type: "website",
+      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
   },
+
   twitter: {
     card: "summary_large_image",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
-    description: "Discover the light hidden within the darkness.",
+    description:
+      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
@@ -72,6 +102,20 @@ export default function RootLayout({
           type="text/javascript"
           strategy="beforeInteractive"
         />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-ZQHHHCSM3F"
+          strategy="afterInteractive"
+        />
+
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZQHHHCSM3F');
+    `}
+        </Script>
+        <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-full flex flex-col">
         <ThemeProvider

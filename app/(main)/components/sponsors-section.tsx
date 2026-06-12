@@ -4,7 +4,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { confirmedSponsors, openTiers, stats } from "@/constants";
-
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 function TierLabel({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
@@ -35,22 +36,22 @@ export default function SponsorsSection() {
         >
           <div className="flex items-center justify-center gap-4 mb-5">
             <div className="h-px w-10 bg-primary/35" />
-            <span className="text-primary/60 text-[10px] font-bold tracking-[0.3em] uppercase">
+            <span className="text-primary/60 text-[8px] font-bold tracking-[0.3em] uppercase">
               Partners & Sponsors
             </span>
             <div className="h-px w-10 bg-primary/35" />
           </div>
-          <h2 className="text-4xl md:text-[56px] font-black text-white mb-4 leading-none tracking-tight">
-            Those Who Measure the <span className="text-primary">Light</span>
+          <h2 className="text-2xl sm:text-4xl md:text-[56px] font-black text-white mb-4 leading-none tracking-tight">
+            Who Measure the <span className="text-primary">Light</span>
           </h2>
           <p className="text-white/38 text-sm max-w-xl mx-auto leading-relaxed">
-            Join visionary organizations empowering 1,000+ top STEM youth. Gain
-            unprecedented access, deep insights, and measurable ROI.
+            Join visionary organizations empowering 1,000+ top STEM youth.
           </p>
         </motion.div>
 
         <TierLabel text="Confirmed Partners" />
-        <div className="grid grid-cols-2 gap-3 mb-8">
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
           {confirmedSponsors.map((s, i) => (
             <motion.div
               key={s.id}
@@ -58,17 +59,27 @@ export default function SponsorsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group relative h-[110px] flex items-center justify-center border border-primary/20 bg-primary/4 hover:border-primary/55 hover:bg-primary/8 hover:shadow-[0_0_24px_rgba(230,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
+              className="group relative p-4 flex items-center max-w-xs justify-center border border-primary/20 bg-primary/4 hover:border-primary/55 hover:bg-primary/8 hover:shadow-[0_0_24px_rgba(230,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
             >
               {/* Top shimmer line */}
               <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-linear-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <div className="text-center">
-                <div className="w-11 h-11 rounded-full border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-2.5 transition-all duration-300">
-                  <span className="text-[13px] font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
-                    {s.initials}
-                  </span>
+                <div className="size-27.5 rounded-full border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-2.5 transition-all duration-300">
+                  {s.logo ? (
+                    <Image
+                      src={s.logo}
+                      alt={s.label}
+                      width={144}
+                      height={144}
+                      className="object-contain rounded-full  "
+                    />
+                  ) : (
+                    <span className="text-4xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
+                      {s.initials}
+                    </span>
+                  )}
                 </div>
-                <span className="text-[11px] font-bold tracking-[0.12em] uppercase text-white/55 group-hover:text-white transition-colors duration-300">
+                <span className="text-sm sm:text-md font-bold tracking-[0.12em] uppercase text-white/55 group-hover:text-white transition-colors duration-300">
                   {s.label}
                 </span>
               </div>
@@ -77,7 +88,7 @@ export default function SponsorsSection() {
         </div>
 
         {/* ── Open tiers ── */}
-        <TierLabel text="Open Sponsorship Tiers" />
+        {/* <TierLabel text="Open Sponsorship Tiers" />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-12">
           {openTiers.map((tier, i) => (
             <motion.div
@@ -98,7 +109,7 @@ export default function SponsorsSection() {
               </span>
             </motion.div>
           ))}
-        </div>
+        </div> */}
 
         {/* ── Stats ── */}
         <motion.div
@@ -106,7 +117,7 @@ export default function SponsorsSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-3 divide-x divide-white/6 border border-white/6 mb-12"
+          className="grid grid-cols-1 sm:grid-cols-3 divide-x divide-white/6 border border-white/6 mb-12"
         >
           {stats.map((s) => (
             <div key={s.label} className="py-5 text-center">
@@ -124,21 +135,17 @@ export default function SponsorsSection() {
         </motion.div>
 
         {/* ── CTA ── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3 }}
-          className="text-center"
+        <Button
+          size={"lg"}
+          className="text-center mx-auto flex-center py-6 px-8 text-lg w-full"
+          asChild
+          variant={"outline"}
         >
-          <Link
-            href="/sponsors"
-            className="group inline-flex items-center gap-2.5 px-9 py-3.5 border border-primary/45 text-white text-[11px] font-bold tracking-[0.22em] uppercase hover:bg-primary hover:border-primary hover:shadow-[0_0_32px_rgba(230,0,0,0.3)] transition-all duration-300"
-          >
+          <Link href="/sponsors">
             Join the Luminous Quest
-            <ArrowRight className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight className="size-3.5 " />
           </Link>
-        </motion.div>
+        </Button>
       </div>
     </section>
   );

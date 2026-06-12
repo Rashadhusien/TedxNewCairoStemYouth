@@ -1,4 +1,4 @@
-import { Check, Mail, TrendingUp, Users, Zap, type LucideIcon } from "lucide-react";
+import { TrendingUp, Users, Zap, type LucideIcon } from "lucide-react";
 
 export const SPONSOR_CONTACT_EMAIL = "tedxnewcairostemyouth@gmail.com";
 
@@ -18,30 +18,36 @@ export const sponsorDocuments = [
 export const sponsorRoiStats = [
   {
     value: "1,000+",
-    label: "Curated On-Ground",
-    detail: "Ages 15–25 STEM minds",
+    label: "Elite STEM Audience",
+    detail: "Curated on-ground attendees",
   },
   {
     value: "7M+",
-    label: "Digital Reach",
-    detail: "Combined follower network",
+    label: "Combined Social Reach",
+    detail: "Across all platforms",
   },
   {
-    value: "70%",
-    label: "University Students",
-    detail: "The future workforce",
+    value: "500K+",
+    label: "Digital Impressions",
+    detail: "Across platforms & campaigns",
   },
   {
-    value: "100%",
-    label: "Opt-In Leads",
-    detail: "Law 151/2020 compliant",
+    value: "90%+",
+    label: "Brand Recall Rate",
+    detail: "6-screen visual omnipresence",
+  },
+  {
+    value: "40%+",
+    label: "Lead Cost Savings",
+    detail: "Vs. traditional acquisition",
   },
 ];
 
 export const sponsorRoiPoints = [
-  "70% university students, 30% high school & young professionals",
-  "Verified data: names, emails, majors, and skills",
-  "Gamified opt-in lead generation through the Luminous Quest",
+  "Thought Leadership ROI: main stage presence before 1,000+ attendees and thousands of online viewers",
+  "Visual Dominance: logo on 6 auxiliary screens + main LED stage ensuring 90%+ brand recall",
+  "Direct Lead Generation: immediate access to 1,000 top-tier STEM graduates and students",
+  "PR & Digital Reach: 500K+ impressions with ~500K EGP Advertising Value Equivalent",
 ];
 
 export const luminousQuestFeatures: {
@@ -66,6 +72,17 @@ export const luminousQuestFeatures: {
   },
 ];
 
+export const confirmedSponsorsList = [
+  {
+    id: 1,
+    name: "Alorica Egypt",
+    initials: "AE",
+    description:
+      "Global customer experience leader with 100,000 employees across 17 countries — committed to Egypt's talent pipeline and digital future.",
+    tier: "Confirmed Sponsor",
+  },
+];
+
 export const sponsorPartners = [
   {
     id: 1,
@@ -87,91 +104,80 @@ export const sponsorPartners = [
 
 export const sponsorshipTiers = [
   {
-    id: "visionary",
-    name: "Visionary",
+    id: "strategic",
+    name: "Strategic Partner",
     accent: "#EB0028",
     borderClass: "border-primary/40",
     bgClass: "bg-primary/5",
-    price: "220,000 EGP",
-    badge: "1 Exclusive Slot",
+    price: "350,000 EGP",
+    badge: "3-4 Slots",
     featured: true,
     benefits: [
-      'Category exclusivity: "Event powered by [Brand]"',
-      "Priority Quest status for massive lead generation",
-      "Exclusive custom survey (up to 10 questions to all 1,000 attendees)",
-      "Brand prominently on all ID lanyards",
-      "5-minute speech slot on main stage",
-      "2 lead-generation questions in registration",
-      "Premium Interaction Hub (9 sqm custom installation)",
-      "3 VIP passes & exclusive VIP lounge branding",
-    ],
-  },
-  {
-    id: "platinum",
-    name: "Platinum",
-    accent: "#C0C0C0",
-    borderClass: "border-zinc-400/35",
-    bgClass: "bg-zinc-400/5",
-    price: "120,000 EGP",
-    badge: "Limited Slots",
-    featured: false,
-    benefits: [
-      "Prime Interaction Hub placement",
-      "Priority Quest status (high point values)",
-      "1 lead-generation question in registration",
-      "Prominent logo on main stage backdrop",
-      "Strong animated sponsored reel",
-      "2 VIP passes",
-      "2 branded items in goodie bags",
-      "Complete post-event digital report (opt-in data)",
+      "Keynote speech or panel slot on main stage",
+      "Premium Mega Booth with interactive activities & lead generation",
+      "Logo on all 6 auxiliary screens across venue entrances & corridors",
+      "Logo on main LED stage screens (largest size)",
+      "Logo on hotel reception digital screens & photo backdrop",
+      "Logo on all banners, directional signage & printed materials",
+      "Exclusive promotional video on official social platforms",
+      "Dedicated posts campaign highlighting company vision",
+      "Permanent tag in live coverage & after-movies",
+      "Logo on organizing crew t-shirts",
+      "Sector exclusivity guarantee",
+      "3 VIP passes with full lounge access",
+      "Promotional materials in audience goodie bags",
     ],
   },
   {
     id: "gold",
-    name: "Gold",
+    name: "Gold Sponsor",
     accent: "#FFD700",
     borderClass: "border-amber-400/35",
     bgClass: "bg-amber-400/5",
-    price: "90,000 EGP",
-    badge: "Premium",
+    price: "100,000 EGP",
+    badge: "5-6 Slots",
     featured: false,
     benefits: [
-      "Interaction Hub placement at venue",
-      "Mention in closing ceremony & thank-you posts",
-      "Social media integration & sponsored reel",
-      "Logo on Wall of Fame and rotational displays",
-      "1 VIP pass",
-      "1 branded item in goodie bags",
+      "Standard Booth in main exhibition hall for direct communication",
+      "Logo on 4 of 6 auxiliary screens (high-traffic areas)",
+      "Logo on indoor display screens & official sponsor board",
+      "Dedicated social media post with live coverage mention",
+      "1 VIP ticket with lounge access",
+      "Promotional materials in welcome goodie bags",
     ],
   },
   {
     id: "silver",
-    name: "Silver",
+    name: "Silver Sponsor",
     accent: "#E8E8E8",
     borderClass: "border-border",
     bgClass: "bg-card/50",
-    price: "25,000 EGP",
-    badge: "Standard",
+    price: "40,000 EGP",
+    badge: "6-8 Slots",
     featured: false,
     benefits: [
-      "Logo on main Wall of Fame",
-      "Official mention during event transitions",
-      "Social media post + logo on digital campaigns",
-      "1 VIP pass",
+      "Designated exhibition area with roll-up and display table",
+      "Logo on 2 auxiliary screens in booth & exhibition area",
+      "Logo on collective sponsor board (printed & digital)",
+      "Logo on official event webpage",
+      "Collective social media post across all platforms",
+      "2 standard event tickets (no VIP lounge access)",
     ],
   },
   {
-    id: "bronze",
-    name: "Bronze",
-    accent: "#cd7f32",
-    borderClass: "border-[#cd7f32]/30",
-    bgClass: "bg-[#cd7f32]/5",
-    price: "12,000 EGP",
-    badge: "Starter",
+    id: "custom",
+    name: "Custom Package",
+    accent: "#A78BFA",
+    borderClass: "border-violet-400/30",
+    bgClass: "bg-violet-400/5",
+    price: "Tailor-made",
+    badge: "In-Kind & Custom",
     featured: false,
     benefits: [
-      "Logo on social platforms and website sponsor section",
-      "Mention in official thank-you post",
+      "Fully customized sponsorship combining financial & in-kind support",
+      "Logistics or marketing coverage aligned to your objectives",
+      "Flexible budget and deliverable structure",
+      "Direct consultation with our partnerships team",
     ],
   },
 ];

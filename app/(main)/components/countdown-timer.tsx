@@ -116,7 +116,7 @@ export default function CountdownTimer() {
             Time Is <span className="text-primary">Running</span>
           </h2>
           <p className="text-white/25 text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-[0.25em] uppercase mb-8 sm:mb-10 md:mb-14">
-            July 31, 2026 · Ain Shams University
+            July 31, 2026 · Hilton Nile Maadi
           </p>
         </motion.div>
 

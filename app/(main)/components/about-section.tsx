@@ -16,7 +16,6 @@ import { PILLARS } from "@/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 export default function AboutSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -192,10 +191,10 @@ export default function AboutSection() {
             <h2
               id="about-heading"
               ref={titleRef}
-              className="text-4xl font-extrabold uppercase leading-[0.92] tracking-tight text-foreground  sm:text-5xl md:text-6xl lg:text-7xl"
+              className="text-2xl font-extrabold uppercase leading-[0.92] tracking-tight text-foreground  sm:text-5xl md:text-6xl lg:text-7xl"
             >
-              <span className="block">What is</span>
-              <span className="block text-transparent [-webkit-text-stroke:1px_color-mix(in_oklch,var(--foreground)_55%,transparent)]">
+              <span className="">What is</span>{" "}
+              <span className=" text-transparent [-webkit-text-stroke:1px_color-mix(in_oklch,var(--foreground)_55%,transparent)]">
                 TEDx?
               </span>
             </h2>
@@ -206,8 +205,8 @@ export default function AboutSection() {
                     TEDxNewCairoSTEMYouth
                   </span>{" "}
                   is an independently organized TEDx event licensed by TED —
-                  bringing the spirit of ideas worth spreading to the heart of New
-                  Cairo. We believe that{" "}
+                  bringing the spirit of ideas worth spreading to the heart of
+                  New Cairo. We believe that{" "}
                   <span className="font-medium text-foreground">
                     every mind carries a spark
                   </span>
@@ -235,9 +234,6 @@ export default function AboutSection() {
             </div>
           </div>
         </div>
-
-    
-
 
         <div
           ref={cardsRef}
@@ -301,7 +297,6 @@ export default function AboutSection() {
             <ArrowRight className="size-4" aria-hidden />
           </Button>
         </div> */}
-
       </div>
     </section>
   );
