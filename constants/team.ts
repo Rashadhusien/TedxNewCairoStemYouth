@@ -121,17 +121,18 @@ export const teamDepartments: StandardTeamDepartment[] = [
     description: "Broadcasting the light to every corner of the digital world.",
     members: [
       {
-        id: "aml",
-        name: "Aml",
-        role: "Account Manager",
-        description: "Aml Description",
+        id: "aml-mahdi",
+        name: "Aml ElMahdi",
+        role: "Marketing Strategist & Business Developer",
+        description:
+          "Transforming scattered brands into scalable growth engines with real, measurable sales.",
         social: {
           linkedin: "",
           instagram:
             "https://www.instagram.com/p/DW6U7LdjKw-/?utm_source=ig_web_copy_link&igsh=MzRlOD==BiNWFlZA",
-          phone: "01208232196",
+          phone: "996536413647",
         },
-        image: null,
+        image: "/images/team/aml.jpeg",
       },
       {
         id: "hala-hossam",
