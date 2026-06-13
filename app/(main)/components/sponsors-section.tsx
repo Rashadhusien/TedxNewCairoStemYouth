@@ -6,6 +6,8 @@ import { ArrowRight } from "lucide-react";
 import { confirmedSponsors, openTiers, stats } from "@/constants";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { Sponsor } from "@/lib/db/schema";
+import { getInitials } from "@/lib/utils";
 function TierLabel({ text }: { text: string }) {
   return (
     <div className="flex items-center gap-3 mb-4">
@@ -18,7 +20,8 @@ function TierLabel({ text }: { text: string }) {
   );
 }
 
-export default function SponsorsSection() {
+export default function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
+  console.log(sponsors);
   return (
     <section className="relative  bg-black overflow-hidden">
       <div className="absolute inset-0 bg-linear-to-t from-black via-[#060000] to-black pointer-events-none" />
@@ -52,39 +55,40 @@ export default function SponsorsSection() {
         <TierLabel text="Confirmed Partners" />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-          {confirmedSponsors.map((s, i) => (
-            <motion.div
-              key={s.id}
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group relative p-4 flex items-center max-w-xs justify-center border border-primary/20 bg-primary/4 hover:border-primary/55 hover:bg-primary/8 hover:shadow-[0_0_24px_rgba(230,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
-            >
-              {/* Top shimmer line */}
-              <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-linear-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <div className="text-center">
-                <div className="size-27.5 rounded-full border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-2.5 transition-all duration-300">
-                  {s.logo ? (
-                    <Image
-                      src={s.logo}
-                      alt={s.label}
-                      width={144}
-                      height={144}
-                      className="object-contain rounded-full  "
-                    />
-                  ) : (
-                    <span className="text-4xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
-                      {s.initials}
-                    </span>
-                  )}
+          {sponsors &&
+            sponsors.map((s, i) => (
+              <motion.div
+                key={s.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group relative p-4 flex items-center max-w-xs justify-center border border-primary/20 bg-primary/4 hover:border-primary/55 hover:bg-primary/8 hover:shadow-[0_0_24px_rgba(230,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
+              >
+                {/* Top shimmer line */}
+                <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-linear-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="text-center">
+                  <div className="size-27.5 rounded-full overflow-hidden border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-2.5 transition-all duration-300">
+                    {s.logoUrl ? (
+                      <Image
+                        src={s.logoUrl}
+                        alt={s.name}
+                        width={144}
+                        height={144}
+                        className="object-cover rounded-full  "
+                      />
+                    ) : (
+                      <span className="text-4xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
+                        {getInitials(s.name)}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm sm:text-md font-bold tracking-[0.12em] uppercase text-white/55 group-hover:text-white transition-colors duration-300">
+                    {s.name}
+                  </span>
                 </div>
-                <span className="text-sm sm:text-md font-bold tracking-[0.12em] uppercase text-white/55 group-hover:text-white transition-colors duration-300">
-                  {s.label}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
         </div>
 
         {/* ── Open tiers ── */}

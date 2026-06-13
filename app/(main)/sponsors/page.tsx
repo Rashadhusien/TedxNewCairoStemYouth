@@ -10,6 +10,8 @@ import SponsorsQuestSection from "../components/sponsors/sponsors-quest-section"
 import SponsorsRoiSection from "../components/sponsors/sponsors-roi-section";
 import SponsorsSponsorsSection from "../components/sponsors/sponsors-sponsors-section";
 import SponsorsTiersSection from "../components/sponsors/sponsors-tiers-section";
+import SponsorsSection from "../components/sponsors-section";
+import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
 
 export const metadata = {
   title: "Sponsors & Partners",
@@ -17,7 +19,9 @@ export const metadata = {
     "Partner with TEDxNewCairoSTEMYouth and connect with Egypt's brightest STEM youth through impactful sponsorship opportunities.",
 };
 
-export default function SponsorsPage() {
+export default async function SponsorsPage() {
+  const result = await getAllSponsors();
+  const sponsors = result.success ? result.data?.items : [];
   return (
     <div className="pt-24">
       {/* <div className="container mx-auto px-4 pb-10 sm:px-6 lg:px-8">
@@ -38,7 +42,8 @@ export default function SponsorsPage() {
       <SponsorsRoiSection />
       <SponsorsQuestSection />
       {/* <SponsorsSponsorsSection /> */}
-      <SponsorsPartnersSection />
+      {/* <SponsorsPartnersSection /> */}
+      <SponsorsSection sponsors={sponsors || []} />
       <SponsorsJourneySection />
       <SponsorsTiersSection />
       <SponsorsCtaSection />

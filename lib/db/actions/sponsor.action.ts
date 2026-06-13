@@ -180,3 +180,31 @@ export async function updateSponsor(
     return handleError(error) as ErrorResponse;
   }
 }
+
+// public
+export async function getAllSponsors(): Promise<
+  | ActionResponse<{
+      items: SponsorsWithRelations[];
+      total: number;
+    }>
+  | ErrorResponse
+> {
+  try {
+    const [countRow] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(sponsors)
+      .where(eq(sponsors.isActive, true));
+
+    const rows = await db
+      .select()
+      .from(sponsors)
+      .where(eq(sponsors.isActive, true));
+
+    return {
+      success: true,
+      data: { items: rows, total: countRow?.count ?? 0 },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
