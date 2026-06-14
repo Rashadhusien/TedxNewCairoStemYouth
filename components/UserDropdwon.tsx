@@ -112,7 +112,7 @@ export function UserDropdown({
               </Link>
             </DropdownMenuItem>
           )}
-          {/* <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild>
             <Link
               href={ROUTES.MY_TICKET}
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm"
@@ -120,7 +120,7 @@ export function UserDropdown({
               <TicketIcon className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">My Ticket</span>
             </Link>
-          </DropdownMenuItem> */}
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuItem
           onClick={() =>
