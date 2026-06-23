@@ -18,13 +18,21 @@ export const ROUTES = {
     DASHBOARD: "/admin/dashboard",
     USERS: "/admin/users",
     TICKETS: "/admin/tickets",
-    COUPONS: "/admin/coupons",
+    COUPONS: {
+      HOME: "/admin/coupons",
+      CREATE: "/admin/coupons/create",
+      EDIT: (id: string) => `/admin/coupons/edit/${id}`,
+    },
     SPONSORS: {
       HOME: "/admin/sponsors",
       CREATE: "/admin/sponsors/create",
       EDIT: (id: string) => `/admin/sponsors/edit/${id}`,
     },
-    OFFERS: "/admin/offers",
+    OFFERS: {
+      HOME: "/admin/offers",
+      CREATE: "/admin/offers/create",
+      EDIT: (id: string) => `/admin/offers/edit/${id}`,
+    },
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",

@@ -50,7 +50,7 @@ export default async function AdminCouponsPage({
         page={data.page}
         status={params.status ?? "all"}
         selectItems={COUPONS_STATUS}
-        route={ROUTES.ADMIN.COUPONS}
+        route={ROUTES.ADMIN.COUPONS.HOME}
       />
     </div>
   );

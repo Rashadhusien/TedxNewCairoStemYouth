@@ -83,6 +83,10 @@ export default function TicketReviewDialog({
               <p className="font-medium">{ticket.user?.email}</p>
             </div>
             <div>
+              <p className="text-muted-foreground">Phone</p>
+              <p className="font-medium">{ticket.user?.phone}</p>
+            </div>
+            <div>
               <p className="text-muted-foreground">Tier</p>
               <p className="font-medium uppercase">{ticket.type}</p>
             </div>

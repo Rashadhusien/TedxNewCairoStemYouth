@@ -1,7 +1,17 @@
 "use server";
 
-import { and, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
-
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  ilike,
+  isNull,
+  lte,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
 import { auth } from "@/auth";
 import { isAdminRole } from "@/lib/auth/route-guards";
 import { deletePaymentScreenshot } from "@/lib/cloudinary";
@@ -65,7 +75,9 @@ async function resolveCoupon(code: string | undefined) {
 
 export async function purchaseTicket(
   params: TicketPurchaseInput,
-): Promise<ActionResponse<{ ticketId: string; status: string }> | ErrorResponse> {
+): Promise<
+  ActionResponse<{ ticketId: string; status: string }> | ErrorResponse
+> {
   const validationResult = await action<TicketPurchaseInput>({
     params,
     schema: TicketPurchaseSchema,
@@ -98,7 +110,9 @@ export async function purchaseTicket(
     if (!user.dataConsentGiven) {
       return handleError(
         new ValidationError({
-          dataConsent: ["You must accept data consent before purchasing a ticket"],
+          dataConsent: [
+            "You must accept data consent before purchasing a ticket",
+          ],
         }),
       ) as ErrorResponse;
     }
@@ -126,10 +140,18 @@ export async function purchaseTicket(
       ) as ErrorResponse;
     }
 
+    const currentDate = new Date();
     const activeOffers = await db
       .select()
       .from(offers)
-      .where(eq(offers.isActive, true));
+      .where(
+        and(
+          eq(offers.isActive, true),
+          or(isNull(offers.startsAt), lte(offers.startsAt, currentDate)),
+          or(isNull(offers.endsAt), gte(offers.endsAt, currentDate)),
+          or(isNull(offers.remainingSlots), sql`${offers.remainingSlots} > 0`),
+        ),
+      );
 
     const bestOffer = pickBestOffer(
       activeOffers,
@@ -152,10 +174,7 @@ export async function purchaseTicket(
       }
 
       if (
-        !couponAppliesToTier(
-          coupon,
-          data.ticketType as PurchasableTicketType,
-        )
+        !couponAppliesToTier(coupon, data.ticketType as PurchasableTicketType)
       ) {
         return handleError(
           new ValidationError({
@@ -199,8 +218,10 @@ export async function purchaseTicket(
     if (existingTicket) {
       if (existingTicket.paymentScreenshotUrl && data.screenshotPublicId) {
         const folderPrefix = `tedx/payment_screenshots/${session.user.id}/`;
-        if (data.screenshotPublicId.startsWith(folderPrefix.replace(/\/$/, "")) ||
-            data.screenshotPublicId.includes(session.user.id)) {
+        if (
+          data.screenshotPublicId.startsWith(folderPrefix.replace(/\/$/, "")) ||
+          data.screenshotPublicId.includes(session.user.id)
+        ) {
           try {
             await deletePaymentScreenshot(data.screenshotPublicId);
           } catch {
@@ -298,9 +319,7 @@ export async function getMyTicket(): Promise<
   }
 }
 
-export async function listTickets(
-  params: TicketListInput,
-): Promise<
+export async function listTickets(params: TicketListInput): Promise<
   | ActionResponse<{
       items: TicketWithRelations[];
       total: number;
@@ -386,7 +405,9 @@ export async function listTickets(
 
 export async function reviewTicket(
   params: TicketReviewInput,
-): Promise<ActionResponse<{ ticketId: string; status: string }> | ErrorResponse> {
+): Promise<
+  ActionResponse<{ ticketId: string; status: string }> | ErrorResponse
+> {
   const validationResult = await action<TicketReviewInput>({
     params,
     schema: TicketReviewSchema,
@@ -398,8 +419,11 @@ export async function reviewTicket(
 
   try {
     const session = await requireAdmin();
-    const { ticketId, action: reviewAction, rejectionReason } =
-      validationResult.params as TicketReviewInput;
+    const {
+      ticketId,
+      action: reviewAction,
+      rejectionReason,
+    } = validationResult.params as TicketReviewInput;
 
     const [ticketRow] = await db
       .select({
@@ -502,7 +526,8 @@ export async function reviewTicket(
 export async function checkInTicket(
   params: CheckInInput,
 ): Promise<
-  ActionResponse<{ ticketId: string; attendeeName: string | null }> | ErrorResponse
+  | ActionResponse<{ ticketId: string; attendeeName: string | null }>
+  | ErrorResponse
 > {
   const validationResult = await action<CheckInInput>({
     params,

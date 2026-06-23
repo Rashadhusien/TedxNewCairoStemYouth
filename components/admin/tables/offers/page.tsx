@@ -7,6 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import CouponFormDialog from "../../Dialogs/coupon-form-dialog";
 import { Infinity } from "lucide-react";
 import OfferFormDialog from "../../Dialogs/offer-form-dialog";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 export const offerColumns: ColumnDef<Offer>[] = [
   {
@@ -48,6 +51,26 @@ export const offerColumns: ColumnDef<Offer>[] = [
     },
   },
   {
+    accessorKey: "startsAt",
+    header: "Starts At",
+    cell: ({ row }) => {
+      const startsAt = row.original.startsAt;
+
+      return (
+        <div>{startsAt ? new Date(startsAt).toLocaleDateString() : "—"}</div>
+      );
+    },
+  },
+  {
+    accessorKey: "endsAt",
+    header: "Ends At",
+    cell: ({ row }) => {
+      const endsAt = row.original.endsAt;
+
+      return <div>{endsAt ? new Date(endsAt).toLocaleDateString() : "—"}</div>;
+    },
+  },
+  {
     accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
@@ -64,7 +87,11 @@ export const offerColumns: ColumnDef<Offer>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      return <OfferFormDialog offer={row.original} />;
+      return (
+        <Button variant="outline" asChild>
+          <Link href={ROUTES.ADMIN.OFFERS.EDIT(row.original.id)}>Edit</Link>
+        </Button>
+      );
     },
   },
 ];

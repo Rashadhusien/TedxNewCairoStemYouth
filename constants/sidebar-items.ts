@@ -56,12 +56,12 @@ export const sidebarItems: NavGroup[] = [
       },
       {
         title: "Coupons",
-        url: ROUTES.ADMIN.COUPONS,
+        url: ROUTES.ADMIN.COUPONS.HOME,
         icon: Percent,
       },
       {
         title: "Offers",
-        url: ROUTES.ADMIN.OFFERS,
+        url: ROUTES.ADMIN.OFFERS.HOME,
         icon: Tag,
       },
     ],

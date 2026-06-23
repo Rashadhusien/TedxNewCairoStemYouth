@@ -4,6 +4,7 @@ import SpeakersSection from "./components/speakers-section";
 import CountdownTimer from "./components/countdown-timer";
 import SponsorsSection from "./components/sponsors-section";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
+import OfferBanner from "@/components/offer-banner";
 
 const Home = async () => {
   const result = await getAllSponsors();
@@ -11,7 +12,7 @@ const Home = async () => {
   const sponsors = result.success ? result.data?.items : [];
 
   return (
-    <div className="">
+    <div className="relative">
       <Hero />
 
       <AboutSection />
@@ -22,6 +23,7 @@ const Home = async () => {
 
       {/* <CTA /> */}
       <CountdownTimer />
+      {/* <OfferBanner /> */}
     </div>
   );
 };
