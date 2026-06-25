@@ -82,6 +82,20 @@ export const sponsorsColumns: ColumnDef<SponsorsWithRelations>[] = [
     },
   },
   {
+    accessorKey: "type",
+    header: "Type",
+    cell: ({ row }) => {
+      const type = row.original.type;
+      const status = type === "sponsor" ? "Sponsor" : "Partner";
+
+      return (
+        <Badge variant={type === "sponsor" ? "outline" : "secondary"}>
+          {status}
+        </Badge>
+      );
+    },
+  },
+  {
     accessorKey: "isActive",
     header: "Status",
     cell: ({ row }) => {
