@@ -14,9 +14,8 @@ interface TicketsPageClientProps {
 }
 
 export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
-  const [selectedTier, setSelectedTier] = useState<PurchasableTicketType | null>(
-    null,
-  );
+  const [selectedTier, setSelectedTier] =
+    useState<PurchasableTicketType | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   const handleSelect = (type: PurchasableTicketType) => {
@@ -40,7 +39,7 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
       </section>
 
       <section className="relative py-12 px-6 lg:px-10 max-w-6xl mx-auto space-y-12">
-        <OffersBanner offers={offers} />
+        {/* <OffersBanner offers={offers} /> */}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {(["np", "ip", "vip"] as const).map((type) => (
@@ -59,7 +58,7 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
           <p>
             After selecting your tier, choose Cash, InstaPay, or Bank Transfer.
             Upload a screenshot of your payment proof. Our team will review and
-  confirm your ticket within 24–48 hours.
+            confirm your ticket within 24–48 hours.
           </p>
         </div>
       </section>

@@ -5,10 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
-import {
-  teamDepartments,
-  type StandardTeamDepartment,
-} from "@/constants/team";
+import { teamDepartments, type StandardTeamDepartment } from "@/constants/team";
 import { cn } from "@/lib/utils";
 import { AboutSectionHeader } from "./about-section-header";
 import { TeamMemberCard } from "./team-member-card";
@@ -25,7 +22,7 @@ function getMemberGridClass(count: number) {
   if (count === 3) {
     return "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3";
   }
-  return "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4";
+  return "grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3";
 }
 
 function DepartmentHeader({
@@ -74,11 +71,7 @@ function StandardDepartmentBlock({
       />
       <div className={getMemberGridClass(department.members.length)}>
         {department.members.map((member) => (
-          <TeamMemberCard
-            key={member.id}
-            member={member}
-            compact={isCompact}
-          />
+          <TeamMemberCard key={member.id} member={member} compact={isCompact} />
         ))}
       </div>
     </div>

@@ -168,7 +168,7 @@ export const teamDepartments: StandardTeamDepartment[] = [
             "https://www.instagram.com/_mohamedtaw.fik_?igsh=OGQ5ZDc2ODk2ZA==",
           phone: "01110786078",
         },
-        image: null,
+        image: "/images/team/tawfik.jpeg",
       },
       {
         id: "farehan-sameh",

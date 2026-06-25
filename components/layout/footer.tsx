@@ -173,7 +173,7 @@ export default function Footer() {
               {socialLinks.map((soc) => {
                 const Icon = soc.icon;
                 return (
-                  <a
+                  <Link
                     key={soc.label}
                     href={soc.href}
                     target="_blank"
@@ -184,7 +184,7 @@ export default function Footer() {
                     onMouseLeave={onMouseLeaveSocial}
                   >
                     <Icon className="w-4 h-4" />
-                  </a>
+                  </Link>
                 );
               })}
             </div>

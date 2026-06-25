@@ -41,8 +41,8 @@ export default async function SponsorsPage() {
       <SponsorsHero />
       <SponsorsRoiSection />
       <SponsorsQuestSection />
-      {/* <SponsorsSponsorsSection /> */}
-      {/* <SponsorsPartnersSection /> */}
+      <SponsorsSponsorsSection />
+      <SponsorsPartnersSection />
       <SponsorsSection sponsors={sponsors || []} />
       <SponsorsJourneySection />
       <SponsorsTiersSection />

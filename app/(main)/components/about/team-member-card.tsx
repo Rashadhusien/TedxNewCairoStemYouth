@@ -126,7 +126,7 @@ export function TeamMemberCard({
                 fill
                 priority
                 quality={80}
-                className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+                className="object-cover object-top  transition-transform duration-500 group-hover:scale-[1.03]"
               />
             ) : (
               <div
