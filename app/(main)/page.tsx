@@ -6,7 +6,7 @@ import SponsorsSection from "./components/sponsors-section";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
 
 const Home = async () => {
-  const result = await getAllSponsors();
+  const result = await getAllSponsors({ type: "sponsor" });
 
   const sponsors = result.success ? result.data?.items : [];
 

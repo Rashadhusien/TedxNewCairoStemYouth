@@ -55,6 +55,7 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
       logoUrl: "",
       website: "",
       tier: "inkind",
+      type: "sponsor",
       leadGenQuestions: [],
 
       isActive: true,
@@ -73,6 +74,7 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
         name: sponsor.name,
         description: sponsor.description ?? "",
         tier: sponsor.tier,
+        type: sponsor.type,
         logoUrl: sponsor.logoUrl ?? "",
         website: sponsor.website ?? "",
         leadGenQuestions: sponsor.leadGenQuestions ?? [],
@@ -89,6 +91,7 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
       description: data.description || "",
       website: data.website || "",
       tier: data.tier,
+      type: data.type,
       leadGenQuestions: data.leadGenQuestions,
       logoUrl: data.logoUrl || "",
       isActive: data.isActive,
@@ -153,6 +156,31 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
           )}
         />
 
+        <Controller
+          name="type"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>
+                Sponsor Type <span className="text-orange-600">*</span>
+              </FieldLabel>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select sponsor type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem key={"sponsor"} value={"sponsor"}>
+                    Sponsor
+                  </SelectItem>
+                  <SelectItem key={"partner"} value={"partner"}>
+                    Partner
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
         <Controller
           name="tier"
           control={form.control}

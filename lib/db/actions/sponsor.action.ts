@@ -14,7 +14,9 @@ import {
   ActiveSponsorLeadQuestions,
   SponsorsWithRelations,
 } from "@/types/sponsor";
-import { and, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import { ROUTES } from "@/constants/routes";
 
 type SponsorInput = z.infer<typeof sponsorFormSchema>;
 type SponsorListInput = z.infer<typeof SponsorListSchema>;
@@ -54,6 +56,9 @@ export async function createSponsor(
         updatedAt: new Date(),
       })
       .returning({ id: sponsors.id });
+
+    revalidatePath(ROUTES.HOME);
+    revalidatePath(ROUTES.ADMIN.SPONSORS.HOME);
 
     return { success: true, data: { id: created.id } };
   } catch (error) {
@@ -108,7 +113,8 @@ export async function listSponsors(params: SponsorListInput): Promise<
       .from(sponsors)
       .where(whereClause)
       .limit(pageSize)
-      .offset((page - 1) * pageSize);
+      .offset((page - 1) * pageSize)
+      .orderBy(desc(sponsors.updatedAt));
 
     return {
       success: true,
@@ -182,7 +188,11 @@ export async function updateSponsor(
 }
 
 // public
-export async function getAllSponsors(): Promise<
+export async function getAllSponsors({
+  type,
+}: {
+  type: "sponsor" | "partner";
+}): Promise<
   | ActionResponse<{
       items: SponsorsWithRelations[];
       total: number;
@@ -190,15 +200,23 @@ export async function getAllSponsors(): Promise<
   | ErrorResponse
 > {
   try {
+    const conditions = [eq(sponsors.isActive, true)];
+
+    if (type) {
+      conditions.push(eq(sponsors.type, type));
+    }
+
+    const whereClause = and(...conditions);
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(sponsors)
-      .where(eq(sponsors.isActive, true));
+      .where(whereClause);
 
     const rows = await db
       .select()
       .from(sponsors)
-      .where(eq(sponsors.isActive, true));
+      .where(whereClause)
+      .orderBy(sponsors.displayOrder, sponsors.name);
 
     return {
       success: true,

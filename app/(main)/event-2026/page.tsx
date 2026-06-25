@@ -11,7 +11,7 @@ export const metadata = {
     "Explore TEDxNewCairoSTEMYouth 2026, featuring inspiring speakers, innovative ideas, and the Luminous Darkness experience.",
 };
 const Event = async () => {
-  const result = await getAllSponsors();
+  const result = await getAllSponsors({ type: "sponsor" });
 
   const sponsors = result.success ? result.data?.items : [];
   return (

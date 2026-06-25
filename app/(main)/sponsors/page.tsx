@@ -20,8 +20,14 @@ export const metadata = {
 };
 
 export default async function SponsorsPage() {
-  const result = await getAllSponsors();
-  const sponsors = result.success ? result.data?.items : [];
+  const [sponsorsResult, partnersResult] = await Promise.all([
+    getAllSponsors({ type: "sponsor" }),
+    getAllSponsors({ type: "partner" }),
+  ]);
+
+  const sponsors = sponsorsResult.success ? sponsorsResult.data?.items : [];
+  const partners = partnersResult.success ? partnersResult.data?.items : [];
+
   return (
     <div className="pt-24">
       {/* <div className="container mx-auto px-4 pb-10 sm:px-6 lg:px-8">
@@ -41,9 +47,9 @@ export default async function SponsorsPage() {
       <SponsorsHero />
       <SponsorsRoiSection />
       <SponsorsQuestSection />
-      {/* <SponsorsSponsorsSection /> */}
-      {/* <SponsorsPartnersSection /> */}
-      <SponsorsSection sponsors={sponsors || []} />
+      <SponsorsSponsorsSection sponsors={sponsors || []} />
+      <SponsorsPartnersSection partners={partners || []} />
+      {/* <SponsorsSection sponsors={sponsors || []} /> */}
       <SponsorsJourneySection />
       <SponsorsTiersSection />
       <SponsorsCtaSection />
