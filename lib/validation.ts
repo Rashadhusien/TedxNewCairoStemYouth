@@ -255,7 +255,7 @@ export const sponsorFormSchema = z.object({
   description: z.string().optional(),
 
   tier: sponsorTierSchema,
-  type: z.enum(["sponsor", "partner"]).default("sponsor"),
+  type: z.enum(["sponsor", "partner"]),
 
   boothPointMultiplier: z.number().int().positive().optional(),
 
