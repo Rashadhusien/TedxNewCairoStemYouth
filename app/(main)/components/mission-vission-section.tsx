@@ -65,10 +65,10 @@ const MissionVisionSection = () => {
             </h3>
 
             <p className="text-sm sm:text-lg leading-relaxed text-muted-foreground">
-              To create a transformative platform where Egypt's brightest young
-              minds can share ideas that matter. We curate experiences that
-              challenge conventional thinking and ignite innovation in every
-              attendee.
+              To create a transformative platform where Egypt&apos;s brightest
+              young minds can share ideas that matter. We curate experiences
+              that challenge conventional thinking and ignite innovation in
+              every attendee.
             </p>
           </motion.div>
 
@@ -118,10 +118,10 @@ const MissionVisionSection = () => {
             </h3>
 
             <p className="text-sm sm:text-lg leading-relaxed text-muted-foreground">
-              A generation that doesn't fear the dark because they know they
-              carry the light. We envision a future where every young Egyptian
-              discovers that their voice is powerful and their ideas can change
-              the world.
+              A generation that doesn&apos;t fear the dark because they know
+              they carry the light. We envision a future where every young
+              Egyptian discovers that their voice is powerful and their ideas
+              can change the world.
             </p>
           </motion.div>
         </div>

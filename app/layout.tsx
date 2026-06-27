@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "sonner";
 import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
-
+import { Analytics } from "@vercel/analytics/next";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -118,6 +118,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-full flex flex-col">
+        <Analytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
