@@ -144,7 +144,8 @@ function UserLoginFrom() {
           <Button
             type="submit"
             form="form-user-login"
-            className="w-full flex-center"
+            className="w-full flex-center "
+            size={"lg"}
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
