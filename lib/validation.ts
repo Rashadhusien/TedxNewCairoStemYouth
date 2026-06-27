@@ -255,7 +255,7 @@ export const sponsorFormSchema = z.object({
   description: z.string().optional(),
 
   tier: sponsorTierSchema,
-  type: z.enum(["sponsor", "partner"]).default("sponsor"),
+  type: z.enum(["sponsor", "partner"]),
 
   boothPointMultiplier: z.number().int().positive().optional(),
 
@@ -267,3 +267,35 @@ export const sponsorFormSchema = z.object({
 
   isActive: z.boolean(),
 });
+
+// ── Forgot Password ────────────────────────────────────────────────────────
+
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+});
+
+// ── Reset Password ─────────────────────────────────────────────────────────
+
+export const ResetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Reset token is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(72, "Password must be under 72 characters") // bcrypt limit
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain uppercase, lowercase, and a number",
+      ),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;

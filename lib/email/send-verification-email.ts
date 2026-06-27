@@ -1,6 +1,7 @@
 import logger from "@/lib/logger";
 
 import { getResendClient } from "./resend";
+import { escapeHtml } from "./escape-html";
 
 type SendVerificationEmailParams = {
   to: string;
@@ -8,15 +9,6 @@ type SendVerificationEmailParams = {
   name?: string;
   idempotencyKey: string;
 };
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 export async function sendVerificationEmail({
   to,
