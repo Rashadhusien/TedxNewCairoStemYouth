@@ -11,6 +11,7 @@ import handleError from "@/lib/handlers/error";
 import { UpdateProfileSchema } from "@/lib/validation";
 import type { ErrorResponse } from "@/types/actions";
 import { ROUTES } from "@/constants/routes";
+import type { Ticket } from "@/lib/db/schema";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ export type ProfileData = {
     id: string;
     type: string;
     qrCode: string | null;
-    status: string;
+    status: Ticket["status"];
     pricePaid: number;
     createdAt: Date;
   } | null;
@@ -111,7 +112,6 @@ export async function updateProfile(params: {
   major: string | null;
   graduationYear: number | null;
   age: number | null;
-  dataConsentGiven: boolean | null;
   skills: string[];
 }): Promise<UpdateProfileResponse> {
   const session = await auth();
@@ -132,16 +132,8 @@ export async function updateProfile(params: {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const {
-    fullName,
-    phone,
-    university,
-    major,
-    graduationYear,
-    age,
-    skills,
-    dataConsentGiven,
-  } = validationResult.params!;
+  const { fullName, phone, university, major, graduationYear, age, skills } =
+    validationResult.params!;
 
   try {
     await db
@@ -155,7 +147,6 @@ export async function updateProfile(params: {
         graduationYear: graduationYear ?? null,
         age: age ?? null,
         skills: skills.length > 0 ? skills : null,
-        dataConsentGiven: dataConsentGiven ?? false,
         updatedAt: new Date(),
       })
       .where(eq(users.id, session.user.id));

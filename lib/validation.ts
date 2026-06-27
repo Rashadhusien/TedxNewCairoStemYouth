@@ -347,18 +347,17 @@ export const UpdateProfileSchema = z.object({
     .min(2020, "Graduation year seems too far in the past")
     .max(2035, "Graduation year seems too far in the future")
     .optional()
-    .nullable(),
+    .nullable()
+    .transform((v) => v ?? null),
   age: z
     .number()
     .int()
     .min(16, "Must be at least 16")
     .max(100, "Please enter a valid age")
     .optional()
-    .nullable(),
+    .nullable()
+    .transform((v) => v ?? null),
   skills: z.array(z.string()).default([]),
-  dataConsentGiven: z.boolean().refine((data) => data, {
-    message: "You must agree to the data consent",
-  }),
 });
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
