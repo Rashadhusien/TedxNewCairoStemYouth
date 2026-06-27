@@ -8,19 +8,17 @@ import TicketStatusBadge from "@/components/tickets/ticket-status-badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPiastres, TICKET_TIERS } from "@/lib/pricing";
-import type { Ticket } from "@/lib/db/schema";
 
 interface TicketCardProps {
-  ticket: Ticket;
-  attendeeName: string;
-  attendeeEmail: string;
+  id: string;
+  type: string;
+  qrCode: string | null;
+  status: string;
+  pricePaid: number;
+  createdAt: Date;
 }
 
-export default function TicketCard({
-  ticket,
-  attendeeName,
-  attendeeEmail,
-}: TicketCardProps) {
+export default function TicketCard({ ticket }: TicketCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const tierLabel =
@@ -47,8 +45,8 @@ export default function TicketCard({
   };
 
   return (
-    <Card className="max-w-md mx-auto border-primary/30 bg-gradient-to-b from-primary/5 to-black overflow-hidden">
-      <div className="h-1 bg-gradient-to-r from-primary via-red-600 to-primary" />
+    <Card className="max-w-md mx-auto border-primary/30 bg-linear-to-b from-primary/5 to-black overflow-hidden">
+      <div className="h-1 bg-linear-to-r from-primary via-red-600 to-primary" />
       <CardHeader className="text-center space-y-2">
         <p className="text-xs uppercase tracking-[0.3em] text-primary">
           TEDxNewCairoSTEMYouth
@@ -56,13 +54,15 @@ export default function TicketCard({
         <CardTitle className="text-2xl font-extrabold">
           Luminous Darkness 2026
         </CardTitle>
-        <TicketStatusBadge status={ticket.status} />
+        <div>
+          <TicketStatusBadge status={ticket.status} />
+        </div>
       </CardHeader>
       <CardContent className="space-y-6 text-center">
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <p className="text-lg font-bold">{attendeeName}</p>
           <p className="text-sm text-muted-foreground">{attendeeEmail}</p>
-        </div>
+        </div> */}
 
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Ticket Tier</p>

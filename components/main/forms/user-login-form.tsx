@@ -30,6 +30,8 @@ import { getSafeCallbackUrl } from "@/lib/auth/route-guards";
 import { signInWithCredentials } from "@/lib/db/actions/auth.action";
 import { UserLoginFormSchema } from "@/lib/validation";
 import { PasswordInput } from "@/components/ui/password-input";
+import { AuthDivider } from "@/components/auth-divider";
+import { GoogleSignInButton } from "@/app/(auth)/google-sign-in-button";
 
 function UserLoginFrom() {
   const router = useRouter();
@@ -139,6 +141,7 @@ function UserLoginFrom() {
           </Link>
         </div>
       </CardContent>
+
       <CardFooter>
         <Field orientation="horizontal">
           <Button
@@ -158,6 +161,10 @@ function UserLoginFrom() {
           </Button>
         </Field>
       </CardFooter>
+      {/* <div className="px-6 pb-2">
+        <AuthDivider />
+        <GoogleSignInButton className="w-full" />
+      </div> */}
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <Link

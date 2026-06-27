@@ -5,7 +5,7 @@ export const SPONSOR_CONTACT_EMAIL = "tedxnewcairostemyouth@gmail.com";
 export const sponsorDocuments = [
   {
     label: "Download Proposal",
-    href: "/files/Proposal-of-TEDxNewCairoSTEMYouth.pdf",
+    href: "/files/TEDxNewCairoSTEMYouthProposal.pdf",
     variant: "primary" as const,
   },
   {

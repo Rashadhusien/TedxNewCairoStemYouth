@@ -12,7 +12,7 @@ export const ROUTES = {
   VERIFY_EMAIL: "/verify-email",
   FORGET_PASSWORD: "/forget-password",
   RESET_PASSWORD: "/reset-password",
-
+  PROFILE: "/profile",
   UNAUTHORIZED: "/unauthorized",
   MY_TICKET: "/my-ticket",
   ADMIN: {

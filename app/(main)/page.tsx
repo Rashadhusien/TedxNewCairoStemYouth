@@ -4,11 +4,17 @@ import SpeakersSection from "./components/speakers-section";
 import CountdownTimer from "./components/countdown-timer";
 import SponsorsSection from "./components/sponsors-section";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
+import SponsorsSponsorsSection from "./components/sponsors/sponsors-sponsors-section";
+import SponsorsPartnersSection from "./components/sponsors/sponsors-partners-section";
 
 const Home = async () => {
-  const result = await getAllSponsors({ type: "sponsor" });
+  const [sponsorsResult, partnersResult] = await Promise.all([
+    getAllSponsors({ type: "sponsor" }),
+    getAllSponsors({ type: "partner" }),
+  ]);
 
-  const sponsors = result.success ? result.data?.items : [];
+  const sponsors = sponsorsResult.success ? sponsorsResult.data?.items : [];
+  const partners = partnersResult.success ? partnersResult.data?.items : [];
 
   return (
     <div className="">
@@ -18,7 +24,10 @@ const Home = async () => {
 
       <SpeakersSection hideKeyholders />
 
-      <SponsorsSection sponsors={sponsors || []} />
+      {/* <SponsorsSection sponsors={sponsors || []} /> */}
+
+      <SponsorsSponsorsSection sponsors={sponsors || []} />
+      <SponsorsPartnersSection partners={partners || []} />
 
       {/* <CTA /> */}
       <CountdownTimer />

@@ -27,6 +27,7 @@ import { signOutAction } from "@/lib/db/actions/auth.action";
 import { cn, getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Separator } from "./ui/separator";
+import { UserIcon } from "@animateicons/react/lucide";
 
 function getDisplayName(session: Session) {
   return session.user.name ?? session.user.email?.split("@")[0] ?? "Account";
@@ -114,24 +115,34 @@ export function UserDropdown({
           )}
           <DropdownMenuItem asChild>
             <Link
+              href={ROUTES.PROFILE}
+              className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm"
+            >
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">Profile</span>
+            </Link>
+          </DropdownMenuItem>
+          {/* <DropdownMenuItem asChild>
+            <Link
               href={ROUTES.MY_TICKET}
               className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-accent transition-colors text-sm"
             >
               <TicketIcon className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">My Ticket</span>
             </Link>
+          </DropdownMenuItem> */}
+          <DropdownMenuItem
+            onClick={() =>
+              signOut({
+                callbackUrl: ROUTES.LOGIN,
+              })
+            }
+            className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-destructive/10! hover:text-destructive-foreground  transition-colors "
+          >
+            <LogOutIcon className="h-4 w-4" />
+            <span>Sign Out</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
-        <DropdownMenuItem
-          onClick={() =>
-            signOut({
-              callbackUrl: ROUTES.LOGIN,
-            })
-          }
-        >
-          <LogOutIcon className="h-4 w-4" />
-          <span>Sign Out</span>
-        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

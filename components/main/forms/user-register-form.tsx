@@ -45,6 +45,8 @@ import { registerWithCredentails } from "@/lib/db/actions/auth.action";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { PENDING_REGISTER_PASSWORD_KEY } from "@/constants/auth";
+import { AuthDivider } from "@/components/auth-divider";
+import { GoogleSignInButton } from "@/app/(auth)/google-sign-in-button";
 
 const skillLabels = majorSkills.map((skill) => skill.label);
 
@@ -357,14 +359,14 @@ function UserRegisterFrom() {
                       href="/terms-and-conditions"
                       className="text-primary/80 hover:underline"
                     >
-                      terms and conditions
+                      Terms
                     </Link>{" "}
                     and{" "}
                     <Link
                       href="/privacy-policy"
                       className="text-primary/80 hover:underline"
                     >
-                      privacy policy
+                      Privacy Policy
                     </Link>
                   </FieldLabel>
                 </div>
@@ -376,6 +378,7 @@ function UserRegisterFrom() {
           />
         </form>
       </CardContent>
+
       <CardFooter>
         <Field orientation="horizontal">
           <Button
@@ -394,14 +397,17 @@ function UserRegisterFrom() {
           </Button>
         </Field>
       </CardFooter>
-
+      {/* <div className="px-6 pb-2">
+        <AuthDivider />
+        <GoogleSignInButton label="Register with Google" className="w-full" />
+      </div> */}
       <p className="text-center text-sm text-muted-foreground">
         Have an Account?{" "}
         <Link
           href={ROUTES.LOGIN}
           className="text-sm text-primary/80 hover:underline"
         >
-          login
+          Login
         </Link>
       </p>
     </Card>

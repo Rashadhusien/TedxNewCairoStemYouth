@@ -166,27 +166,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
 
   callbacks: {
+    // auth.ts — callbacks section
+
     async signIn({ user, account }) {
       if (!user.id) return false;
-
-      const profile = await loadUserAuthProfile(user.id);
-      if (!profile?.isActive) return false;
 
       if (account?.provider && account.provider !== CREDENTIALS_PROVIDER) {
         await db
           .update(users)
           .set({
+            isActive: true,
+            emailVerified: new Date(),
             name: user.name ?? undefined,
-            image: user.image ?? undefined,
             fullName: user.name ?? undefined,
-            emailVerified:
-              "emailVerified" in user && user.emailVerified
-                ? new Date(user.emailVerified)
-                : new Date(),
+            image: user.image ?? undefined,
             updatedAt: new Date(),
           })
           .where(eq(users.id, user.id));
+
+        return true;
       }
+
+      const profile = await loadUserAuthProfile(user.id);
+      if (!profile?.isActive) return false;
 
       return true;
     },

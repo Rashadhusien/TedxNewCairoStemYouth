@@ -583,3 +583,15 @@ export const resendVerificationEmail = async (params: {
 export async function signOutAction() {
   await signOut({ redirectTo: ROUTES.LOGIN });
 }
+
+export type GoogleSignInResponse = SignInSuccessResponse | ErrorResponse;
+
+export async function signInWithGoogle(callbackUrl?: string): Promise<never> {
+  // signIn with a provider never returns — it throws a NEXT_REDIRECT.
+  // The return type is `never` to make that explicit to callers.
+  const redirectTo = callbackUrl ?? ROUTES.HOME;
+  await signIn("google", { redirectTo });
+
+  // Unreachable — TypeScript needs this to satisfy the return type
+  throw new Error("unreachable");
+}

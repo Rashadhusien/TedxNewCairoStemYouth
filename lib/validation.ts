@@ -299,3 +299,66 @@ export const ResetPasswordSchema = z
 
 export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
+
+export const SKILLS_OPTIONS = [
+  "Software & AI",
+  "Robotics & Electronics",
+  "Mechanical & Industrial Engineering",
+  "Civil Engineering & Architecture",
+  "Applied Sciences",
+  "Business & Finance",
+  "Entrepreneurship & Startups",
+  "Marketing & PR",
+  "Design & Media",
+  "Writing & Research",
+  "Leadership & Public Speaking",
+] as const;
+
+export type SkillOption = (typeof SKILLS_OPTIONS)[number];
+
+export const UpdateProfileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(255, "Name is too long")
+    .trim(),
+  phone: z
+    .string()
+    .max(20, "Phone number is too long")
+    .regex(/^[\d\s+\-()]*$/, "Invalid phone number format")
+    .optional()
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  university: z
+    .string()
+    .max(255, "University name is too long")
+    .optional()
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  major: z
+    .string()
+    .max(255, "Major name is too long")
+    .optional()
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  graduationYear: z
+    .number()
+    .int()
+    .min(2020, "Graduation year seems too far in the past")
+    .max(2035, "Graduation year seems too far in the future")
+    .optional()
+    .nullable(),
+  age: z
+    .number()
+    .int()
+    .min(16, "Must be at least 16")
+    .max(100, "Please enter a valid age")
+    .optional()
+    .nullable(),
+  skills: z.array(z.string()).default([]),
+  dataConsentGiven: z.boolean().refine((data) => data, {
+    message: "You must agree to the data consent",
+  }),
+});
+
+export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;

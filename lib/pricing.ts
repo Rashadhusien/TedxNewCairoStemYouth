@@ -16,7 +16,7 @@ export const TICKET_TIERS: Record<
     type: "vip",
     label: "VIP Seat",
     subtitle: "Very Important Person",
-    pricePiastres: 50_000,
+    pricePiastres: 55_000,
     features: [
       "Front-row seating",
       "VIP lounge access",
@@ -28,7 +28,7 @@ export const TICKET_TIERS: Record<
     type: "ip",
     label: "IP Seat",
     subtitle: "Important Person",
-    pricePiastres: 40_000,
+    pricePiastres: 45_000,
     features: [
       "Priority seating",
       "Networking break access",
@@ -39,7 +39,7 @@ export const TICKET_TIERS: Record<
     type: "np",
     label: "NP Seat",
     subtitle: "Normal Person",
-    pricePiastres: 30_000,
+    pricePiastres: 35_000,
     features: [
       "General admission",
       "Full-day access to all talks",
@@ -73,7 +73,8 @@ export function isCouponActive(coupon: Coupon, now = new Date()): boolean {
   if (!coupon.isActive) return false;
   if (coupon.validFrom && coupon.validFrom > now) return false;
   if (coupon.validUntil && coupon.validUntil < now) return false;
-  if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses) return false;
+  if (coupon.maxUses !== null && coupon.usedCount >= coupon.maxUses)
+    return false;
   return true;
 }
 
@@ -100,9 +101,17 @@ export function getBasePrice(ticketType: PurchasableTicketType): number {
 export function applyOfferPrice(
   basePrice: number,
   offer: Offer | null,
-): { priceAfterOffer: number; offerId: string | null; offerPriceApplied: number | null } {
+): {
+  priceAfterOffer: number;
+  offerId: string | null;
+  offerPriceApplied: number | null;
+} {
   if (!offer || offer.discountedPrice == null) {
-    return { priceAfterOffer: basePrice, offerId: null, offerPriceApplied: null };
+    return {
+      priceAfterOffer: basePrice,
+      offerId: null,
+      offerPriceApplied: null,
+    };
   }
 
   return {
@@ -115,7 +124,11 @@ export function applyOfferPrice(
 export function applyCouponDiscount(
   price: number,
   coupon: Coupon | null,
-): { finalPrice: number; couponDiscountApplied: number; couponId: string | null } {
+): {
+  finalPrice: number;
+  couponDiscountApplied: number;
+  couponId: string | null;
+} {
   if (!coupon) {
     return { finalPrice: price, couponDiscountApplied: 0, couponId: null };
   }

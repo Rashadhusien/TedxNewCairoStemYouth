@@ -5,6 +5,7 @@ import SponsorsSection from "../components/sponsors-section";
 import TheaterParallax from "../components/theater-parallex";
 import ThemeSection from "../components/theme-section";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
+import SponsorsSponsorsSection from "../components/sponsors/sponsors-sponsors-section";
 export const metadata = {
   title: "Event 2026",
   description:
@@ -19,18 +20,19 @@ const Event = async () => {
       <SectionTitle
         eyebrow="Event"
         title="Event 2026"
-        subTitle="stay tuned for more updates"
+        subTitle="Ain Shams University Grand Conference Hall"
       />
 
       <MissionVissionSection />
 
       <ThemeSection />
 
-      {/* <TheaterParallax /> */}
+      <TheaterParallax />
 
       <SpeakersSection hideExploreLink={true} />
 
-      <SponsorsSection sponsors={sponsors || []} />
+      {/* <SponsorsSection sponsors={sponsors || []} /> */}
+      <SponsorsSponsorsSection sponsors={sponsors || []} />
     </div>
   );
 };
