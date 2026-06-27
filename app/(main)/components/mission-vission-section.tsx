@@ -79,7 +79,7 @@ const MissionVisionSection = () => {
           >
             <motion.div style={{ y, scale }} className="absolute inset-0">
               <Image
-                src="/images/mission-vission.jpg"
+                src="/images/mission-vission.webp"
                 alt="TEDx Mission and Vision"
                 fill
                 className="object-cover"

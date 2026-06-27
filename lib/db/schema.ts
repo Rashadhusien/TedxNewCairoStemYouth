@@ -218,6 +218,31 @@ export const verificationTokens = pgTable(
   }),
 );
 
+export const passwordResetTokens = pgTable(
+  "password_reset_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+
+    // SHA-256 hash of the raw token sent in the email link
+    // Raw token never stored — only the hash
+    tokenHash: text("token_hash").notNull().unique(),
+
+    expiresAt: timestamp("expires_at").notNull(),
+
+    // Stamped when consumed — makes it one-time use
+    usedAt: timestamp("used_at"),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index("prt_user_idx").on(t.userId),
+    tokenHashIdx: index("prt_token_hash_idx").on(t.tokenHash),
+  }),
+);
+
 // ─────────────────────────────────────────────
 // TICKETS
 // ─────────────────────────────────────────────
@@ -956,6 +981,9 @@ export const pointTransactionsRelations = relations(
 // TYPE EXPORTS
 // (Inferred TypeScript types from schema)
 // ─────────────────────────────────────────────
+
+export type PasswordResetToken = typeof passwordResetTokens.$inferSelect;
+export type NewPasswordResetToken = typeof passwordResetTokens.$inferInsert;
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;

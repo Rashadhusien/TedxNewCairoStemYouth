@@ -130,13 +130,22 @@ function UserLoginFrom() {
             />
           </FieldGroup>
         </form>
+        <div className="mt-1.5 flex justify-end">
+          <Link
+            href={ROUTES.FORGET_PASSWORD}
+            className="text-xs text-white/40 hover:text-white/70 transition-colors"
+          >
+            Forgot password?
+          </Link>
+        </div>
       </CardContent>
       <CardFooter>
         <Field orientation="horizontal">
           <Button
             type="submit"
             form="form-user-login"
-            className="w-full flex-center"
+            className="w-full flex-center "
+            size={"lg"}
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (

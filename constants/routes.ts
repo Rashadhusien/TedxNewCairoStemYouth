@@ -10,6 +10,9 @@ export const ROUTES = {
   TERMESANDCONDITION: "/terms-and-conditions",
   PRIVACYPOLICY: "/privacy-policy",
   VERIFY_EMAIL: "/verify-email",
+  FORGET_PASSWORD: "/forget-password",
+  RESET_PASSWORD: "/reset-password",
+
   UNAUTHORIZED: "/unauthorized",
   MY_TICKET: "/my-ticket",
   ADMIN: {
