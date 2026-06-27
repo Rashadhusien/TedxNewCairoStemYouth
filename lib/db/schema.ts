@@ -113,6 +113,8 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "bonus",
 ]);
 
+export const speakerTypeEnum = pgEnum("speaker_type", ["main", "keyholder"]);
+
 // ─────────────────────────────────────────────
 // USERS & AUTH
 // ─────────────────────────────────────────────
@@ -615,6 +617,55 @@ export const boothScans = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// SPEAKERS
+// ─────────────────────────────────────────────
+
+export const speakers = pgTable(
+  "speakers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name", { length: 255 }).notNull(),
+    role: varchar("role", { length: 255 }).notNull(),
+    description: text("description").notNull(),
+    tagline: text("tagline").notNull(),
+    type: speakerTypeEnum("type").notNull().default("main"),
+
+    // Element symbol for main speakers (emoji)
+    symbol: varchar("symbol", { length: 10 }),
+
+    // Initials for keyholders
+    initials: varchar("initials", { length: 10 }),
+
+    // Accent gradient for main speakers (Tailwind classes)
+    accent: varchar("accent", { length: 100 }),
+
+    // Role color for main speakers (Tailwind classes)
+    roleColor: varchar("role_color", { length: 100 }),
+
+    // Speaker image URL
+    imageUrl: text("image_url").notNull(),
+
+    // Display order
+    displayOrder: smallint("display_order").notNull().default(0),
+
+    // Soft delete
+    deletedAt: timestamp("deleted_at"),
+
+    isActive: boolean("is_active").notNull().default(true),
+    createdBy: uuid("created_by")
+      .notNull()
+      .references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    typeIdx: index("speakers_type_idx").on(t.type),
+    activeIdx: index("speakers_active_idx").on(t.isActive),
+    displayOrderIdx: index("speakers_display_order_idx").on(t.displayOrder),
+  }),
+);
+
+// ─────────────────────────────────────────────
 // SURVEYS
 // ─────────────────────────────────────────────
 
@@ -908,6 +959,14 @@ export const sponsorsRelations = relations(sponsors, ({ one, many }) => ({
   surveyResponses: many(surveyResponses),
 }));
 
+export const speakersRelations = relations(speakers, ({ one }) => ({
+  createdByUser: one(users, {
+    fields: [speakers.createdBy],
+    references: [users.id],
+    relationName: "speaker_creator",
+  }),
+}));
+
 export const boothsRelations = relations(booths, ({ one, many }) => ({
   sponsor: one(sponsors, {
     fields: [booths.sponsorId],
@@ -1002,6 +1061,9 @@ export type NewOffer = typeof offers.$inferInsert;
 
 export type Sponsor = typeof sponsors.$inferSelect;
 export type NewSponsor = typeof sponsors.$inferInsert;
+
+export type Speaker = typeof speakers.$inferSelect;
+export type NewSpeaker = typeof speakers.$inferInsert;
 
 export type Booth = typeof booths.$inferSelect;
 export type NewBooth = typeof booths.$inferInsert;

@@ -27,6 +27,11 @@ export const ROUTES = {
       CREATE: "/admin/sponsors/create",
       EDIT: (id: string) => `/admin/sponsors/edit/${id}`,
     },
+    SPEAKERS: {
+      HOME: "/admin/speakers",
+      CREATE: "/admin/speakers/create",
+      EDIT: (id: string) => `/admin/speakers/edit/${id}`,
+    },
     OFFERS: "/admin/offers",
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",

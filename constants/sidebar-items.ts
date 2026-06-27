@@ -66,6 +66,7 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
+
   {
     id: 3,
     label: "Sponsors & Boothes",
@@ -73,6 +74,17 @@ export const sidebarItems: NavGroup[] = [
       {
         title: "Sponsors",
         url: ROUTES.ADMIN.SPONSORS.HOME,
+        icon: LayersMinusIcon,
+      },
+    ],
+  },
+  {
+    id: 4,
+    label: "Speakers & Keyholders",
+    items: [
+      {
+        title: "Speakers",
+        url: ROUTES.ADMIN.SPEAKERS.HOME,
         icon: LayersMinusIcon,
       },
     ],

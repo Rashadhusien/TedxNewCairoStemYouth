@@ -268,6 +268,89 @@ export const sponsorFormSchema = z.object({
   isActive: z.boolean(),
 });
 
+export const speakerTypeEnum = z.enum(["main", "keyholder"]);
+
+export const speakerFormSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name is required")
+      .max(255, "Name cannot exceed 255 characters"),
+
+    role: z
+      .string()
+      .trim()
+      .min(1, "Role is required")
+      .max(255, "Role cannot exceed 255 characters"),
+
+    description: z
+      .string()
+      .trim()
+      .min(1, "Description is required")
+      .max(500, "Description cannot exceed 500 characters"),
+
+    tagline: z
+      .string()
+      .trim()
+      .min(1, "Tagline is required")
+      .max(500, "Tagline cannot exceed 500 characters"),
+
+    type: speakerTypeEnum,
+
+    symbol: z.string().max(10).min(1, "Symbol is required"),
+    initials: z.string().max(10).min(1, "Initials are required"),
+    accent: z.string().max(100).min(1, "Accent is required"),
+    roleColor: z.string().max(100).min(1, "Role color is required"),
+
+    imageUrl: z
+      .string()
+      .trim()
+      .min(1, "Image URL is required")
+      .url("Invalid image URL"),
+
+    displayOrder: z.number().int().min(0),
+
+    isActive: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "main" && !data.symbol) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Symbol is required for main speakers",
+        path: ["symbol"],
+      });
+    }
+    if (data.type === "main" && !data.accent) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Accent is required for main speakers",
+        path: ["accent"],
+      });
+    }
+    if (data.type === "main" && !data.roleColor) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Role color is required for main speakers",
+        path: ["roleColor"],
+      });
+    }
+    if (data.type === "keyholder" && !data.initials) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Initials are required for keyholders",
+        path: ["initials"],
+      });
+    }
+  });
+
+export const SpeakerListSchema = z.object({
+  type: z.enum(["all", "main", "keyholder"]).default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
 // ── Forgot Password ────────────────────────────────────────────────────────
 
 export const ForgotPasswordSchema = z.object({

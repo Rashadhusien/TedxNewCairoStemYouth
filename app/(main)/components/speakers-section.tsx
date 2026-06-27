@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { mainSpeakers, keyholders } from "@/constants/speakers";
+import { getAllSpeakers } from "@/lib/db/actions/speaker.action";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,6 +15,27 @@ const GLOW_COLORS: Record<string, string> = {
   water: "rgba(0, 102, 204, 0.22)",
   earth: "rgba(45, 106, 45, 0.22)",
   air: "rgba(136, 68, 204, 0.22)",
+};
+
+type MainSpeaker = {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  tagline: string;
+  symbol: string;
+  accent: string;
+  roleColor: string;
+  image: string;
+};
+
+type Keyholder = {
+  id: string;
+  name: string;
+  initials: string;
+  role: string;
+  tagline: string;
+  image: string;
 };
 
 // Grid line texture background (matches the premium look)
@@ -42,6 +63,66 @@ export default function SpeakersSection({
   const keyholdersHeaderRef = useRef<HTMLDivElement>(null);
   const keyholdersGridRef = useRef<HTMLDivElement>(null);
   const exploreRef = useRef<HTMLDivElement>(null);
+
+  const [mainSpeakers, setMainSpeakers] = useState<MainSpeaker[]>([]);
+  const [keyholders, setKeyholders] = useState<Keyholder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSpeakers() {
+      try {
+        const [mainResult, keyholdersResult] = await Promise.all([
+          getAllSpeakers({ type: "main" }),
+          getAllSpeakers({ type: "keyholder" }),
+        ]);
+
+        if (mainResult.success && mainResult.data) {
+          const transformedMain = mainResult.data.items.map((speaker) => ({
+            id: speaker.id,
+            name: speaker.name,
+            role: speaker.role,
+            description: speaker.description,
+            tagline: speaker.tagline,
+            symbol: speaker.symbol || "✦",
+            accent: speaker.accent || "from-[#666] to-[#999]",
+            roleColor:
+              speaker.roleColor || "text-white/70 group-hover:text-white",
+            image: speaker.imageUrl,
+          }));
+          setMainSpeakers(transformedMain);
+        }
+
+        if (keyholdersResult.success && keyholdersResult.data) {
+          const transformedKeyholders = keyholdersResult.data.items.map(
+            (speaker) => ({
+              id: speaker.id,
+              name: speaker.name,
+              initials:
+                speaker.initials || speaker.name.slice(0, 2).toUpperCase(),
+              role: speaker.role,
+              tagline: speaker.tagline,
+              image: speaker.imageUrl,
+            }),
+          );
+          setKeyholders(transformedKeyholders);
+        }
+      } catch (error) {
+        console.error("Failed to fetch speakers:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchSpeakers();
+  }, []);
+
+  if (loading) {
+    return null;
+  }
+
+  if (mainSpeakers.length === 0 && keyholders.length === 0) {
+    return null;
+  }
 
   // Staggered scroll entrance animations
   // useGSAP(
@@ -206,8 +287,8 @@ export default function SpeakersSection({
     });
     gsap.to(image, {
       scale: 1.07,
-      opacity: 0.42,
-      filter: "grayscale(0%)",
+      // opacity: 0.42,
+      // filter: "grayscale(0%)",
       duration: 0.5,
       ease: "power2.out",
       overwrite: "auto",
@@ -245,8 +326,8 @@ export default function SpeakersSection({
     });
     gsap.to(image, {
       scale: 1.0,
-      opacity: 0.18,
-      filter: "grayscale(100%)",
+      // opacity: 0.18,
+      // filter: "grayscale(100%)",
       duration: 0.5,
       ease: "power2.out",
       overwrite: "auto",
@@ -285,8 +366,8 @@ export default function SpeakersSection({
     });
     gsap.to(image, {
       scale: 1.08,
-      opacity: 0.35,
-      filter: "grayscale(0%)",
+      // opacity: 0.5,
+      // filter: "grayscale(0%)",
       duration: 0.45,
       ease: "power2.out",
       overwrite: "auto",
@@ -331,8 +412,8 @@ export default function SpeakersSection({
     });
     gsap.to(image, {
       scale: 1.0,
-      opacity: 0.15,
-      filter: "grayscale(100%)",
+      // opacity: 0.15,
+      // filter: "grayscale(100%)",
       duration: 0.45,
       ease: "power2.out",
       overwrite: "auto",
@@ -509,17 +590,13 @@ export default function SpeakersSection({
               </div> */}
 
               {/* Speaker Grayscale to Color Image */}
-              {/* <Image
+              <Image
                 src={speaker.image}
                 alt={speaker.name}
                 width={400}
                 height={400}
-                className="card-image absolute inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all"
-              /> */}
-
-              <span className="card-image absolute flex items-center justify-center text-9xl inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all">
-                ?
-              </span>
+                className="card-image absolute inset-0 w-full h-full object-cover select-none pointer-events-none z-4 transition-all"
+              />
 
               {/* Content overlay */}
               <div className="absolute inset-0 bg-linear-to-t from-black via-black/35 to-transparent flex flex-col justify-end p-6 sm:p-7 z-5">
@@ -533,12 +610,11 @@ export default function SpeakersSection({
                 </div>
 
                 <h3 className="font-black text-white text-xl lg:text-3xl leading-tight tracking-tight mb-1.5">
-                  {/* {speaker.name} */}
-                  <span className="text-white/40">-</span>
+                  {speaker.name}
                 </h3>
-                <p className="text-white/40 text-[12px] font-medium tracking-wide">
+                {/* <p className="text-white/40 text-[12px] font-medium tracking-wide">
                   {speaker.description}
-                </p>
+                </p> */}
 
                 {/* Tagline — GSAP-animated expansion on hover */}
                 <div className="card-tagline overflow-hidden h-0 ">
@@ -644,11 +720,11 @@ export default function SpeakersSection({
             {keyholders.map((k) => (
               <div
                 key={k.id}
-                className="group/keyholder key-border relative aspect-3/4 overflow-hidden rounded border border-white/5 bg-[#060606]/95 backdrop-blur-md cursor-pointer animate-on-scroll "
+                className="group/keyholder key-border relative aspect-3/4 overflow-hidden rounded border border-white/5 bg-[#060606]/20 backdrop-blur-sm cursor-pointer animate-on-scroll "
                 onMouseEnter={onMouseEnterKeyholder}
                 onMouseLeave={onMouseLeaveKeyholder}
               >
-                <div className="key-sweep absolute top-0 left-0 right-0 h-[2px] bg-primary z-5 scale-x-0 origin-left" />
+                <div className="key-sweep absolute top-0 left-0 right-0 h-0.5 bg-primary z-5 scale-x-0 origin-left" />
 
                 <div className="absolute inset-0 bg-white/1 flex items-center justify-center z-2">
                   <span className="font-black text-6xl text-white/3 select-none transition-colors duration-300">
@@ -656,16 +732,13 @@ export default function SpeakersSection({
                   </span>
                 </div>
 
-                {/* <Image
+                <Image
                   src={k.image}
                   alt={k.name}
                   width={400}
                   height={400}
-                  className="key-image absolute inset-0 w-full h-full object-cover opacity-15 grayscale select-none pointer-events-none z-3"
-                /> */}
-                <span className="card-image absolute flex items-center justify-center text-9xl inset-0 w-full h-full object-cover opacity-18 grayscale select-none pointer-events-none z-4 transition-all">
-                  ?
-                </span>
+                  className="key-image absolute inset-0 w-full h-full object-cover "
+                />
 
                 <div className="absolute top-3.5 right-3.5 z-5 bg-black/40 border border-white/5 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-xs">
                   <svg
@@ -690,8 +763,7 @@ export default function SpeakersSection({
                     {k.role}
                   </span>
                   <h3 className="text-white text-[13px] font-black leading-snug tracking-tight">
-                    {/* {k.name} */}
-                    soon
+                    {k.name}
                   </h3>
 
                   <div className="key-tagline overflow-hidden h-0 ">

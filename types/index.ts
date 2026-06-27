@@ -5,7 +5,6 @@ export interface UploadWidgetValue {
   mimeType?: string;
 }
 
-
 export interface PaginationParams {
   page: number;
   pageSize: number;
@@ -18,4 +17,5 @@ export interface SearchParams {
   pageSize?: string;
   status?: string;
   search?: string;
+  type?: string;
 }

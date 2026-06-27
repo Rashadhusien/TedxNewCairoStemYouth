@@ -124,6 +124,7 @@ export default function RootLayout({
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
+          forcedTheme="dark"
         >
           <SessionProvider>{children}</SessionProvider>
           <Toaster richColors />
