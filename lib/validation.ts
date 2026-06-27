@@ -298,10 +298,10 @@ export const speakerFormSchema = z
 
     type: speakerTypeEnum,
 
-    symbol: z.string().max(10).min(1, "Symbol is required"),
-    initials: z.string().max(10).min(1, "Initials are required"),
-    accent: z.string().max(100).min(1, "Accent is required"),
-    roleColor: z.string().max(100).min(1, "Role color is required"),
+    symbol: z.string().max(10).optional().default(""),
+    initials: z.string().max(10).optional().default(""),
+    accent: z.string().max(100).optional().default(""),
+    roleColor: z.string().max(100).optional().default(""),
 
     imageUrl: z
       .string()
