@@ -326,19 +326,16 @@ export const UpdateProfileSchema = z.object({
     .string()
     .max(20, "Phone number is too long")
     .regex(/^[\d\s+\-()]*$/, "Invalid phone number format")
-    .optional()
     .nullable()
     .transform((v) => v?.trim() || null),
   university: z
     .string()
     .max(255, "University name is too long")
-    .optional()
     .nullable()
     .transform((v) => v?.trim() || null),
   major: z
     .string()
     .max(255, "Major name is too long")
-    .optional()
     .nullable()
     .transform((v) => v?.trim() || null),
   graduationYear: z
@@ -346,7 +343,6 @@ export const UpdateProfileSchema = z.object({
     .int()
     .min(2020, "Graduation year seems too far in the past")
     .max(2035, "Graduation year seems too far in the future")
-    .optional()
     .nullable()
     .transform((v) => v ?? null),
   age: z
@@ -354,10 +350,9 @@ export const UpdateProfileSchema = z.object({
     .int()
     .min(16, "Must be at least 16")
     .max(100, "Please enter a valid age")
-    .optional()
     .nullable()
     .transform((v) => v ?? null),
-  skills: z.array(z.string()).default([]),
+  skills: z.array(z.string()),
 });
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
