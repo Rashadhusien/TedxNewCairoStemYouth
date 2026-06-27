@@ -104,7 +104,7 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
           <div className="mb-4 rounded-md border border-red-500/20 bg-red-500/10 px-4 py-3">
             <p className="text-xs text-red-400">{errors.root.message}</p>
             <a
-              href={ROUTES.FORGOT_PASSWORD}
+              href={ROUTES.FORGET_PASSWORD}
               className="mt-1 block text-xs text-red-400/70 underline hover:text-red-400"
             >
               Request a new link
