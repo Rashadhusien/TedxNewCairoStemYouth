@@ -69,11 +69,11 @@ function ContactForm() {
   return (
     <div className="flex-1 mx-auto w-full">
       <form
-        className="w-full  lg:max-w-xl"
+        className="w-full  lg:max-w-xl space-y-10"
         id="form-contact"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <FieldGroup>
+        <FieldGroup className="space-y-4">
           <Controller
             name="name"
             control={form.control}

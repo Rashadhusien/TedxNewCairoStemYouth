@@ -1,6 +1,8 @@
 import SectionTitle from "@/components/layout/section-title";
 import ContactForm from "@/components/main/forms/contact-form";
 import { socialLinks } from "@/constants";
+import { Mail, Phone } from "lucide-react";
+import Link from "next/link";
 export const metadata = {
   title: "Contact Us",
   description:
@@ -32,18 +34,31 @@ const Contact = () => {
           {/* Sidebar — 2 cols */}
           <div className="lg:col-span-2 space-y-8">
             {/* Direct contact */}
-            {/* <div className="p-6 border border-white/5 bg-white/1 rounded-sm">
+            <div className="p-6 border border-white/5 bg-white/1 rounded-sm ">
               <h3 className="text-white font-bold text-sm tracking-wide mb-4">
                 Direct Contact
               </h3>
-              <a
+              <Link
                 href="mailto:tedxnewcairostemyouth@gmail.com"
-                className="flex items-center gap-3 text-white/50 hover:text-primary transition-colors duration-300 text-sm"
+                className="group flex items-center gap-3 text-white/50 hover:text-primary transition-colors duration-300 text-sm mb-4"
               >
-                <Mail size={16} className="text-primary/60 flex-shrink-0" />
+                <Mail
+                  size={16}
+                  className=" flex items-center justify-center text-sm group-hover:border-primary/40 group-hover:text-primary rounded-sm transition-all duration-300 text-white/30"
+                />
                 tedxnewcairostemyouth@gmail.com
-              </a>
-            </div> */}
+              </Link>
+              <Link
+                href="tel:+201036566152"
+                className="group flex items-center gap-3 text-white/50 hover:text-primary transition-colors duration-300 text-sm"
+              >
+                <Phone
+                  size={16}
+                  className="flex items-center justify-center text-sm group-hover:border-primary/40 group-hover:text-primary rounded-sm transition-all duration-300 text-white/30"
+                />
+                +201036566152
+              </Link>
+            </div>
 
             {/* Social links */}
             <div className="p-6 border border-white/5 bg-white/1 rounded-sm">
