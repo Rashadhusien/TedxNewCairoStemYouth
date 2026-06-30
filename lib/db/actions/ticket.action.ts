@@ -65,7 +65,9 @@ async function resolveCoupon(code: string | undefined) {
 
 export async function purchaseTicket(
   params: TicketPurchaseInput,
-): Promise<ActionResponse<{ ticketId: string; status: string }> | ErrorResponse> {
+): Promise<
+  ActionResponse<{ ticketId: string; status: string }> | ErrorResponse
+> {
   const validationResult = await action<TicketPurchaseInput>({
     params,
     schema: TicketPurchaseSchema,
@@ -98,7 +100,9 @@ export async function purchaseTicket(
     if (!user.dataConsentGiven) {
       return handleError(
         new ValidationError({
-          dataConsent: ["You must accept data consent before purchasing a ticket"],
+          dataConsent: [
+            "You must accept data consent before purchasing a ticket",
+          ],
         }),
       ) as ErrorResponse;
     }
@@ -152,10 +156,7 @@ export async function purchaseTicket(
       }
 
       if (
-        !couponAppliesToTier(
-          coupon,
-          data.ticketType as PurchasableTicketType,
-        )
+        !couponAppliesToTier(coupon, data.ticketType as PurchasableTicketType)
       ) {
         return handleError(
           new ValidationError({
@@ -199,8 +200,10 @@ export async function purchaseTicket(
     if (existingTicket) {
       if (existingTicket.paymentScreenshotUrl && data.screenshotPublicId) {
         const folderPrefix = `tedx/payment_screenshots/${session.user.id}/`;
-        if (data.screenshotPublicId.startsWith(folderPrefix.replace(/\/$/, "")) ||
-            data.screenshotPublicId.includes(session.user.id)) {
+        if (
+          data.screenshotPublicId.startsWith(folderPrefix.replace(/\/$/, "")) ||
+          data.screenshotPublicId.includes(session.user.id)
+        ) {
           try {
             await deletePaymentScreenshot(data.screenshotPublicId);
           } catch {
@@ -298,9 +301,7 @@ export async function getMyTicket(): Promise<
   }
 }
 
-export async function listTickets(
-  params: TicketListInput,
-): Promise<
+export async function listTickets(params: TicketListInput): Promise<
   | ActionResponse<{
       items: TicketWithRelations[];
       total: number;
@@ -386,7 +387,9 @@ export async function listTickets(
 
 export async function reviewTicket(
   params: TicketReviewInput,
-): Promise<ActionResponse<{ ticketId: string; status: string }> | ErrorResponse> {
+): Promise<
+  ActionResponse<{ ticketId: string; status: string }> | ErrorResponse
+> {
   const validationResult = await action<TicketReviewInput>({
     params,
     schema: TicketReviewSchema,
@@ -398,8 +401,11 @@ export async function reviewTicket(
 
   try {
     const session = await requireAdmin();
-    const { ticketId, action: reviewAction, rejectionReason } =
-      validationResult.params as TicketReviewInput;
+    const {
+      ticketId,
+      action: reviewAction,
+      rejectionReason,
+    } = validationResult.params as TicketReviewInput;
 
     const [ticketRow] = await db
       .select({
@@ -499,10 +505,13 @@ export async function reviewTicket(
   }
 }
 
-export async function checkInTicket(
-  params: CheckInInput,
-): Promise<
-  ActionResponse<{ ticketId: string; attendeeName: string | null }> | ErrorResponse
+export async function checkInTicket(params: CheckInInput): Promise<
+  | ActionResponse<{
+      ticketId: string;
+      attendeeName: string | null;
+      alreadyCheckedIn?: boolean;
+    }>
+  | ErrorResponse
 > {
   const validationResult = await action<CheckInInput>({
     params,
@@ -517,6 +526,42 @@ export async function checkInTicket(
     const session = await requireAdmin();
     const { qrCode } = validationResult.params as CheckInInput;
 
+    const now = new Date();
+
+    // Atomic conditional update: only update if status is "confirmed"
+    const [updated] = await db
+      .update(tickets)
+      .set({
+        status: "checked_in",
+        checkedInAt: now,
+        checkedInBy: session.user.id,
+        updatedAt: now,
+      })
+      .where(and(eq(tickets.qrCode, qrCode), eq(tickets.status, "confirmed")))
+      .returning({ id: tickets.id });
+
+    if (updated) {
+      // Newly checked in - fetch attendee name for response
+      const [row] = await db
+        .select({
+          fullName: users.fullName,
+        })
+        .from(tickets)
+        .innerJoin(users, eq(tickets.userId, users.id))
+        .where(eq(tickets.id, updated.id))
+        .limit(1);
+
+      return {
+        success: true,
+        data: {
+          ticketId: updated.id,
+          attendeeName: row?.fullName ?? null,
+          alreadyCheckedIn: false,
+        },
+      };
+    }
+
+    // Update didn't happen - re-fetch to determine why
     const [row] = await db
       .select({
         ticket: tickets,
@@ -531,33 +576,27 @@ export async function checkInTicket(
       return handleError(new NotFoundError("Ticket")) as ErrorResponse;
     }
 
-    if (row.ticket.status !== "confirmed") {
-      return handleError(
-        new ValidationError({
-          status: ["Ticket must be confirmed before check-in"],
-        }),
-      ) as ErrorResponse;
+    // Handle already checked-in tickets
+    if (row.ticket.status === "checked_in") {
+      return {
+        success: true,
+        data: {
+          ticketId: row.ticket.id,
+          attendeeName: row.fullName,
+          alreadyCheckedIn: true,
+        },
+      };
     }
 
-    const now = new Date();
-
-    await db
-      .update(tickets)
-      .set({
-        status: "checked_in",
-        checkedInAt: now,
-        checkedInBy: session.user.id,
-        updatedAt: now,
-      })
-      .where(eq(tickets.id, row.ticket.id));
-
-    return {
-      success: true,
-      data: {
-        ticketId: row.ticket.id,
-        attendeeName: row.fullName,
-      },
-    };
+    // Wrong status
+    return handleError(
+      new ValidationError({
+        status: [
+          "Ticket must be confirmed before check-in. Current status: " +
+            row.ticket.status,
+        ],
+      }),
+    ) as ErrorResponse;
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }

@@ -21,7 +21,7 @@ import {
   Camera,
   Keyboard,
 } from "lucide-react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 
 export default function AdminCheckInPage() {
   const [qrCode, setQrCode] = useState("");
@@ -30,6 +30,7 @@ export default function AdminCheckInPage() {
     success: boolean;
     attendeeName: string | null;
     message: string;
+    alreadyCheckedIn?: boolean;
   } | null>(null);
   const [useCamera, setUseCamera] = useState(true);
   const [cameraError, setCameraError] = useState<string | null>(null);
@@ -66,8 +67,10 @@ export default function AdminCheckInPage() {
         scannerRef.current.clear();
       } catch (error) {
         console.error("Error stopping scanner:", error);
+      } finally {
+        scannerRef.current = null;
+        setIsScanning(false);
       }
-      setIsScanning(false);
     }
   };
 
@@ -78,12 +81,7 @@ export default function AdminCheckInPage() {
     setQrCode(decodedText);
     await handleCheckIn(decodedText);
 
-    // Restart scanner after a delay
-    setTimeout(() => {
-      if (useCamera) {
-        startScanner();
-      }
-    }, 2000);
+    // Don't auto-restart scanner - let admin manually restart after seeing status
   };
 
   const onScanFailure = () => {
@@ -107,16 +105,22 @@ export default function AdminCheckInPage() {
         attendeeName: null,
         message: errorMsg,
       });
-      toast.error(errorMsg);
+      // toast.error(errorMsg);
       return;
     }
+
+    const alreadyCheckedIn = result.data?.alreadyCheckedIn ?? false;
+    const message = alreadyCheckedIn
+      ? "This ticket has already been checked in"
+      : "Ticket checked in successfully";
 
     setLastResult({
       success: true,
       attendeeName: result.data?.attendeeName ?? null,
-      message: "Ticket checked in successfully",
+      message,
+      alreadyCheckedIn,
     });
-    toast.success("Ticket checked in successfully");
+    // toast.success(message);
     setQrCode("");
   };
 
@@ -235,20 +239,30 @@ export default function AdminCheckInPage() {
             <div
               className={`p-4 rounded-lg border flex items-start gap-3 ${
                 lastResult.success
-                  ? "bg-green-500/10 border-green-500/20"
+                  ? lastResult.alreadyCheckedIn
+                    ? "bg-yellow-500/10 border-yellow-500/20"
+                    : "bg-green-500/10 border-green-500/20"
                   : "bg-red-500/10 border-red-500/20"
               }`}
             >
               {lastResult.success ? (
-                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                lastResult.alreadyCheckedIn ? (
+                  <CheckCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+                ) : (
+                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+                )
               ) : (
                 <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
               )}
               <div className="flex-1">
                 {lastResult.success && lastResult.attendeeName && (
                   <div className="flex items-center gap-2 mb-1">
-                    <User className="w-4 h-4 text-green-500" />
-                    <span className="font-semibold text-green-500">
+                    <User
+                      className={`w-4 h-4 ${lastResult.alreadyCheckedIn ? "text-yellow-500" : "text-green-500"}`}
+                    />
+                    <span
+                      className={`font-semibold ${lastResult.alreadyCheckedIn ? "text-yellow-500" : "text-green-500"}`}
+                    >
                       {lastResult.attendeeName}
                     </span>
                   </div>
@@ -256,6 +270,19 @@ export default function AdminCheckInPage() {
                 <p className="text-sm">{lastResult.message}</p>
               </div>
             </div>
+          )}
+
+          {/* Restart Scanner Button */}
+          {lastResult && lastResult.success && !isScanning && useCamera && (
+            <Button
+              type="button"
+              onClick={startScanner}
+              className="w-full"
+              variant="outline"
+            >
+              <Camera className="w-4 h-4 mr-2" />
+              Resume Scanning
+            </Button>
           )}
 
           {/* Instructions */}
