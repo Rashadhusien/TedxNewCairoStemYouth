@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { X, Clock, Tag, Flame, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
+import type { JSX } from "react";
 
 export default function FloatingOfferBanner(): JSX.Element | null {
   const [offer, setOffer] = useState<Offer | null>(null);
