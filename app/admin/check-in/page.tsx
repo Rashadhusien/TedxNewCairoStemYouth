@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { checkInTicket } from "@/lib/db/actions/ticket.action";
 import { getActionErrorMessage } from "@/types/actions";
 import { Button } from "@/components/ui/button";
@@ -9,8 +13,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, CheckCircle, XCircle, User } from "lucide-react";
-import { useState } from "react";
+import {
+  Loader2,
+  CheckCircle,
+  XCircle,
+  User,
+  Camera,
+  Keyboard,
+} from "lucide-react";
 import { toast } from "sonner";
 
 export default function AdminCheckInPage() {
@@ -21,15 +31,73 @@ export default function AdminCheckInPage() {
     attendeeName: string | null;
     message: string;
   } | null>(null);
+  const [useCamera, setUseCamera] = useState(true);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
 
-  const handleCheckIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!qrCode.trim()) return;
+  const startScanner = async () => {
+    try {
+      const html5QrCode = new Html5Qrcode("qr-reader");
+      scannerRef.current = html5QrCode;
+
+      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      await html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        onScanSuccess,
+        onScanFailure,
+      );
+      setIsScanning(true);
+      setCameraError(null);
+    } catch (error) {
+      console.error("Camera error:", error);
+      setCameraError(
+        "Unable to access camera. Please check permissions or use manual input.",
+      );
+      setUseCamera(false);
+    }
+  };
+
+  const stopScanner = async () => {
+    if (scannerRef.current && isScanning) {
+      try {
+        await scannerRef.current.stop();
+        scannerRef.current.clear();
+      } catch (error) {
+        console.error("Error stopping scanner:", error);
+      }
+      setIsScanning(false);
+    }
+  };
+
+  const onScanSuccess = async (decodedText: string) => {
+    if (loading) return;
+
+    await stopScanner();
+    setQrCode(decodedText);
+    await handleCheckIn(decodedText);
+
+    // Restart scanner after a delay
+    setTimeout(() => {
+      if (useCamera) {
+        startScanner();
+      }
+    }, 2000);
+  };
+
+  const onScanFailure = () => {
+    // Suppress scan failures (no QR code in frame)
+  };
+
+  const handleCheckIn = async (code?: string) => {
+    const codeToCheck = code || qrCode;
+    if (!codeToCheck.trim()) return;
 
     setLoading(true);
     setLastResult(null);
 
-    const result = await checkInTicket({ qrCode: qrCode.trim() });
+    const result = await checkInTicket({ qrCode: codeToCheck.trim() });
     setLoading(false);
 
     if (!result.success) {
@@ -52,6 +120,31 @@ export default function AdminCheckInPage() {
     setQrCode("");
   };
 
+  useEffect(() => {
+    if (useCamera && !scannerRef.current) {
+      startScanner();
+    }
+    return () => {
+      stopScanner();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [useCamera]);
+
+  const toggleInputMethod = () => {
+    if (useCamera) {
+      stopScanner();
+      setUseCamera(false);
+    } else {
+      setUseCamera(true);
+      setCameraError(null);
+    }
+  };
+
+  const handleManualSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleCheckIn();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -65,68 +158,115 @@ export default function AdminCheckInPage() {
         <CardHeader>
           <CardTitle>Check-In Scanner</CardTitle>
           <CardDescription>
-            Enter the QR code from the attendee ticket to check them in
+            Scan QR code with camera or enter manually
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleCheckIn} className="space-y-4">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Enter QR code or scan..."
-                value={qrCode}
-                onChange={(e) => setQrCode(e.target.value)}
-                disabled={loading}
-                autoFocus
-                className="flex-1 font-mono"
-              />
-              <Button type="submit" disabled={loading || !qrCode.trim()}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Checking...
-                  </>
-                ) : (
-                  "Check In"
-                )}
-              </Button>
-            </div>
-
-            {lastResult && (
-              <div
-                className={`p-4 rounded-lg border flex items-start gap-3 ${
-                  lastResult.success
-                    ? "bg-green-500/10 border-green-500/20"
-                    : "bg-red-500/10 border-red-500/20"
-                }`}
-              >
-                {lastResult.success ? (
-                  <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
-                )}
-                <div className="flex-1">
-                  {lastResult.success && lastResult.attendeeName && (
-                    <div className="flex items-center gap-2 mb-1">
-                      <User className="w-4 h-4 text-green-500" />
-                      <span className="font-semibold text-green-500">
-                        {lastResult.attendeeName}
-                      </span>
-                    </div>
-                  )}
-                  <p className="text-sm">{lastResult.message}</p>
-                </div>
-              </div>
+        <CardContent className="space-y-4">
+          {/* Toggle button */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={toggleInputMethod}
+            className="w-full"
+          >
+            {useCamera ? (
+              <>
+                <Keyboard className="w-4 h-4 mr-2" />
+                Switch to Manual Input
+              </>
+            ) : (
+              <>
+                <Camera className="w-4 h-4 mr-2" />
+                Switch to Camera Scanner
+              </>
             )}
+          </Button>
 
-            <div className="text-xs text-muted-foreground">
-              <p>
-                • QR code is a UUID string (e.g.,
-                550e8400-e29b-41d4-a716-446655440000)
-              </p>
-              <p>• Only confirmed tickets can be checked in</p>
-              <p>• Each ticket can only be checked in once</p>
+          {/* Camera Scanner */}
+          {useCamera && !cameraError && (
+            <div className="space-y-4">
+              <div
+                id="qr-reader"
+                className="w-full rounded-lg overflow-hidden"
+              />
+              {isScanning && (
+                <p className="text-xs text-center text-muted-foreground">
+                  Point camera at QR code to scan
+                </p>
+              )}
             </div>
-          </form>
+          )}
+
+          {/* Camera Error */}
+          {cameraError && (
+            <div className="p-4 rounded-lg border border-red-500/20 bg-red-500/5 text-sm text-red-300">
+              {cameraError}
+            </div>
+          )}
+
+          {/* Manual Input */}
+          {!useCamera && (
+            <form onSubmit={handleManualSubmit} className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Enter QR code manually..."
+                  value={qrCode}
+                  onChange={(e) => setQrCode(e.target.value)}
+                  disabled={loading}
+                  autoFocus
+                  className="flex-1 font-mono"
+                />
+                <Button type="submit" disabled={loading || !qrCode.trim()}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Checking...
+                    </>
+                  ) : (
+                    "Check In"
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Result Display */}
+          {lastResult && (
+            <div
+              className={`p-4 rounded-lg border flex items-start gap-3 ${
+                lastResult.success
+                  ? "bg-green-500/10 border-green-500/20"
+                  : "bg-red-500/10 border-red-500/20"
+              }`}
+            >
+              {lastResult.success ? (
+                <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
+              ) : (
+                <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
+              )}
+              <div className="flex-1">
+                {lastResult.success && lastResult.attendeeName && (
+                  <div className="flex items-center gap-2 mb-1">
+                    <User className="w-4 h-4 text-green-500" />
+                    <span className="font-semibold text-green-500">
+                      {lastResult.attendeeName}
+                    </span>
+                  </div>
+                )}
+                <p className="text-sm">{lastResult.message}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Instructions */}
+          <div className="text-xs text-muted-foreground space-y-1">
+            <p>
+              • QR code is a UUID string (e.g.,
+              550e8400-e29b-41d4-a716-446655440000)
+            </p>
+            <p>• Only confirmed tickets can be checked in</p>
+            <p>• Each ticket can only be checked in once</p>
+          </div>
         </CardContent>
       </Card>
     </div>

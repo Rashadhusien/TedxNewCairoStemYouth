@@ -37,6 +37,7 @@
     "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.40.0",
     "gsap": "^3.15.0",
+    "html5-qrcode": "^2.3.8",
     "input-otp": "^1.4.2",
     "locomotive-scroll": "^5.0.0-beta.8",
     "lucide-react": "^1.14.0",

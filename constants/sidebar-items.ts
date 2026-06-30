@@ -1,4 +1,5 @@
 import {
+  Camera,
   LayersMinusIcon,
   LayoutDashboard,
   type LucideIcon,
@@ -49,6 +50,11 @@ export const sidebarItems: NavGroup[] = [
     id: 2,
     label: "Event Management",
     items: [
+      {
+        title: "Check-in",
+        url: ROUTES.ADMIN.CHECK_IN,
+        icon: Camera,
+      },
       {
         title: "Tickets",
         url: ROUTES.ADMIN.TICKETS,

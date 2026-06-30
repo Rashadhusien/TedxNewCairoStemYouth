@@ -21,6 +21,7 @@ export const ROUTES = {
     DASHBOARD: "/admin/dashboard",
     USERS: "/admin/users",
     TICKETS: "/admin/tickets",
+    CHECK_IN: "/admin/check-in",
     COUPONS: "/admin/coupons",
     SPONSORS: {
       HOME: "/admin/sponsors",
