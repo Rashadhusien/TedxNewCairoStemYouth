@@ -1,12 +1,9 @@
 "use client";
 
 import TicketStatusBadge from "@/components/tickets/ticket-status-badge";
-import { Button } from "@/components/ui/button";
 import { formatPiastres } from "@/lib/pricing";
-import { MyTicketData, TicketWithRelations } from "@/types/ticket";
+import { TicketWithRelations } from "@/types/ticket";
 import { ColumnDef } from "@tanstack/react-table";
-import { div } from "framer-motion/client";
-import { ReactNode } from "react";
 import TicketReviewDialog from "../../Dialogs/ticket-review-dialog";
 
 export const ticketColumns: ColumnDef<TicketWithRelations>[] = [

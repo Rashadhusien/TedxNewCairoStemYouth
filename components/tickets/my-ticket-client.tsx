@@ -84,7 +84,7 @@ export default function MyTicketClient({
                 alt="Submitted payment proof"
                 width={400}
                 height={200}
-                className="w-full h-48 object-cover"
+                className="w-full object-contain"
               />
             </div>
           )}
@@ -151,6 +151,29 @@ export default function MyTicketClient({
             ticketType={ticket.type as PurchasableTicketType}
             offers={offers}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (ticket.status === "cancelled") {
+    return (
+      <div className="bg-black min-h-screen pt-28 pb-16 px-6">
+        <div className="max-w-lg mx-auto space-y-6 text-center">
+          <SectionTitle
+            eyebrow="Your Ticket"
+            title="Ticket Cancelled"
+            subTitle="Your ticket has been cancelled. Please contact support if you believe this is an error."
+          />
+          <TicketStatusBadge status={ticket.status} />
+          {ticket.rejectionReason && (
+            <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-300">
+              {ticket.rejectionReason}
+            </div>
+          )}
+          <Button asChild size="lg">
+            <Link href={ROUTES.TICKETS}>Browse Tickets</Link>
+          </Button>
         </div>
       </div>
     );

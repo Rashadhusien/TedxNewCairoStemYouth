@@ -60,7 +60,11 @@ export default function TicketReviewDialog({
   };
 
   return (
-    <Dialog onOpenChange={() => {}}>
+    <Dialog
+      onOpenChange={(open) => {
+        if (!open) router.refresh();
+      }}
+    >
       <DialogTrigger asChild>
         <Button>view</Button>
       </DialogTrigger>

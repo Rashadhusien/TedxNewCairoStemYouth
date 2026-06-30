@@ -73,18 +73,46 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {/* ── Ticket card (if exists) ───────────────────────────────────── */}
-        {profile.ticket && (
-          <div className="mb-6">
-            {/* <TicketCard ticket={profile.ticket} /> */}
+        {/* ── Ticket card (if confirmed or checked_in) ───────────────────────────────────── */}
+        {profile.ticket &&
+          (profile.ticket.status === "confirmed" ||
+            profile.ticket.status === "checked_in") && (
+            <div className="mb-6">
+              <TicketCard
+                ticket={profile.ticket}
+                attendeeName={profile.fullName ?? ""}
+                attendeeEmail={profile.email}
+              />
+            </div>
+          )}
 
-            <TicketCard
-              ticket={profile.ticket}
-              attendeeName={profile.fullName ?? ""}
-              attendeeEmail={profile.email}
-            />
-          </div>
-        )}
+        {/* ── Ticket under review/pending/rejected/cancelled state ───────────────────────────────────── */}
+        {profile.ticket &&
+          profile.ticket.status !== "confirmed" &&
+          profile.ticket.status !== "checked_in" && (
+            <div className="mb-6 rounded-xl border border-white/10 bg-[#111111] p-5 text-center">
+              <p className="mb-1 text-sm font-medium text-white/40">
+                Ticket Status:{" "}
+                {profile.ticket.status.replace(/_/g, " ").toUpperCase()}
+              </p>
+              <p className="text-xs text-white/20">
+                {profile.ticket.status === "payment_submitted" &&
+                  "Your payment is under review. You'll be notified once confirmed."}
+                {profile.ticket.status === "pending_payment" &&
+                  "Complete your payment to activate your ticket."}
+                {profile.ticket.status === "rejected" &&
+                  "Your payment was rejected. Please resubmit."}
+                {profile.ticket.status === "cancelled" &&
+                  "Your ticket has been cancelled."}
+              </p>
+              <a
+                href={ROUTES.MY_TICKET}
+                className="mt-3 inline-block rounded-md bg-[#e62b1e] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c42419]"
+              >
+                View Ticket Details
+              </a>
+            </div>
+          )}
 
         {/* ── No ticket state ───────────────────────────────────────────── */}
         {!profile.ticket && (
@@ -154,8 +182,4 @@ export default async function ProfilePage() {
   );
 }
 
-// ── Sign out button ──────────────────────────────────────────────────────────
-// Isolated so the server page stays async without wrapping everything in client
-
-import { SignOutButton } from "@/app/(main)/profile/sign-out-button";
 import TicketCard from "@/components/tickets/ticket-card";
