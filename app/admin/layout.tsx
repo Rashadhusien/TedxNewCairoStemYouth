@@ -24,6 +24,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     redirect(ROUTES.ADMIN.LOGIN);
   }
 
+  if (!session.user.isActive) {
+    redirect(ROUTES.ADMIN.LOGIN);
+  }
+
   if (!isAdminRole(session.user.role)) {
     redirect(ROUTES.UNAUTHORIZED);
   }

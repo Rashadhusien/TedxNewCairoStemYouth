@@ -39,21 +39,30 @@ export default auth((req) => {
   const session = req.auth;
   const isLoggedIn = !!session?.user;
   const role = session?.user?.role ?? null;
+  const isActive = session?.user?.isActive ?? false;
   const ticketStatus = session?.user?.ticketStatus ?? null;
 
   if (pathname === ROUTES.ADMIN.LOGIN) {
-    if (isLoggedIn && isAdminRole(role)) {
+    if (isLoggedIn && isActive && isAdminRole(role)) {
       return NextResponse.redirect(new URL(ROUTES.ADMIN.HOME, req.url));
     }
     return NextResponse.next();
   }
 
   if (AUTH_ROUTES.some((path) => pathname.startsWith(path))) {
-    if (isLoggedIn) {
+    if (isLoggedIn && isActive) {
       const redirectTo = getDefaultRedirect(role);
       return NextResponse.redirect(new URL(redirectTo, req.url));
     }
     return NextResponse.next();
+  }
+
+  if (isLoggedIn && !isActive) {
+    if (isAdminProtectedPath(pathname)) {
+      return redirectToAdminLogin(req, pathname);
+    }
+
+    return redirectToLogin(req, pathname);
   }
 
   if (isAdminProtectedPath(pathname)) {

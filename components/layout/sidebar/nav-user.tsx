@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  ArrowLeft,
   CircleUser,
   CreditCard,
   EllipsisVertical,
@@ -27,6 +28,10 @@ import {
 import { getInitials } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { signOutAction } from "@/lib/db/actions/auth.action";
+import UserAvatar from "@/components/UserAvatar";
+import { IconSitemap } from "@tabler/icons-react";
+import Link from "next/link";
+import { ROUTES } from "@/constants/routes";
 
 export function NavUser() {
   const { isMobile } = useSidebar();
@@ -42,15 +47,13 @@ export function NavUser() {
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
-              <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage
-                  src={user?.image || undefined}
-                  alt={user?.name || ""}
-                />
-                <AvatarFallback className="rounded-lg">
-                  {getInitials(user?.name || "")}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                id={user?.id || ""}
+                name={user?.name || ""}
+                imageUrl={user?.image || undefined}
+                linkToProfile={false}
+                className={isMobile ? "h-8 w-8" : "h-7 w-7"}
+              />
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user?.name || ""}</span>
                 <span className="truncate text-muted-foreground  text-xs">
@@ -68,15 +71,13 @@ export function NavUser() {
           >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage
-                    src={user?.image || undefined}
-                    alt={user?.name || ""}
-                  />
-                  <AvatarFallback className="rounded-lg">
-                    {getInitials(user?.name || "")}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  id={user?.id || ""}
+                  name={user?.name || ""}
+                  imageUrl={user?.image || undefined}
+                  linkToProfile={false}
+                  className={isMobile ? "h-8 w-8" : "h-7 w-7"}
+                />
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">
                     {user?.name || ""}
@@ -88,21 +89,26 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            {/* <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <CircleUser />
-                Account
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={ROUTES.HOME}
+                  className="cursor-pointer hover:bg-muted"
+                >
+                  <ArrowLeft />
+                  <span>Back to Website</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <MessageSquareDot />
                 Notifications
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuGroup>
-            <DropdownMenuSeparator /> */}
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOutAction}>
               <LogOut />
               Log out

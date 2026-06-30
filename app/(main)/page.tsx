@@ -2,7 +2,6 @@ import AboutSection from "./components/about-section";
 import Hero from "./components/hero-section";
 import SpeakersSection from "./components/speakers-section";
 import CountdownTimer from "./components/countdown-timer";
-import SponsorsSection from "./components/sponsors-section";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
 import SponsorsSponsorsSection from "./components/sponsors/sponsors-sponsors-section";
 import SponsorsPartnersSection from "./components/sponsors/sponsors-partners-section";

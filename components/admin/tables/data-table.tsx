@@ -174,7 +174,7 @@ export function DataTable<TData, TValue>({
       {totalPages > 1 && (
         <div className="flex justify-between items-center mt-4">
           <p className="text-sm text-muted-foreground">
-            Page {page} of {totalPages} ({total} tickets)
+            Page {page} of {totalPages} ({total} items)
           </p>
           <div className="flex gap-2">
             <Button

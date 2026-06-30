@@ -219,6 +219,17 @@ export const SponsorListSchema = z.object({
   ...paginationSchema.shape,
 });
 
+export const UserListSchema = z.object({
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const UpdateUserActiveSchema = z.object({
+  userId: z.string().uuid("Invalid user id"),
+  isActive: z.boolean(),
+});
+
 export const sponsorTierSchema = z.enum([
   "visionary",
   "platinum",
@@ -405,6 +416,11 @@ export const UpdateProfileSchema = z.object({
     .min(2, "Name must be at least 2 characters")
     .max(255, "Name is too long")
     .trim(),
+  image: z
+    .string()
+    .url("Please enter a valid image URL")
+    .nullable()
+    .transform((v) => v?.trim() || null),
   phone: z
     .string()
     .max(20, "Phone number is too long")

@@ -2,8 +2,6 @@
 
 import { and, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 
-import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/auth/route-guards";
 import { deletePaymentScreenshot } from "@/lib/cloudinary";
 import {
   notifyTicketConfirmed,
@@ -13,7 +11,6 @@ import {
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import {
-  ForbiddenError,
   NotFoundError,
   ValidationError,
 } from "@/lib/http-errors";
@@ -42,14 +39,7 @@ type CheckInInput = z.infer<typeof CheckInSchema>;
 import { db } from "..";
 import { coupons, offers, tickets, users } from "../schema";
 import type { Ticket } from "../schema";
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || !isAdminRole(session.user.role)) {
-    throw new ForbiddenError("Admin access required");
-  }
-  return session;
-}
+import { assertUserIsActive, requireAdminSession } from "./auth-guards";
 
 async function resolveCoupon(code: string | undefined) {
   if (!code?.trim()) return null;
@@ -82,6 +72,8 @@ export async function purchaseTicket(
   const data = validationResult.params as TicketPurchaseInput;
 
   try {
+    await assertUserIsActive(session.user.id);
+
     const [user] = await db
       .select({
         id: users.id,
@@ -268,6 +260,8 @@ export async function getMyTicket(): Promise<
   const session = validationResult.session!;
 
   try {
+    await assertUserIsActive(session.user.id);
+
     const [row] = await db
       .select({
         ticket: tickets,
@@ -320,7 +314,7 @@ export async function listTickets(params: TicketListInput): Promise<
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const { status, search, page, pageSize } =
       validationResult.params as TicketListInput;
 
@@ -400,7 +394,7 @@ export async function reviewTicket(
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const {
       ticketId,
       action: reviewAction,
@@ -523,7 +517,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const { qrCode } = validationResult.params as CheckInInput;
 
     const now = new Date();
@@ -606,7 +600,7 @@ export async function getTicketById(
   ticketId: string,
 ): Promise<ActionResponse<TicketWithRelations | null> | ErrorResponse> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [row] = await db
       .select({

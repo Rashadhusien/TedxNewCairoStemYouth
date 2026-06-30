@@ -2,11 +2,9 @@
 
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 
-import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/auth/route-guards";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
+import { NotFoundError } from "@/lib/http-errors";
 import {
   computeFinalPrice,
   couponAppliesToTier,
@@ -31,14 +29,7 @@ type CouponListInput = z.infer<typeof CouponListSchema>;
 
 import { db } from "..";
 import { coupons, offers, tickets } from "../schema";
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || !isAdminRole(session.user.role)) {
-    throw new ForbiddenError("Admin access required");
-  }
-  return session;
-}
+import { assertUserIsActive, requireAdminSession } from "./auth-guards";
 
 export async function validateCoupon(
   params: { code: string; ticketType: PurchasableTicketType },
@@ -57,6 +48,8 @@ export async function validateCoupon(
   const session = validationResult.session!;
 
   try {
+    await assertUserIsActive(session.user.id);
+
     const [coupon] = await db
       .select()
       .from(coupons)
@@ -163,7 +156,7 @@ export async function createCoupon(
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const data = validationResult.params as CouponInput;
 
     const [created] = await db
@@ -196,7 +189,7 @@ export async function updateCoupon(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const data = validationResult.params as CouponInput;
 
     const [updated] = await db
@@ -239,7 +232,7 @@ export async function listCoupons(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const { page, pageSize , status, search } = validationResult.params!;
 
     const conditions = []
@@ -291,7 +284,7 @@ export async function deleteCoupon(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [updated] = await db
       .update(coupons)

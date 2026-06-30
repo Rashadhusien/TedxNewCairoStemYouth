@@ -85,6 +85,21 @@ export const SPEAKER_STATUS = [
   },
 ];
 
+export const USERS_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+];
+
 export const SPEAKER_TYPES = [
   {
     value: "all",

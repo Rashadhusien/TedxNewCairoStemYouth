@@ -5,13 +5,13 @@ import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
 import { accounts, tickets, users } from "@/lib/db/schema";
-import { auth } from "@/auth";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import { UpdateProfileSchema } from "@/lib/validation";
 import type { ErrorResponse } from "@/types/actions";
 import { ROUTES } from "@/constants/routes";
 import type { Ticket } from "@/lib/db/schema";
+import { requireActiveSession } from "./auth-guards";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,64 +49,66 @@ export type UpdateProfileResponse =
 // ── getProfile ───────────────────────────────────────────────────────────────
 
 export async function getProfile(): Promise<ProfileData | null> {
-  const session = await auth();
-  if (!session?.user?.id) return null;
+  try {
+    const { session } = await requireActiveSession();
 
-  const userId = session.user.id;
+    const userId = session.user.id;
 
-  const [user] = await db
-    .select({
-      id: users.id,
-      fullName: users.fullName,
-      email: users.email,
-      phone: users.phone,
-      university: users.university,
-      major: users.major,
-      graduationYear: users.graduationYear,
-      age: users.age,
-      skills: users.skills,
-      image: users.image,
-    })
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
+    const [user] = await db
+      .select({
+        id: users.id,
+        fullName: users.fullName,
+        email: users.email,
+        phone: users.phone,
+        university: users.university,
+        major: users.major,
+        graduationYear: users.graduationYear,
+        age: users.age,
+        skills: users.skills,
+        image: users.image,
+      })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
 
-  if (!user) return null;
+    if (!user) return null;
 
-  // Check if this is a credentials account (to conditionally show password section)
-  const [credentialsAccount] = await db
-    .select({ provider: accounts.provider })
-    .from(accounts)
-    .where(
-      and(eq(accounts.userId, userId), eq(accounts.provider, "credentials")),
-    )
-    .limit(1);
+    const [credentialsAccount] = await db
+      .select({ provider: accounts.provider })
+      .from(accounts)
+      .where(
+        and(eq(accounts.userId, userId), eq(accounts.provider, "credentials")),
+      )
+      .limit(1);
 
-  // Fetch ticket (users have at most one ticket)
-  const [ticket] = await db
-    .select({
-      id: tickets.id,
-      type: tickets.type,
-      qrCode: tickets.qrCode,
-      status: tickets.status,
-      pricePaid: tickets.pricePaid,
-      createdAt: tickets.createdAt,
-    })
-    .from(tickets)
-    .where(eq(tickets.userId, userId))
-    .limit(1);
+    const [ticket] = await db
+      .select({
+        id: tickets.id,
+        type: tickets.type,
+        qrCode: tickets.qrCode,
+        status: tickets.status,
+        pricePaid: tickets.pricePaid,
+        createdAt: tickets.createdAt,
+      })
+      .from(tickets)
+      .where(eq(tickets.userId, userId))
+      .limit(1);
 
-  return {
-    ...user,
-    isCredentialsUser: !!credentialsAccount,
-    ticket: ticket ?? null,
-  };
+    return {
+      ...user,
+      isCredentialsUser: !!credentialsAccount,
+      ticket: ticket ?? null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── updateProfile ────────────────────────────────────────────────────────────
 
 export async function updateProfile(params: {
   fullName: string;
+  image?: string | null;
   phone: string | null;
   university: string | null;
   major: string | null;
@@ -114,15 +116,6 @@ export async function updateProfile(params: {
   age: number | null;
   skills: string[];
 }): Promise<UpdateProfileResponse> {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    return {
-      success: false,
-      error: { message: "You must be signed in to update your profile." },
-    };
-  }
-
   const validationResult = await action({
     params,
     schema: UpdateProfileSchema,
@@ -132,15 +125,26 @@ export async function updateProfile(params: {
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const { fullName, phone, university, major, graduationYear, age, skills } =
-    validationResult.params!;
+  const {
+    fullName,
+    image,
+    phone,
+    university,
+    major,
+    graduationYear,
+    age,
+    skills,
+  } = validationResult.params!;
 
   try {
+    const { session } = await requireActiveSession();
+
     await db
       .update(users)
       .set({
         fullName,
         name: fullName, // keep name in sync for NextAuth adapter
+        image: image ?? null,
         phone: phone ?? null,
         university: university ?? null,
         major: major ?? null,

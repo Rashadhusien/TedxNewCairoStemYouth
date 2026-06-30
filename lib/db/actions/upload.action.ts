@@ -1,8 +1,8 @@
 "use server";
 
-import { auth } from "@/auth";
 import { generatePaymentUploadSignature } from "@/lib/cloudinary";
 import type { CloudinarySignaturePayload } from "@/lib/cloudinary";
+import { requireActiveSession } from "./auth-guards";
 
 export interface PaymentUploadConfig {
   cloudName: string;
@@ -35,11 +35,7 @@ function getCloudinaryUploadPreset(): string {
 
 /** Unsigned upload config — uses the Cloudinary upload preset (recommended). */
 export async function getPaymentUploadConfig(): Promise<PaymentUploadConfig> {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthenticated");
-  }
+  const { session } = await requireActiveSession();
 
   const cloudName = getCloudinaryCloudName();
   const uploadPreset = getCloudinaryUploadPreset();
@@ -57,11 +53,7 @@ export async function getPaymentUploadConfig(): Promise<PaymentUploadConfig> {
 
 /** Signed upload signature — requires API key create permissions on Cloudinary. */
 export async function getPaymentUploadSignature(): Promise<CloudinarySignaturePayload> {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthenticated");
-  }
+  const { session } = await requireActiveSession();
 
   return generatePaymentUploadSignature(session.user.id);
 }

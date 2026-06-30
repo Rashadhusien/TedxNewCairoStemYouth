@@ -20,6 +20,10 @@ export default async function ProfilePage() {
     redirect(ROUTES.LOGIN);
   }
 
+  if (!session.user.isActive) {
+    redirect(ROUTES.LOGIN);
+  }
+
   const profile = await getProfile();
 
   if (!profile) {

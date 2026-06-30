@@ -6,6 +6,8 @@ import {
   Percent,
   ReceiptText,
   Tag,
+  Users,
+  Users2,
 } from "lucide-react";
 import { ROUTES } from "./routes";
 
@@ -72,9 +74,20 @@ export const sidebarItems: NavGroup[] = [
       },
     ],
   },
-
   {
     id: 3,
+    label: "User Management",
+    items: [
+      {
+        title: "Users",
+        url: ROUTES.ADMIN.USERS,
+        icon: Users,
+      },
+    ],
+  },
+
+  {
+    id: 4,
     label: "Sponsors & Boothes",
     items: [
       {
@@ -85,13 +98,13 @@ export const sidebarItems: NavGroup[] = [
     ],
   },
   {
-    id: 4,
+    id: 5,
     label: "Speakers & Keyholders",
     items: [
       {
         title: "Speakers",
         url: ROUTES.ADMIN.SPEAKERS.HOME,
-        icon: LayersMinusIcon,
+        icon: Users2,
       },
     ],
   },

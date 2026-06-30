@@ -2,11 +2,9 @@
 
 import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
 
-import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/auth/route-guards";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
+import { NotFoundError } from "@/lib/http-errors";
 import {
   isOfferActive,
   offerAppliesToTier,
@@ -22,14 +20,7 @@ type OfferListInput = z.infer<typeof OfferListSchema>;
 import { db } from "..";
 import { offers } from "../schema";
 import type { Offer } from "../schema";
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || !isAdminRole(session.user.role)) {
-    throw new ForbiddenError("Admin access required");
-  }
-  return session;
-}
+import { requireAdminSession } from "./auth-guards";
 
 function activeOfferConditions(now: Date) {
   return and(
@@ -85,7 +76,7 @@ export async function createOffer(
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const data = validationResult.params as OfferInput;
 
     const [created] = await db
@@ -117,7 +108,7 @@ export async function updateOffer(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const data = validationResult.params as OfferInput;
 
     const [updated] = await db
@@ -156,7 +147,7 @@ export async function listOffers(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const { page, pageSize, status, search } = validationResult.params!;
 
     const condition = [];
@@ -208,7 +199,7 @@ export async function deleteOffer(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [updated] = await db
       .update(offers)

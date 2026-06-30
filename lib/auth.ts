@@ -24,12 +24,14 @@ declare module "next-auth" {
     user: {
       id: string;
       role: string;
+      isActive: boolean;
       ticketStatus: string | null;
     } & DefaultSession["user"];
   }
 
   interface User {
     role: string;
+    isActive?: boolean;
     ticketStatus?: string | null;
   }
 }
@@ -48,8 +50,10 @@ async function loadUserAuthProfile(userId: string) {
       id: users.id,
       role: users.role,
       isActive: users.isActive,
+
       fullName: users.fullName,
       email: users.email,
+      image: users.image,
     })
     .from(users)
     .where(eq(users.id, userId))
@@ -158,7 +162,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           email: user.email,
           name: user.name ?? user.fullName,
+          image: user.image,
           role: user.role,
+          isActive: user.isActive,
           ticketStatus,
         };
       },
@@ -171,11 +177,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account }) {
       if (!user.id) return false;
 
+      const profile = await loadUserAuthProfile(user.id);
+      if (!profile?.isActive) return false;
+
       if (account?.provider && account.provider !== CREDENTIALS_PROVIDER) {
         await db
           .update(users)
           .set({
-            isActive: true,
             emailVerified: new Date(),
             name: user.name ?? undefined,
             fullName: user.name ?? undefined,
@@ -186,9 +194,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         return true;
       }
-
-      const profile = await loadUserAuthProfile(user.id);
-      if (!profile?.isActive) return false;
 
       return true;
     },
@@ -201,6 +206,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (profile) {
           token.id = profile.id;
           token.role = profile.role;
+          token.isActive = profile.isActive;
+          token.image = profile.image;
           token.ticketStatus = profile.ticketStatus;
           token.name = profile.fullName ?? token.name;
           token.email = profile.email ?? token.email;
@@ -224,9 +231,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (token) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.isActive = Boolean(token.isActive);
         session.user.ticketStatus = token.ticketStatus as string | null;
         if (token.name) session.user.name = token.name as string;
         if (token.email) session.user.email = token.email as string;
+        if (token.image) session.user.image = token.image as string;
       }
       return session;
     },
@@ -240,6 +249,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         .set({
           fullName: user.name ?? user.email?.split("@")[0] ?? "User",
           name: user.name ?? undefined,
+          image: user.image ?? undefined,
           updatedAt: new Date(),
         })
         .where(eq(users.id, user.id));

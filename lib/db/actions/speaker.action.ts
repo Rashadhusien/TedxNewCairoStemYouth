@@ -2,11 +2,9 @@
 
 import { and, eq, ilike, isNull, or, sql } from "drizzle-orm";
 
-import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/auth/route-guards";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
+import { NotFoundError } from "@/lib/http-errors";
 import { SpeakerListSchema, speakerFormSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type z from "zod";
@@ -14,17 +12,10 @@ import { db } from "..";
 import { speakers } from "../schema";
 import { revalidatePath } from "next/cache";
 import { ROUTES } from "@/constants/routes";
+import { requireAdminSession } from "./auth-guards";
 
 type SpeakerInput = z.infer<typeof speakerFormSchema>;
 type SpeakerListInput = z.infer<typeof SpeakerListSchema>;
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || !isAdminRole(session.user.role)) {
-    throw new ForbiddenError("Admin access required");
-  }
-  return session;
-}
 
 export async function createSpeaker(
   params: SpeakerInput,
@@ -39,7 +30,7 @@ export async function createSpeaker(
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const data = validationResult.params;
 
     if (!data) {
@@ -84,7 +75,7 @@ export async function listSpeakers(params: SpeakerListInput): Promise<
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const { type, status, search, page, pageSize } =
       validationResult.params as SpeakerListInput;
 
@@ -137,7 +128,7 @@ export async function getSpeakerById(
   speakerId: string,
 ): Promise<ActionResponse<typeof speakers.$inferSelect | null>> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [speaker] = await db
       .select()
@@ -175,7 +166,7 @@ export async function updateSpeaker(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const data = validationResult.params as SpeakerInput;
 
@@ -202,7 +193,7 @@ export async function deleteSpeaker(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [updated] = await db
       .update(speakers)

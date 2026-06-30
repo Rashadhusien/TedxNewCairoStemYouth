@@ -44,6 +44,8 @@ export function UserDropdown({
   const user = session.user;
   const displayName = getDisplayName(session);
 
+  console.log(user);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>

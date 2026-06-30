@@ -8,7 +8,7 @@ import { CldImage } from "next-cloudinary";
 
 interface ImageUploadWidgetProps {
   value?: UploadWidgetValue | null;
-  onChange?: (value: UploadWidgetValue) => void;
+  onChange?: (value: UploadWidgetValue | null) => void;
   disabled?: boolean;
 }
 
@@ -144,7 +144,7 @@ const ImageUploadWidget = ({
               onClick={(e) => {
                 e.stopPropagation();
                 setPreview(null);
-                onChangeRef.current?.(null as unknown as UploadWidgetValue);
+            onChangeRef.current?.(null);
               }}
               className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
             >

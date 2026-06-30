@@ -4,6 +4,7 @@
 import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 
 import { updateProfile } from "@/lib/db/actions/profile.action";
 import {
@@ -11,6 +12,8 @@ import {
   type UpdateProfileInput,
   SKILLS_OPTIONS,
 } from "@/lib/validation";
+import ImageUploadWidget from "@/components/upload-widget";
+import type { UploadWidgetValue } from "@/types";
 
 import type { ProfileData } from "@/lib/db/actions/profile.action";
 import { Checkbox } from "radix-ui";
@@ -118,11 +121,13 @@ type SaveState = "idle" | "saving" | "saved" | "error";
 
 // ── Main component ────────────────────────────────────────────────────────────
 export function ProfileForm({ profile }: ProfileFormProps) {
+  const router = useRouter();
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPending, startTransition] = useTransition();
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -132,6 +137,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
     resolver: zodResolver(UpdateProfileSchema),
     defaultValues: {
       fullName: profile.fullName ?? "",
+      image: profile.image ?? null,
       phone: profile.phone ?? "",
       university: profile.university ?? "",
       major: profile.major ?? "",
@@ -157,6 +163,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       }
 
       setSaveState("saved");
+      router.refresh();
       setTimeout(() => setSaveState("idle"), 3000);
     });
   };
@@ -172,6 +179,38 @@ export function ProfileForm({ profile }: ProfileFormProps) {
         </h2>
 
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <FieldLabel>Profile Photo</FieldLabel>
+            <Controller
+              control={control}
+              name="image"
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <ImageUploadWidget
+                    value={
+                      field.value
+                        ? {
+                            url: field.value,
+                            publicId: "",
+                          }
+                        : null
+                    }
+                    onChange={(file: UploadWidgetValue | null) => {
+                      field.onChange(file?.url ?? null);
+                    }}
+                    disabled={isLoading}
+                  />
+                  <p className="text-[11px] text-white/20">
+                    Upload a square image for the best result.
+                  </p>
+                  {errors.image?.message && (
+                    <p className="text-xs text-red-400">{errors.image.message}</p>
+                  )}
+                </div>
+              )}
+            />
+          </div>
+
           {/* Full name */}
           <div className="sm:col-span-2">
             <FieldLabel>Full Name</FieldLabel>

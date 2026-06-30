@@ -1,10 +1,8 @@
 "use server";
 
-import { auth } from "@/auth";
-import { isAdminRole } from "@/lib/auth/route-guards";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
+import { NotFoundError } from "@/lib/http-errors";
 import { sponsorFormSchema, SponsorListSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type z from "zod";
@@ -17,17 +15,10 @@ import {
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ROUTES } from "@/constants/routes";
+import { requireAdminSession } from "./auth-guards";
 
 type SponsorInput = z.infer<typeof sponsorFormSchema>;
 type SponsorListInput = z.infer<typeof SponsorListSchema>;
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.id || !isAdminRole(session.user.role)) {
-    throw new ForbiddenError("Admin access required");
-  }
-  return session;
-}
-
 export async function createSponsor(
   params: SponsorInput,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
@@ -41,7 +32,7 @@ export async function createSponsor(
   }
 
   try {
-    const session = await requireAdmin();
+    const { session } = await requireAdminSession();
     const data = validationResult.params;
 
     if (!data) {
@@ -86,7 +77,7 @@ export async function listSponsors(params: SponsorListInput): Promise<
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
     const { status, search, page, pageSize } =
       validationResult.params as SponsorListInput;
 
@@ -129,7 +120,7 @@ export async function getSponsorById(
   sponsorId: string,
 ): Promise<ActionResponse<SponsorsWithRelations | null>> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [sponsor] = await db
       .select()
@@ -167,7 +158,7 @@ export async function updateSponsor(
   }
 
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const data = validationResult.params as SponsorInput;
 
