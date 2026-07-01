@@ -8,6 +8,9 @@ import OffersBanner from "@/components/tickets/offers-banner";
 import TicketTierCard from "@/components/tickets/ticket-tier-card";
 import type { Offer } from "@/lib/db/schema";
 import { pickBestOffer, type PurchasableTicketType } from "@/lib/pricing";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 
 interface TicketsPageClientProps {
   offers: Offer[];
@@ -17,8 +20,14 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
   const [selectedTier, setSelectedTier] =
     useState<PurchasableTicketType | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const { status } = useSession();
+  const router = useRouter();
 
   const handleSelect = (type: PurchasableTicketType) => {
+    if (status === "unauthenticated") {
+      router.push(ROUTES.LOGIN);
+      return;
+    }
     setSelectedTier(type);
     setCheckoutOpen(true);
   };

@@ -7,6 +7,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ROUTES } from "@/constants/routes";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -95,14 +96,18 @@ const Hero = () => {
             ref={buttonsRef}
             className=" grid grid-cols-2 gap-4 w-full max-w-md max-sm:px-4"
           >
-            <Button className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95">
-              Explore the Experience
+            <Button
+              className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95"
+              asChild
+            >
+              <Link href={ROUTES.TICKETS}>Get Your Ticket</Link>
             </Button>
             <Button
-              className="py-6 sm:text-base transition-transform active:scale-95"
+              className="py-6 sm:text-base transition-transform active:scale-95 "
               variant="outline"
+              asChild
             >
-              Partner With Us
+              <Link href={ROUTES.SPONSORS}>Partner With Us</Link>
             </Button>
           </div>
         </div>
