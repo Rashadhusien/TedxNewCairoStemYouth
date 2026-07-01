@@ -13,22 +13,23 @@ export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
 
 export const PAYMENT_METHODS = {
   cash: {
-    label: "Cash",
+    label: "Vodafone Cash",
+    account: "01006166695",
     instructions:
-      "Pay in cash at the TEDxNewCairoSTEMYouth registration desk. Bring exact change and keep your receipt.",
+      "Send the exact amount via Vodafone Cash to the number above. Upload a screenshot of the successful transfer.",
   },
   instapay: {
     label: "InstaPay",
-    account: "01000000000",
+    account: "01006166695",
     instructions:
       "Send the exact amount via InstaPay to the number above. Upload a screenshot of the successful transfer.",
   },
-  bank_transfer: {
-    label: "Bank Transfer",
-    iban: "EG00XXXX000000000000000000000",
-    instructions:
-      "Transfer the exact amount to the bank account above. Upload a screenshot of the transfer confirmation.",
-  },
+  // bank_transfer: {
+  //   label: "Bank Transfer",
+  //   iban: "EG00XXXX000000000000000000000",
+  //   instructions:
+  //     "Transfer the exact amount to the bank account above. Upload a screenshot of the transfer confirmation.",
+  // },
 } as const;
 export const ALLOWED_TYPES = [
   "image/png",
@@ -39,7 +40,7 @@ export const ALLOWED_TYPES = [
 
 export const DEFAULT_PAGE_SIZE = 10;
 
-export const TICKETS_STATUS =[
+export const TICKETS_STATUS = [
   {
     value: "all",
     label: "All",
@@ -64,7 +65,7 @@ export const TICKETS_STATUS =[
     value: "pending_payment",
     label: "Pending Payment",
   },
-] ;
+];
 
 export const COUPONS_STATUS = [
   {
@@ -79,7 +80,7 @@ export const COUPONS_STATUS = [
     value: "inactive",
     label: "Inactive",
   },
-] ;
+];
 
 export const OFFERS_STATUS = [
   {
@@ -94,7 +95,7 @@ export const OFFERS_STATUS = [
     value: "inactive",
     label: "Inactive",
   },
-] ;
+];
 
 const getEnvVar = (key: string): string | undefined => {
   const value = process.env[key];
@@ -267,7 +268,8 @@ export const faculties = [
   { id: 8, label: "Arts" },
   { id: 9, label: "Other" },
 ];
-export const EMAIL = "tedxnewcairostemyouth@gmail.com";
+export const EMAIL = "contact@tedxnewcairostemyouth.org";
+export const PHONE = "+201206593899";
 export const socialLinks = [
   {
     icon: FacebookIcon,
@@ -293,7 +295,7 @@ export const socialLinks = [
   {
     icon: IconBrandWhatsappFilled,
     label: "WhatsApp",
-    href: "https://wa.me/966555555555",
+    href: "https://wa.me/+966536413647",
   },
   {
     icon: LinkIcon,

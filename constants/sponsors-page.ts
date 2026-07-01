@@ -1,6 +1,6 @@
 import { TrendingUp, Users, Zap, type LucideIcon } from "lucide-react";
 
-export const SPONSOR_CONTACT_EMAIL = "tedxnewcairostemyouth@gmail.com";
+export const SPONSOR_CONTACT_EMAIL = "contact@tedxnewcairostemyouth.org";
 
 export const sponsorDocuments = [
   {

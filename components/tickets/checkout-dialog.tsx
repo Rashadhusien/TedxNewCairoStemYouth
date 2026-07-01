@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Check, CheckCheck, Copy, Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -41,6 +41,7 @@ import {
 import { TicketPurchaseSchema } from "@/lib/validation";
 import type { Offer } from "@/lib/db/schema";
 import type { UploadWidgetValue } from "@/types";
+import { Badge } from "../ui/badge";
 
 const checkoutFormSchema = TicketPurchaseSchema.omit({
   screenshotUrl: true,
@@ -67,6 +68,7 @@ export default function CheckoutDialog({
   const [upload, setUpload] = useState<UploadWidgetValue | null>(null);
   const [couponCode, setCouponCode] = useState<string | undefined>();
   const [couponDiscount, setCouponDiscount] = useState(0);
+  const [isCoped, setIsCoped] = useState(false);
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -158,7 +160,8 @@ export default function CheckoutDialog({
 
   const tier = TICKET_TIERS[ticketType];
   const paymentMethod = form.watch("paymentMethod");
-  const paymentInfo = PAYMENT_METHODS[paymentMethod];
+  const paymentInfo =
+    PAYMENT_METHODS[paymentMethod as keyof typeof PAYMENT_METHODS];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -187,7 +190,7 @@ export default function CheckoutDialog({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
             <FieldGroup>
               <FieldLabel>Payment Method</FieldLabel>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {(
                   Object.keys(PAYMENT_METHODS) as Array<
                     keyof typeof PAYMENT_METHODS
@@ -207,14 +210,23 @@ export default function CheckoutDialog({
               <p className="text-sm text-muted-foreground mt-2 p-3 rounded-lg bg-muted/30">
                 {paymentInfo.instructions}
                 {"account" in paymentInfo && (
-                  <span className="block mt-1 font-mono font-semibold">
-                    {paymentInfo.account}
-                  </span>
-                )}
-                {"iban" in paymentInfo && (
-                  <span className="block mt-1 font-mono font-semibold text-xs">
-                    {paymentInfo.iban}
-                  </span>
+                  <Badge
+                    variant={"outline"}
+                    className="mt-1 font-mono cursor-pointer flex items-center gap-1 font-semibold text-sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(paymentInfo.account);
+                      setIsCoped(true);
+                      setTimeout(() => setIsCoped(false), 2000);
+                      toast.success("Account number copied to clipboard");
+                    }}
+                  >
+                    {paymentInfo.account}{" "}
+                    {isCoped ? (
+                      <CheckCheck className="size-5 text-green-500" />
+                    ) : (
+                      <Copy className="size-5" />
+                    )}
+                  </Badge>
                 )}
               </p>
             </FieldGroup>

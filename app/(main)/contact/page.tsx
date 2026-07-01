@@ -1,6 +1,6 @@
 import SectionTitle from "@/components/layout/section-title";
 import ContactForm from "@/components/main/forms/contact-form";
-import { socialLinks } from "@/constants";
+import { EMAIL, PHONE, socialLinks } from "@/constants";
 import { Mail, Phone } from "lucide-react";
 import Link from "next/link";
 export const metadata = {
@@ -13,8 +13,8 @@ const Contact = () => {
     <div className="bg-black min-h-screen">
       {/* PAGE HERO */}
       <section className="relative pt-28  overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0000] to-black pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-b from-black via-[#0a0000] to-black pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
 
         <SectionTitle
           eyebrow="Reach Out"
@@ -39,24 +39,24 @@ const Contact = () => {
                 Direct Contact
               </h3>
               <Link
-                href="mailto:tedxnewcairostemyouth@gmail.com"
+                href={`mailto:${EMAIL}`}
                 className="group flex items-center gap-3 text-white/50 hover:text-primary transition-colors duration-300 text-sm mb-4"
               >
                 <Mail
                   size={16}
                   className=" flex items-center justify-center text-sm group-hover:border-primary/40 group-hover:text-primary rounded-sm transition-all duration-300 text-white/30"
                 />
-                tedxnewcairostemyouth@gmail.com
+                {EMAIL}
               </Link>
               <Link
-                href="tel:+201036566152"
+                href={`tel:${PHONE}`}
                 className="group flex items-center gap-3 text-white/50 hover:text-primary transition-colors duration-300 text-sm"
               >
                 <Phone
                   size={16}
                   className="flex items-center justify-center text-sm group-hover:border-primary/40 group-hover:text-primary rounded-sm transition-all duration-300 text-white/30"
                 />
-                +201036566152
+                {PHONE}
               </Link>
             </div>
 
