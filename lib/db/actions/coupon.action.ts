@@ -30,10 +30,12 @@ type CouponListInput = z.infer<typeof CouponListSchema>;
 import { db } from "..";
 import { coupons, offers, tickets } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
+import { serverAnalytics } from "@/lib/analytics/server";
 
-export async function validateCoupon(
-  params: { code: string; ticketType: PurchasableTicketType },
-): Promise<ActionResponse<CouponValidationResult>> {
+export async function validateCoupon(params: {
+  code: string;
+  ticketType: PurchasableTicketType;
+}): Promise<ActionResponse<CouponValidationResult>> {
   const validationResult = await action({
     params,
     schema: ValidateCouponSchema,
@@ -96,7 +98,8 @@ export async function validateCoupon(
           success: true,
           data: {
             valid: false,
-            message: "You have already used this coupon the maximum number of times",
+            message:
+              "You have already used this coupon the maximum number of times",
           },
         };
       }
@@ -169,6 +172,13 @@ export async function createCoupon(
       })
       .returning({ id: coupons.id });
 
+    serverAnalytics.capture("admin_coupon_created", session.user.id, {
+      coupon_code: data.code.trim().toUpperCase(),
+      discount_type: data.discountType,
+      discount_value: data.discountValue,
+      admin_id: session.user.id,
+    });
+
     return { success: true, data: { id: created.id } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -212,9 +222,7 @@ export async function updateCoupon(
   }
 }
 
-export async function listCoupons(
-  params: CouponListInput ,
-): Promise<
+export async function listCoupons(params: CouponListInput): Promise<
   ActionResponse<{
     items: (typeof coupons.$inferSelect)[];
     total: number;
@@ -233,9 +241,9 @@ export async function listCoupons(
 
   try {
     await requireAdminSession();
-    const { page, pageSize , status, search } = validationResult.params!;
+    const { page, pageSize, status, search } = validationResult.params!;
 
-    const conditions = []
+    const conditions = [];
 
     if (status !== "all") {
       conditions.push(eq(coupons.isActive, status === "active"));
@@ -244,10 +252,7 @@ export async function listCoupons(
     if (search?.trim()) {
       const term = `%${search.trim()}%`;
       conditions.push(
-        or(
-          ilike(coupons.code, term),
-          ilike(coupons.description, term),
-        ),
+        or(ilike(coupons.code, term), ilike(coupons.description, term)),
       );
     }
 

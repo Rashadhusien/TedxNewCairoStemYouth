@@ -7,6 +7,8 @@ import { Toaster } from "sonner";
 import Script from "next/script";
 import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/next";
+import { PostHogProvider } from "@/lib/analytics/client";
+import { SessionIdentifier } from "@/components/SessionIdentifier";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
@@ -119,16 +121,21 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         <Analytics />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-          forcedTheme="dark"
-        >
-          <SessionProvider>{children}</SessionProvider>
-          <Toaster richColors />
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+            forcedTheme="dark"
+          >
+            <SessionProvider>
+              <SessionIdentifier />
+              {children}
+            </SessionProvider>
+            <Toaster richColors />
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );

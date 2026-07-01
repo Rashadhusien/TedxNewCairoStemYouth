@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
+import { useAnalytics } from "@/lib/analytics/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -43,6 +44,7 @@ export function UserDropdown({
   const role = session.user.role;
   const user = session.user;
   const displayName = getDisplayName(session);
+  const { reset } = useAnalytics();
 
   console.log(user);
 
@@ -134,11 +136,12 @@ export function UserDropdown({
             </Link>
           </DropdownMenuItem> */}
           <DropdownMenuItem
-            onClick={() =>
-              signOut({
+            onClick={async () => {
+              reset();
+              await signOut({
                 callbackUrl: ROUTES.LOGIN,
-              })
-            }
+              });
+            }}
             className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-destructive/10! hover:text-destructive-foreground  transition-colors "
           >
             <LogOutIcon className="h-4 w-4" />

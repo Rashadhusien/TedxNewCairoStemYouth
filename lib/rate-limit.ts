@@ -1,5 +1,7 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
+import { createHash } from "crypto";
+import { serverAnalytics } from "@/lib/analytics/server";
 
 // Singleton Redis client — safe to call at module level in Edge/Node
 function getRedis(): Redis {
@@ -84,5 +86,25 @@ export async function checkRateLimit(
   }
 
   const retryAfterSeconds = Math.ceil((reset - Date.now()) / 1000);
+
+  // Determine identifier type and hash if IP
+  const isIp = identifier.startsWith("email:") ? false : true;
+  const identifierType: "ip" | "email" = isIp ? "ip" : "email";
+
+  let distinctId: string;
+  if (isIp) {
+    const hashedIp = createHash("sha256").update(identifier).digest("hex");
+    distinctId = `anon-${hashedIp}`;
+  } else {
+    distinctId = identifier.replace("email:", "");
+  }
+
+  const endpointLabel = `${action}_${identifierType}`;
+
+  serverAnalytics.capture("rate_limit_hit", distinctId, {
+    endpoint: endpointLabel,
+    identifier_type: identifierType,
+  });
+
   return { success: false, retryAfterSeconds };
 }

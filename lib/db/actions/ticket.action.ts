@@ -10,10 +10,7 @@ import {
 } from "@/lib/email/send-ticket-emails";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import {
-  NotFoundError,
-  ValidationError,
-} from "@/lib/http-errors";
+import { NotFoundError, ValidationError } from "@/lib/http-errors";
 import {
   computeFinalPrice,
   couponAppliesToTier,
@@ -40,6 +37,7 @@ import { db } from "..";
 import { coupons, offers, tickets, users } from "../schema";
 import type { Ticket } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
+import { serverAnalytics } from "@/lib/analytics/server";
 
 async function resolveCoupon(code: string | undefined) {
   if (!code?.trim()) return null;
@@ -70,6 +68,11 @@ export async function purchaseTicket(
 
   const session = validationResult.session!;
   const data = validationResult.params as TicketPurchaseInput;
+
+  serverAnalytics.capture("ticket_checkout_started", session.user.id, {
+    ticket_type: data.ticketType,
+    price_piastres: 0,
+  });
 
   try {
     await assertUserIsActive(session.user.id);
@@ -142,6 +145,11 @@ export async function purchaseTicket(
 
     if (coupon) {
       if (!isCouponActive(coupon)) {
+        serverAnalytics.capture("coupon_rejected", session.user.id, {
+          coupon_code: coupon.code,
+          reason: "expired",
+          ticket_type: data.ticketType,
+        });
         return handleError(
           new ValidationError({ couponCode: ["Coupon is no longer active"] }),
         ) as ErrorResponse;
@@ -150,12 +158,33 @@ export async function purchaseTicket(
       if (
         !couponAppliesToTier(coupon, data.ticketType as PurchasableTicketType)
       ) {
+        serverAnalytics.capture("coupon_rejected", session.user.id, {
+          coupon_code: coupon.code,
+          reason: "not_applicable",
+          ticket_type: data.ticketType,
+        });
         return handleError(
           new ValidationError({
             couponCode: ["Coupon does not apply to this ticket tier"],
           }),
         ) as ErrorResponse;
       }
+
+      serverAnalytics.capture("coupon_applied", session.user.id, {
+        coupon_code: coupon.code,
+        discount_type: coupon.type,
+        discount_value:
+          coupon.type === "fixed"
+            ? coupon.discountAmount
+            : coupon.percentageOff,
+        ticket_type: data.ticketType,
+      });
+    } else if (data.couponCode) {
+      serverAnalytics.capture("coupon_rejected", session.user.id, {
+        coupon_code: data.couponCode,
+        reason: "not_found",
+        ticket_type: data.ticketType,
+      });
     }
 
     const breakdown = computeFinalPrice(
@@ -163,6 +192,11 @@ export async function purchaseTicket(
       bestOffer,
       coupon,
     );
+
+    serverAnalytics.capture("ticket_checkout_started", session.user.id, {
+      ticket_type: data.ticketType,
+      price_piastres: breakdown.finalPrice,
+    });
 
     const now = new Date();
     const ticketValues = {
@@ -219,6 +253,13 @@ export async function purchaseTicket(
 
       ticketId = created.id;
     }
+
+    serverAnalytics.capture("payment_screenshot_uploaded", session.user.id, {
+      ticket_id: ticketId,
+      ticket_type: data.ticketType,
+      payment_method: data.paymentMethod,
+      amount_piastres: breakdown.finalPrice,
+    });
 
     if (breakdown.couponId && !existingTicket?.couponId) {
       await db
@@ -282,6 +323,11 @@ export async function getMyTicket(): Promise<
     if (!row) {
       return { success: true, data: null };
     }
+
+    serverAnalytics.capture("ticket_viewed", session.user.id, {
+      ticket_id: row.ticket.id,
+      ticket_type: row.ticket.type,
+    });
 
     return {
       success: true,
@@ -464,6 +510,26 @@ export async function reviewTicket(
         qrCode: ticket.qrCode,
       });
 
+      serverAnalytics.capture("payment_approved", ticket.userId, {
+        ticket_id: ticketId,
+        ticket_type: ticket.type,
+        amount_piastres: ticket.pricePaid,
+      });
+      serverAnalytics.capture("admin_payment_approved", session.user.id, {
+        ticket_id: ticketId,
+        ticket_type: ticket.type,
+        amount_piastres: ticket.pricePaid,
+        admin_id: session.user.id,
+      });
+      serverAnalytics.capture("ticket_purchased", ticket.userId, {
+        ticket_id: ticketId,
+        ticket_type: ticket.type,
+        amount_piastres: ticket.pricePaid,
+        coupon_used: !!ticket.couponId,
+        offer_used: !!ticket.offerId,
+        payment_method: ticket.paymentMethod as "instapay" | "vodacash",
+      });
+
       return {
         success: true,
         data: { ticketId, status: "confirmed" },
@@ -488,6 +554,17 @@ export async function reviewTicket(
       ticketType: ticket.type,
       pricePaid: ticket.pricePaid,
       rejectionReason: rejectionReason ?? null,
+    });
+
+    serverAnalytics.capture("payment_rejected", ticket.userId, {
+      ticket_id: ticketId,
+      ticket_type: ticket.type,
+      reason: rejectionReason ?? undefined,
+    });
+    serverAnalytics.capture("admin_payment_rejected", session.user.id, {
+      ticket_id: ticketId,
+      reason: rejectionReason ?? undefined,
+      admin_id: session.user.id,
     });
 
     return {

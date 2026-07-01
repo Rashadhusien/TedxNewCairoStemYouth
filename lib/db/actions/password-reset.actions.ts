@@ -22,6 +22,7 @@ import { getClientIp } from "@/lib/get-ip";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/email/password-reset-email";
 import type { ErrorResponse } from "@/types/actions";
+import { serverAnalytics } from "@/lib/analytics/server";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -137,6 +138,8 @@ export const forgotPassword = async (params: {
       expiresInMinutes: RESET_TOKEN_TTL_MINUTES,
     });
 
+    serverAnalytics.capture("password_reset_requested", user.id, {});
+
     return genericResponse;
   } catch (error) {
     // Log but return generic success — don't expose internal errors
@@ -236,6 +239,8 @@ export const resetPassword = async (params: {
           eq(accounts.provider, "credentials"),
         ),
       );
+
+    serverAnalytics.capture("password_reset_completed", tokenRecord.userId, {});
 
     return {
       success: true,

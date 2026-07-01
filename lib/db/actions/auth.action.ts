@@ -27,12 +27,14 @@ import {
   SignInCredentials,
 } from "@/types/actions";
 import { ADMIN_ACCESS_ROLES } from "@/lib/auth/route-guards";
+import { protectAuthServerAction } from "@/lib/arcjet";
 
 import { db } from "..";
 import { accounts, users } from "../schema";
 import { ROUTES } from "@/constants/routes";
 import { getClientIp } from "@/lib/get-ip";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { serverAnalytics } from "@/lib/analytics/server";
 
 const CREDENTIALS_PROVIDER = "credentials";
 const BCRYPT_ROUNDS = 12;
@@ -102,6 +104,24 @@ function parseSignInRedirectUrl(redirectUrl: string): SignInResponse {
 export const signInWithCredentials = async (
   params: SignInCredentials,
 ): Promise<SignInResponse> => {
+  const decision = await protectAuthServerAction();
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      return {
+        success: false,
+        error: {
+          message: "Too many sign-in attempts. Please try again later.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        message: "Request blocked by security policy",
+      },
+    };
+  }
+
   const validationResult = await action({
     params,
     schema: UserLoginFormSchema,
@@ -161,6 +181,17 @@ export const signInWithCredentials = async (
 
     const result = parseSignInRedirectUrl(redirectUrl);
 
+    if (result.success) {
+      serverAnalytics.capture("user_logged_in", user.id, {
+        method: "credentials",
+      });
+    } else if (result.error.message === "Invalid email or password") {
+      const reason = user ? "invalid_credentials" : "account_not_found";
+      serverAnalytics.capture("login_failed", "anon-" + normalizedEmail, {
+        reason,
+      });
+    }
+
     if (
       !result.success &&
       result.error.message === "Invalid email or password" &&
@@ -205,6 +236,24 @@ export const signInWithCredentials = async (
 export const signInAdminWithCredentials = async (
   params: AdminSignInCredentials,
 ): Promise<SignInResponse> => {
+  const decision = await protectAuthServerAction();
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      return {
+        success: false,
+        error: {
+          message: "Too many sign-in attempts. Please try again later.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        message: "Request blocked by security policy",
+      },
+    };
+  }
+
   const validationResult = await action({
     params,
     schema: AdminLoginFormSchema,
@@ -329,6 +378,24 @@ export const signInAdminWithCredentials = async (
 export const registerWithCredentails = async (
   params: AuthCredentails,
 ): Promise<RegisterResponse> => {
+  const decision = await protectAuthServerAction();
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      return {
+        success: false,
+        error: {
+          message: "Too many registration attempts. Please try again later.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        message: "Request blocked by security policy",
+      },
+    };
+  }
+
   const validationResult = await action({
     params,
     schema: UserRegisterFormSchema,
@@ -411,6 +478,15 @@ export const registerWithCredentails = async (
       ) as ErrorResponse;
     }
 
+    serverAnalytics.capture("user_signed_up", newUser.id, {
+      intended_ticket_type: undefined,
+      referral_source: undefined,
+    });
+    serverAnalytics.identify(newUser.id, {
+      email: normalizedEmail,
+      name,
+    });
+
     try {
       await db.insert(accounts).values({
         userId: newUser.id,
@@ -437,6 +513,24 @@ export const verifyEmail = async (params: {
   otp: string;
   password?: string;
 }): Promise<VerifyEmailResponse> => {
+  const decision = await protectAuthServerAction();
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      return {
+        success: false,
+        error: {
+          message: "Too many verification attempts. Please try again later.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        message: "Request blocked by security policy",
+      },
+    };
+  }
+
   const validationResult = await action({
     params,
     schema: VerifyEmailActionSchema,
@@ -505,6 +599,8 @@ export const verifyEmail = async (params: {
 
     await clearVerificationOtp(normalizedEmail);
 
+    serverAnalytics.capture("email_verified", user.id, {});
+
     if (password) {
       await signIn(CREDENTIALS_PROVIDER, {
         email: normalizedEmail,
@@ -523,6 +619,24 @@ export const verifyEmail = async (params: {
 export const resendVerificationEmail = async (params: {
   email: string;
 }): Promise<ResendVerificationResponse> => {
+  const decision = await protectAuthServerAction();
+  if (decision.isDenied()) {
+    if (decision.reason.isRateLimit()) {
+      return {
+        success: false,
+        error: {
+          message: "Too many resend attempts. Please try again later.",
+        },
+      };
+    }
+    return {
+      success: false,
+      error: {
+        message: "Request blocked by security policy",
+      },
+    };
+  }
+
   const validationResult = await action({
     params,
     schema: ResendVerificationSchema,
@@ -573,6 +687,8 @@ export const resendVerificationEmail = async (params: {
       normalizedEmail,
       user.fullName ?? undefined,
     );
+
+    serverAnalytics.capture("password_reset_requested", user.id, {});
 
     return { success: true };
   } catch (error) {
