@@ -67,7 +67,7 @@ const searchItems: SearchItem[] = sidebarItems.flatMap((group) =>
 
 function getAvailableItems(items: SearchItem[]) {
   return items.filter(
-    (item) => !item.disabled && !item.url.includes("coming-soon"),
+    (item) => !item.disabled && !item.url.toString().includes("coming-soon"),
   );
 }
 

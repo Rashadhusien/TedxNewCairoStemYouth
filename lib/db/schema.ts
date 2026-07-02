@@ -113,8 +113,6 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "bonus",
 ]);
 
-export const speakerTypeEnum = pgEnum("speaker_type", ["main", "keyholder"]);
-
 // ─────────────────────────────────────────────
 // USERS & AUTH
 // ─────────────────────────────────────────────
@@ -283,6 +281,9 @@ export const tickets = pgTable(
     paymentNotes: text("payment_notes"),
     // Free-text notes from attendee
 
+    // Kashier payment gateway order ID — stored for reconciliation and refunds
+    paymentGatewayOrderId: varchar("payment_gateway_order_id", { length: 255 }),
+
     // Admin review
     reviewedBy: uuid("reviewed_by").references(() => users.id),
     reviewedAt: timestamp("reviewed_at"),
@@ -318,6 +319,9 @@ export const tickets = pgTable(
     userIdx: index("tickets_user_idx").on(t.userId),
     statusIdx: index("tickets_status_idx").on(t.status),
     qrCodeIdx: index("tickets_qr_code_idx").on(t.qrCode),
+    gatewayOrderIdx: index("tickets_gateway_order_idx").on(
+      t.paymentGatewayOrderId,
+    ),
   }),
 );
 // ─────────────────────────────────────────────

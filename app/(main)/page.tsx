@@ -6,6 +6,7 @@ import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
 import SponsorsSponsorsSection from "./components/sponsors/sponsors-sponsors-section";
 import SponsorsPartnersSection from "./components/sponsors/sponsors-partners-section";
 import FloatingOfferBanner from "./components/floating-offer-banner";
+// import OfferBanner from "@/components/offer-banner";
 
 const Home = async () => {
   const [sponsorsResult, partnersResult] = await Promise.all([
@@ -17,7 +18,7 @@ const Home = async () => {
   const partners = partnersResult.success ? partnersResult.data?.items : [];
 
   return (
-    <div className="">
+    <div className="relative">
       <Hero />
 
       <AboutSection />
@@ -33,6 +34,7 @@ const Home = async () => {
       <CountdownTimer />
 
       <FloatingOfferBanner />
+      {/* <OfferBanner /> */}
     </div>
   );
 };

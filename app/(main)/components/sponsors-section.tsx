@@ -21,7 +21,6 @@ function TierLabel({ text }: { text: string }) {
 }
 
 export default function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
-  console.log(sponsors);
   return (
     <section className="relative  bg-black overflow-hidden py-20">
       <div className="absolute inset-0 bg-linear-to-t from-black via-[#060000] to-black pointer-events-none" />

@@ -1,7 +1,19 @@
 "use server";
 
-import { and, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
-
+import {
+  and,
+  desc,
+  eq,
+  gte,
+  ilike,
+  isNull,
+  lte,
+  ne,
+  or,
+  sql,
+} from "drizzle-orm";
+import { auth } from "@/auth";
+import { isAdminRole } from "@/lib/auth/route-guards";
 import { deletePaymentScreenshot } from "@/lib/cloudinary";
 import {
   notifyTicketConfirmed,
@@ -125,10 +137,18 @@ export async function purchaseTicket(
       ) as ErrorResponse;
     }
 
+    const currentDate = new Date();
     const activeOffers = await db
       .select()
       .from(offers)
-      .where(eq(offers.isActive, true));
+      .where(
+        and(
+          eq(offers.isActive, true),
+          or(isNull(offers.startsAt), lte(offers.startsAt, currentDate)),
+          or(isNull(offers.endsAt), gte(offers.endsAt, currentDate)),
+          or(isNull(offers.remainingSlots), sql`${offers.remainingSlots} > 0`),
+        ),
+      );
 
     const bestOffer = pickBestOffer(
       activeOffers,
@@ -441,6 +461,7 @@ export async function reviewTicket(
 
   try {
     const { session } = await requireAdminSession();
+    // const session = await requireAdmin();
     const {
       ticketId,
       action: reviewAction,

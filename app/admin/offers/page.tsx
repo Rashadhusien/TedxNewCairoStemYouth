@@ -5,6 +5,9 @@ import { OFFERS_STATUS } from "@/constants/select";
 import { ROUTES } from "@/constants/routes";
 import { listOffers } from "@/lib/db/actions/offer.action";
 import { SearchParams } from "@/types";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Plus } from "lucide-react";
 
 interface AdminOffersPageProps {
   searchParams: Promise<SearchParams>;
@@ -28,7 +31,6 @@ export default async function AdminOffersPage({
       ? result.data
       : { items: [], total: 0, page: 1, pageSize: 20 };
 
-  console.log(data);
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -38,13 +40,18 @@ export default async function AdminOffersPage({
             Manage promotional campaigns shown on the homepage and tickets page.
           </p>
         </div>
-        <OfferFormDialog />
+        <Button className="flex items-center gap-2" asChild size={"lg"}>
+          <Link href={ROUTES.ADMIN.OFFERS.CREATE}>
+            <Plus className="size-4" />
+            Add Offer
+          </Link>
+        </Button>{" "}
       </div>
 
       <DataTable
         data={data.items}
         columns={offerColumns}
-        route={ROUTES.ADMIN.OFFERS}
+        route={ROUTES.ADMIN.OFFERS.HOME}
         search={params.search || ""}
         total={data.total}
         pageSize={data.pageSize}

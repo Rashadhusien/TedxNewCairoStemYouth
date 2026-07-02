@@ -42,7 +42,7 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
           <SectionTitle
             eyebrow="Event Access"
             title="Get Your Ticket"
-            subTitle="Choose your seat tier and complete payment to secure your spot at Luminous Darkness 2026."
+            subTitle="Choose your seat tier and complete secure payment to secure your spot at Luminous Darkness 2026."
           />
         </div>
       </section>
@@ -60,15 +60,6 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
               highlighted={type === "vip"}
             />
           ))}
-        </div>
-
-        <div className="rounded-lg border border-white/10 bg-white/2 p-6 text-sm text-muted-foreground space-y-2">
-          <p className="font-semibold text-foreground">Payment Instructions</p>
-          <p>
-            After selecting your tier, choose Cash, InstaPay, or Bank Transfer.
-            Upload a screenshot of your payment proof. Our team will review and
-            confirm your ticket within 24–48 hours.
-          </p>
         </div>
       </section>
 

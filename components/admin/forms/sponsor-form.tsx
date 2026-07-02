@@ -68,7 +68,6 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
   });
 
   useEffect(() => {
-    console.log(sponsor?.tier);
     if (sponsor) {
       form.reset({
         name: sponsor.name,
@@ -96,8 +95,6 @@ export default function SponsorForm({ sponsor }: SponsorFormProps) {
       logoUrl: data.logoUrl || "",
       isActive: data.isActive,
     };
-
-    console.log("payload: ", payload);
 
     const result = sponsor
       ? await updateSponsor({ id: sponsor.id, ...payload })

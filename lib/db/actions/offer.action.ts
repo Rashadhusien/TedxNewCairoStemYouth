@@ -1,6 +1,17 @@
 "use server";
 
-import { and, asc, desc, eq, gte, ilike, isNull, lte, or, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  ilike,
+  isNull,
+  lte,
+  or,
+  sql,
+} from "drizzle-orm";
 
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
@@ -11,7 +22,11 @@ import {
   pickBestOffer,
   type PurchasableTicketType,
 } from "@/lib/pricing";
-import { OfferSchema, TicketListSchema, OfferListSchema } from "@/lib/validation";
+import {
+  OfferSchema,
+  TicketListSchema,
+  OfferListSchema,
+} from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type { z } from "zod";
 
@@ -27,10 +42,7 @@ function activeOfferConditions(now: Date) {
     eq(offers.isActive, true),
     or(isNull(offers.startsAt), lte(offers.startsAt, now)),
     or(isNull(offers.endsAt), gte(offers.endsAt, now)),
-    or(
-      isNull(offers.remainingSlots),
-      sql`${offers.remainingSlots} > 0`,
-    ),
+    or(isNull(offers.remainingSlots), sql`${offers.remainingSlots} > 0`),
   );
 }
 
@@ -127,9 +139,7 @@ export async function updateOffer(
   }
 }
 
-export async function listOffers(
-  params:OfferListInput,
-): Promise<
+export async function listOffers(params: OfferListInput): Promise<
   ActionResponse<{
     items: Offer[];
     total: number;
@@ -159,10 +169,7 @@ export async function listOffers(
     if (search) {
       const term = `%${search.trim()}%`;
       condition.push(
-        or(
-          ilike(offers.title, term),
-          ilike(offers.description, term),
-        ),
+        or(ilike(offers.title, term), ilike(offers.description, term)),
       );
     }
 
@@ -189,6 +196,30 @@ export async function listOffers(
         page,
         pageSize,
       },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+export async function getOfferById(
+  offerId: string,
+): Promise<ActionResponse<Offer | null>> {
+  try {
+    await requireAdmin();
+
+    const [offer] = await db
+      .select()
+      .from(offers)
+      .where(eq(offers.id, offerId))
+      .limit(1);
+
+    if (!offer) {
+      return { success: true, data: null };
+    }
+
+    return {
+      success: true,
+      data: offer,
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;

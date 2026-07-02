@@ -1,5 +1,5 @@
 {
-  "id": "97e34464-4491-44eb-b838-750535b53cf7",
+  "id": "ea93d5db-04f8-4258-8747-39d2fee455f6",
   "prevId": "850d8346-a94b-4e04-9f56-9d42c0925649",
   "version": "7",
   "dialect": "postgresql",
@@ -1622,13 +1622,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "type": {
-          "name": "type",
-          "type": "sponsors_type",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true
-        },
         "booth_point_multiplier": {
           "name": "booth_point_multiplier",
           "type": "integer",
@@ -2083,6 +2076,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "payment_gateway_order_id": {
+          "name": "payment_gateway_order_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "reviewed_by": {
           "name": "reviewed_by",
           "type": "uuid",
@@ -2201,6 +2200,21 @@
           "columns": [
             {
               "expression": "qr_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tickets_gateway_order_idx": {
+          "name": "tickets_gateway_order_idx",
+          "columns": [
+            {
+              "expression": "payment_gateway_order_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"

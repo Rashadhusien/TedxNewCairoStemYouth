@@ -22,7 +22,11 @@ export const ROUTES = {
     USERS: "/admin/users",
     TICKETS: "/admin/tickets",
     CHECK_IN: "/admin/check-in",
-    COUPONS: "/admin/coupons",
+    COUPONS: {
+      HOME: "/admin/coupons",
+      CREATE: "/admin/coupons/create",
+      EDIT: (id: string) => `/admin/coupons/edit/${id}`,
+    },
     SPONSORS: {
       HOME: "/admin/sponsors",
       CREATE: "/admin/sponsors/create",
@@ -33,7 +37,11 @@ export const ROUTES = {
       CREATE: "/admin/speakers/create",
       EDIT: (id: string) => `/admin/speakers/edit/${id}`,
     },
-    OFFERS: "/admin/offers",
+    OFFERS: {
+      HOME: "/admin/offers",
+      CREATE: "/admin/offers/create",
+      EDIT: (id: string) => `/admin/offers/edit/${id}`,
+    },
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",

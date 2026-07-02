@@ -31,8 +31,6 @@ function ContactForm() {
   });
 
   async function onSubmit(data: z.infer<typeof ContactFormSchema>) {
-    console.log(data);
-
     const formData = {
       name: data.name,
       email: data.email,
