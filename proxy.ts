@@ -98,19 +98,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: [
-    "/admin",
-    "/admin/:path*",
-    "/dashboard/:path*",
-    "/survey/:path*",
-    "/games/:path*",
-    "/leaderboard/:path*",
-    "/ticket/:path*",
-    "/my-ticket/:path*",
-    "/sponsor/:path*",
-    "/login",
-    "/register",
-    "/verify-email",
-    "/unauthorized",
-  ],
+  matcher: ["/((?!api/webhooks|_next/static|_next/image|favicon.ico).*)"],
 };

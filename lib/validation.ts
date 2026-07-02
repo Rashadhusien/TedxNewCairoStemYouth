@@ -202,28 +202,22 @@ export const TicketListSchema = z.object({
 });
 
 export const CouponListSchema = z.object({
-  status: z
-    .enum(["all", "active", "inactive"])
-    .default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
   search: z.string().optional(),
   ...paginationSchema.shape,
 });
 
 export const OfferListSchema = z.object({
-  status: z
-    .enum(["all", "active", "inactive"])
-    .default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
   search: z.string().optional(),
   ...paginationSchema.shape,
 });
 
 export const SponsorListSchema = z.object({
-    status: z
-    .enum(["all", "active", "inactive"])
-    .default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
   search: z.string().optional(),
   ...paginationSchema.shape,
-})
+});
 
 export const sponsorTierSchema = z.enum([
   "visionary",
@@ -236,17 +230,12 @@ export const sponsorTierSchema = z.enum([
 
 export const leadGenQuestionSchema = z.object({
   id: z.string().uuid("Invalid question id"),
-  question: z
-    .string()
-    .trim()
-    .min(1, "Question is required"),
+  question: z.string().trim().min(1, "Question is required"),
 
   type: z.enum(["dropdown", "radio"]),
 
   options: z
-    .array(
-      z.string().trim().min(1, "Option cannot be empty")
-    )
+    .array(z.string().trim().min(1, "Option cannot be empty"))
     .min(1, "At least one option is required"),
 
   required: z.boolean(),
@@ -261,33 +250,24 @@ export const sponsorFormSchema = z.object({
 
   logoUrl: z.string().optional(),
 
-  website: z
-    .string()
-    .url("Invalid website URL")
-    .optional()
-    .or(z.literal("")),
+  website: z.string().url("Invalid website URL").optional().or(z.literal("")),
 
   description: z.string().optional(),
 
   tier: sponsorTierSchema,
 
-  boothPointMultiplier: z
-    .number()
-    .int()
-    .positive()
-    .optional(),
+  boothPointMultiplier: z.number().int().positive().optional(),
 
   sponsorUserId: z.string().uuid().optional(),
 
-  leadGenQuestions: z
-    .array(leadGenQuestionSchema)
-    .optional(),
+  leadGenQuestions: z.array(leadGenQuestionSchema).optional(),
 
-  displayOrder: z
-    .number()
-    .int()
-    .min(0)
-    .optional(),
+  displayOrder: z.number().int().min(0).optional(),
 
   isActive: z.boolean(),
+});
+
+export const KashierCheckoutSchema = z.object({
+  ticketType: z.enum(["general", "vip", "ip", "np"]),
+  couponCode: z.string().max(50).trim().optional(),
 });

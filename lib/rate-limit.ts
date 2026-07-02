@@ -22,7 +22,8 @@ export type RateLimitAction =
   | "resend-verification"
   | "forgot-password"
   | "reset-password"
-  | "contact";
+  | "contact"
+  | "kashier-checkout";
 
 type LimitConfig = {
   tokens: number; // max requests
@@ -37,6 +38,7 @@ const ACTION_LIMITS: Record<RateLimitAction, LimitConfig> = {
   "forgot-password": { tokens: 3, window: "1 h" },
   "reset-password": { tokens: 5, window: "1 h" },
   contact: { tokens: 3, window: "1 h" },
+  "kashier-checkout": { tokens: 5, window: "10 m" },
 };
 
 // Cache limiter instances so we don't recreate them on every call

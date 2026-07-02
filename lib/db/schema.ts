@@ -46,8 +46,8 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
   "general",
   "vip",
   "organizer",
-  "ip",   // Industry Professional
-  "np",   // Non-Profit / Partner
+  "ip", // Industry Professional
+  "np", // Non-Profit / Partner
 ]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
@@ -60,15 +60,15 @@ export const ticketStatusEnum = pgEnum("ticket_status", [
 ]);
 
 export const couponTypeEnum = pgEnum("coupon_type", [
-  "fixed",       // Deduct a flat amount in piastres (e.g. 5000 = 50 EGP off)
-  "percentage",  // Deduct a percentage of the ticket price (0–100)
+  "fixed", // Deduct a flat amount in piastres (e.g. 5000 = 50 EGP off)
+  "percentage", // Deduct a percentage of the ticket price (0–100)
 ]);
 
 export const offerTypeEnum = pgEnum("offer_type", [
-  "early_bird",      // Time-limited discounted price
-  "group",           // Discount triggered by quantity (e.g. buy 3 get 20% off)
-  "bundle",          // Specific ticket type combo deal
-  "promotional",     // Generic banner/campaign with optional discount
+  "early_bird", // Time-limited discounted price
+  "group", // Discount triggered by quantity (e.g. buy 3 get 20% off)
+  "bundle", // Specific ticket type combo deal
+  "promotional", // Generic banner/campaign with optional discount
 ]);
 
 export const sponsorTierEnum = pgEnum("sponsor_tier", [
@@ -110,7 +110,6 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "manual_admin",
   "bonus",
 ]);
-
 
 // ─────────────────────────────────────────────
 // USERS & AUTH
@@ -235,7 +234,7 @@ export const tickets = pgTable(
     // UUID used to generate the QR code image — this is what door scanner reads
     qrCode: uuid("qr_code").notNull().unique().defaultRandom(),
 
-     // Final amount charged in EGP piastres (after coupon + offer deductions)
+    // Final amount charged in EGP piastres (after coupon + offer deductions)
     // 50000 = 500.00 EGP | 0 = free (organizer comps)
     pricePaid: integer("price_paid").notNull().default(0),
     currency: varchar("currency", { length: 3 }).notNull().default("EGP"),
@@ -255,6 +254,9 @@ export const tickets = pgTable(
     paymentNotes: text("payment_notes"),
     // Free-text notes from attendee
 
+    // Kashier payment gateway order ID — stored for reconciliation and refunds
+    paymentGatewayOrderId: varchar("payment_gateway_order_id", { length: 255 }),
+
     // Admin review
     reviewedBy: uuid("reviewed_by").references(() => users.id),
     reviewedAt: timestamp("reviewed_at"),
@@ -272,14 +274,16 @@ export const tickets = pgTable(
 
     // Discount value realised in piastres (snapshot at time of purchase)
     // Stored so it remains accurate even if the coupon is later changed
-    couponDiscountApplied: integer("coupon_discount_applied").notNull().default(0),
+    couponDiscountApplied: integer("coupon_discount_applied")
+      .notNull()
+      .default(0),
 
     // Which offer (if any) was active when the ticket was purchased
     offerId: uuid("offer_id").references(() => offers.id),
 
     // Snapshot of the offer's discounted price at purchase time
     offerPriceApplied: integer("offer_price_applied"),
-    // ───────  
+    // ───────
 
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -288,13 +292,14 @@ export const tickets = pgTable(
     userIdx: index("tickets_user_idx").on(t.userId),
     statusIdx: index("tickets_status_idx").on(t.status),
     qrCodeIdx: index("tickets_qr_code_idx").on(t.qrCode),
+    gatewayOrderIdx: index("tickets_gateway_order_idx").on(
+      t.paymentGatewayOrderId,
+    ),
   }),
 );
 // ─────────────────────────────────────────────
 // COUPONS
 // ─────────────────────────────────────────────
-
-
 
 export const coupons = pgTable(
   "coupons",
@@ -351,7 +356,6 @@ export const coupons = pgTable(
 // ─────────────────────────────────────────────
 // OFFERS
 // ─────────────────────────────────────────────
-
 
 export const offers = pgTable(
   "offers",
@@ -443,7 +447,9 @@ export const sponsors = pgTable("sponsors", {
   displayOrder: smallint("display_order").notNull().default(0),
 
   isActive: boolean("is_active").notNull().default(true),
-  createdBy: uuid("created_by").notNull().references(() => users.id),
+  createdBy: uuid("created_by")
+    .notNull()
+    .references(() => users.id),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
@@ -941,7 +947,7 @@ export const pointTransactionsRelations = relations(
       references: [users.id],
     }),
     awardedByUser: one(users, {
-      fields: [pointTransactions.awardedBy],  
+      fields: [pointTransactions.awardedBy],
       references: [users.id],
       relationName: "point_awarder",
     }),
