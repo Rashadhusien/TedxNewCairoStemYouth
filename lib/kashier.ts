@@ -20,6 +20,13 @@ export interface KashierSessionResponse {
   sessionId: string;
 }
 
+export interface KashierSessionConflictError {
+  error?: { cause?: string };
+  messages?: { en?: string; ar?: string };
+  status?: string;
+  sessionUrl?: string;
+}
+
 export interface KashierWebhookPayload {
   data: Record<string, string | number | boolean | null> & {
     merchantOrderId: string;
@@ -93,15 +100,18 @@ export function generateKashierOrderHash(
   return hash;
 }
 
+function extractSessionIdFromUrl(sessionUrl: string): string | null {
+  const match = sessionUrl.match(/\/session\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : null;
+}
+
 export async function createKashierSession(
   req: KashierSessionRequest,
 ): Promise<KashierSessionResponse> {
-  const { merchantId, secretKey, mode, apiKey } = getKashierConfig();
+  const { merchantId, secretKey, apiKey } = getKashierConfig();
   const baseUrl = getKashierBaseUrl();
 
   const currency = req.currency ?? "EGP";
-
-  // Calculate expiration time (30 minutes from now)
   const expireAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
   const requestBody = {
@@ -121,27 +131,11 @@ export async function createKashierSession(
     customer: req.customer,
   };
 
-  console.log("[Kashier] Creating session:", {
-    baseUrl,
-    mode,
-    merchantId,
-    order: req.order,
-    secretKeyLength: secretKey.length,
-    apiKeyLength: apiKey.length,
-    usingSecretKeyForAuth: true,
-    usingApiKeyForHeader: true,
-    secretKeyPreview: secretKey.substring(0, 20) + "...",
-    apiKeyPreview: apiKey.substring(0, 20) + "...",
-    requestBodyKeys: Object.keys(requestBody),
-  });
-
   const headers = {
     "Content-Type": "application/json",
     Authorization: secretKey,
     "api-key": apiKey,
   };
-
-  console.log("[Kashier] Request headers:", headers);
 
   try {
     const response = await fetch(baseUrl, {
@@ -152,12 +146,30 @@ export async function createKashierSession(
 
     if (!response.ok) {
       const errorText = await response.text();
+
+      let errorBody: KashierSessionConflictError | null = null;
+      try {
+        errorBody = JSON.parse(errorText) as KashierSessionConflictError;
+      } catch {
+        errorBody = null;
+      }
+
+      // Kashier refuses to open a second session for an order that already
+      // has one in progress, but hands back that session's URL — reuse it
+      // instead of failing the retry.
+      if (errorBody?.sessionUrl && errorBody.status === "FAILURE") {
+        const existingSessionId = extractSessionIdFromUrl(errorBody.sessionUrl);
+        console.log(
+          "[Kashier] Reusing existing open session for order:",
+          req.order,
+        );
+        return {
+          sessionUrl: errorBody.sessionUrl,
+          sessionId: existingSessionId ?? req.order,
+        };
+      }
+
       console.error("[Kashier] API error:", response.status, errorText);
-      console.error("[Kashier] Request headers:", {
-        "Content-Type": "application/json",
-        Authorization: secretKey.substring(0, 10) + "...",
-        "api-key": apiKey.substring(0, 10) + "...",
-      });
       throw new Error(`Kashier API error: ${response.status} - ${errorText}`);
     }
 
@@ -179,6 +191,9 @@ export function verifyKashierWebhookSignature(
 ): boolean {
   const { apiKey } = getKashierConfig();
   const { data } = payload;
+
+  console.log("[Kashier Webhook] Data keys:", Object.keys(data));
+  console.log("[Kashier Webhook] Data values:", data);
 
   let signatureString = "";
   const signatureKeys = data.signatureKeys;
@@ -205,6 +220,7 @@ export function verifyKashierWebhookSignature(
       "transactionId",
       "amount",
       "currency",
+      "mode",
     ];
 
     signatureString = keys
@@ -219,6 +235,12 @@ export function verifyKashierWebhookSignature(
   const expectedSignature = createHmac("sha256", apiKey)
     .update(signatureString)
     .digest("hex");
+
+  console.log("[Kashier Webhook] Signature check:", {
+    signatureString,
+    expectedSignature,
+    receivedSignature,
+  });
 
   try {
     const receivedBuffer = Buffer.from(receivedSignature, "utf8");

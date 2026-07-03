@@ -235,7 +235,7 @@ export async function createKashierCheckoutSession(
     await db
       .update(tickets)
       .set({
-        paymentGatewayOrderId: resultTicketId,
+        paymentGatewayOrderId: kashierSession.sessionId,
         paymentSubmittedAt: now,
         updatedAt: now,
       })
