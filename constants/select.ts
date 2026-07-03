@@ -70,6 +70,21 @@ export const SPONSOR_STATUS = [
   },
 ];
 
+export const TICKET_TIERS_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+];
+
 export const SPEAKER_STATUS = [
   {
     value: "all",

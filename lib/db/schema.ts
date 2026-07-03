@@ -50,6 +50,12 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
   "np", // Non-Profit / Partner
 ]);
 
+export const ticketTierTypeEnum = pgEnum("ticket_tier_type", [
+  "vip",
+  "ip",
+  "np",
+]);
+
 export const ticketStatusEnum = pgEnum("ticket_status", [
   "pending_payment", // registered, no screenshot yet
   "payment_submitted", // screenshot uploaded, awaiting admin
@@ -325,6 +331,32 @@ export const tickets = pgTable(
     ),
   }),
 );
+
+// ─────────────────────────────────────────────
+// TICKET TIERS
+// ─────────────────────────────────────────────
+
+export const ticketTiers = pgTable(
+  "ticket_tiers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    type: ticketTierTypeEnum("type").notNull().unique(),
+    label: varchar("label", { length: 255 }).notNull(),
+    subtitle: varchar("subtitle", { length: 255 }).notNull(),
+    pricePiastres: integer("price_piastres").notNull(),
+    features: text("features").array().notNull(),
+    displayOrder: smallint("display_order").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    typeIdx: index("ticket_tiers_type_idx").on(t.type),
+    activeIdx: index("ticket_tiers_active_idx").on(t.isActive),
+    displayOrderIdx: index("ticket_tiers_display_order_idx").on(t.displayOrder),
+  }),
+);
+
 // ─────────────────────────────────────────────
 // COUPONS
 // ─────────────────────────────────────────────
@@ -936,6 +968,8 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
   }),
 }));
 
+export const ticketTiersRelations = relations(ticketTiers, () => ({}));
+
 export const couponsRelations = relations(coupons, ({ one, many }) => ({
   createdByUser: one(users, {
     fields: [coupons.createdBy],
@@ -1057,6 +1091,9 @@ export type NewAccount = typeof accounts.$inferInsert;
 
 export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
+
+export type TicketTier = typeof ticketTiers.$inferSelect;
+export type NewTicketTier = typeof ticketTiers.$inferInsert;
 
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;

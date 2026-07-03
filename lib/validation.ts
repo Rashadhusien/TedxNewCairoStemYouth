@@ -82,6 +82,7 @@ export const ContactFormSchema = z.object({
 });
 
 const ticketTypeSchema = z.enum(["vip", "ip", "np"]);
+const ticketTierTypeSchema = z.enum(["vip", "ip", "np"]);
 const couponTypeSchema = z.enum(["fixed", "percentage"]);
 const offerTypeSchema = z.enum([
   "early_bird",
@@ -346,6 +347,35 @@ export const speakerFormSchema = z
 
 export const SpeakerListSchema = z.object({
   type: z.enum(["all", "main", "keyholder"]).default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const ticketTierFormSchema = z.object({
+  type: ticketTierTypeSchema,
+  label: z
+    .string()
+    .trim()
+    .min(1, "Label is required")
+    .max(255, "Label cannot exceed 255 characters"),
+  subtitle: z
+    .string()
+    .trim()
+    .min(1, "Subtitle is required")
+    .max(255, "Subtitle cannot exceed 255 characters"),
+  pricePiastres: z
+    .number()
+    .int("Price must be a whole number")
+    .positive("Price must be greater than 0"),
+  features: z
+    .array(z.string().trim().min(1, "Feature cannot be empty"))
+    .min(1, "At least one feature is required"),
+  displayOrder: z.number().int().min(0),
+  isActive: z.boolean(),
+});
+
+export const TicketTierListSchema = z.object({
   status: z.enum(["all", "active", "inactive"]).default("all"),
   search: z.string().optional(),
   ...paginationSchema.shape,

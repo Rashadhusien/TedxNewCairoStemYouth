@@ -2,51 +2,107 @@ import type { Coupon, Offer } from "@/lib/db/schema";
 
 export type PurchasableTicketType = "vip" | "ip" | "np";
 
-export const TICKET_TIERS: Record<
-  PurchasableTicketType,
+export interface TicketTier {
+  type: PurchasableTicketType;
+  label: string;
+  subtitle: string;
+  pricePiastres: number;
+  features: string[];
+}
+
+// Fallback constants in case API fails
+export const FALLBACK_TICKET_TIERS: Record<PurchasableTicketType, TicketTier> =
   {
-    type: PurchasableTicketType;
-    label: string;
-    subtitle: string;
-    pricePiastres: number;
-    features: string[];
+    vip: {
+      type: "vip",
+      label: "VIP Seat",
+      subtitle: "Very Important Person",
+      pricePiastres: 55_000,
+      features: [
+        "Front-row seating",
+        "VIP lounge access",
+        "Exclusive networking session",
+        "Premium event kit",
+      ],
+    },
+    ip: {
+      type: "ip",
+      label: "IP Seat",
+      subtitle: "Important Person",
+      pricePiastres: 45_000,
+      features: [
+        "Priority seating",
+        "Networking break access",
+        "Event kit included",
+      ],
+    },
+    np: {
+      type: "np",
+      label: "NP Seat",
+      subtitle: "Normal Person",
+      pricePiastres: 35_000,
+      features: [
+        "General admission",
+        "Full-day access to all talks",
+        "Event kit included",
+      ],
+    },
+  };
+
+let cachedTicketTiers: Record<PurchasableTicketType, TicketTier> | null = null;
+
+export async function getTicketTiers(): Promise<
+  Record<PurchasableTicketType, TicketTier>
+> {
+  if (cachedTicketTiers) {
+    return cachedTicketTiers;
   }
-> = {
-  vip: {
-    type: "vip",
-    label: "VIP Seat",
-    subtitle: "Very Important Person",
-    pricePiastres: 55_000,
-    features: [
-      "Front-row seating",
-      "VIP lounge access",
-      "Exclusive networking session",
-      "Premium event kit",
-    ],
-  },
-  ip: {
-    type: "ip",
-    label: "IP Seat",
-    subtitle: "Important Person",
-    pricePiastres: 45_000,
-    features: [
-      "Priority seating",
-      "Networking break access",
-      "Event kit included",
-    ],
-  },
-  np: {
-    type: "np",
-    label: "NP Seat",
-    subtitle: "Normal Person",
-    pricePiastres: 35_000,
-    features: [
-      "General admission",
-      "Full-day access to all talks",
-      "Event kit included",
-    ],
-  },
-};
+
+  try {
+    const response = await fetch("/api/ticket-tiers", {
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      console.warn("Failed to fetch ticket tiers, using fallback");
+      return FALLBACK_TICKET_TIERS;
+    }
+
+    const data = await response.json();
+    const tiers = data.items || [];
+
+    const ticketTiersMap: Partial<Record<PurchasableTicketType, TicketTier>> =
+      {};
+
+    for (const tier of tiers) {
+      if (tier.type && tier.label && tier.pricePiastres) {
+        ticketTiersMap[tier.type as PurchasableTicketType] = {
+          type: tier.type as PurchasableTicketType,
+          label: tier.label,
+          subtitle: tier.subtitle || "",
+          pricePiastres: tier.pricePiastres,
+          features: tier.features || [],
+        };
+      }
+    }
+
+    // Ensure all types are present, use fallback for missing ones
+    for (const type of ["vip", "ip", "np"] as PurchasableTicketType[]) {
+      if (!ticketTiersMap[type]) {
+        ticketTiersMap[type] = FALLBACK_TICKET_TIERS[type];
+      }
+    }
+
+    cachedTicketTiers = ticketTiersMap;
+    return ticketTiersMap;
+  } catch (error) {
+    console.error("Error fetching ticket tiers:", error);
+    return FALLBACK_TICKET_TIERS;
+  }
+}
+
+// Legacy constant for backward compatibility (deprecated)
+export const TICKET_TIERS = FALLBACK_TICKET_TIERS;
 
 export function piastresToEgp(piastres: number): number {
   return piastres / 100;

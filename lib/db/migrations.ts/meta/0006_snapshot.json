@@ -1,6 +1,6 @@
 {
-  "id": "0eccf66b-b7f6-4f93-a062-b6d4b2fa80c6",
-  "prevId": "97e34464-4491-44eb-b838-750535b53cf7",
+  "id": "7b89e2fa-4afc-4f6d-a0f3-e34f8fad12ec",
+  "prevId": "57d6b41f-0ed8-4789-8b9a-d33e6f4a2ea9",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1684,6 +1684,188 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.speakers": {
+      "name": "speakers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tagline": {
+          "name": "tagline",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "speaker_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'main'"
+        },
+        "symbol": {
+          "name": "symbol",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "initials": {
+          "name": "initials",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accent": {
+          "name": "accent",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role_color": {
+          "name": "role_color",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "speakers_type_idx": {
+          "name": "speakers_type_idx",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "speakers_active_idx": {
+          "name": "speakers_active_idx",
+          "columns": [
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "speakers_display_order_idx": {
+          "name": "speakers_display_order_idx",
+          "columns": [
+            {
+              "expression": "display_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "speakers_created_by_users_id_fk": {
+          "name": "speakers_created_by_users_id_fk",
+          "tableFrom": "speakers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.sponsors": {
       "name": "sponsors",
       "schema": "",
@@ -1731,7 +1913,8 @@
           "type": "sponsors_type",
           "typeSchema": "public",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "'sponsor'"
         },
         "booth_point_multiplier": {
           "name": "booth_point_multiplier",
@@ -2091,6 +2274,139 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.ticket_tiers": {
+      "name": "ticket_tiers",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "type": {
+          "name": "type",
+          "type": "ticket_tier_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "price_piastres": {
+          "name": "price_piastres",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "features": {
+          "name": "features",
+          "type": "text[]",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "display_order": {
+          "name": "display_order",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "ticket_tiers_type_idx": {
+          "name": "ticket_tiers_type_idx",
+          "columns": [
+            {
+              "expression": "type",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ticket_tiers_active_idx": {
+          "name": "ticket_tiers_active_idx",
+          "columns": [
+            {
+              "expression": "is_active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "ticket_tiers_display_order_idx": {
+          "name": "ticket_tiers_display_order_idx",
+          "columns": [
+            {
+              "expression": "display_order",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "ticket_tiers_type_unique": {
+          "name": "ticket_tiers_type_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "type"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.tickets": {
       "name": "tickets",
       "schema": "",
@@ -2184,6 +2500,12 @@
         "payment_notes": {
           "name": "payment_notes",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payment_gateway_order_id": {
+          "name": "payment_gateway_order_id",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -2305,6 +2627,21 @@
           "columns": [
             {
               "expression": "qr_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "tickets_gateway_order_idx": {
+          "name": "tickets_gateway_order_idx",
+          "columns": [
+            {
+              "expression": "payment_gateway_order_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -2686,6 +3023,14 @@
         "expired"
       ]
     },
+    "public.speaker_type": {
+      "name": "speaker_type",
+      "schema": "public",
+      "values": [
+        "main",
+        "keyholder"
+      ]
+    },
     "public.sponsor_tier": {
       "name": "sponsor_tier",
       "schema": "public",
@@ -2716,6 +3061,15 @@
         "rejected",
         "checked_in",
         "cancelled"
+      ]
+    },
+    "public.ticket_tier_type": {
+      "name": "ticket_tier_type",
+      "schema": "public",
+      "values": [
+        "vip",
+        "ip",
+        "np"
       ]
     },
     "public.ticket_type": {

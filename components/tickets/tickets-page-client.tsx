@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import SectionTitle from "@/components/layout/section-title";
 import CheckoutDialog from "@/components/tickets/checkout-dialog";
 import OffersBanner from "@/components/tickets/offers-banner";
 import TicketTierCard from "@/components/tickets/ticket-tier-card";
 import type { Offer } from "@/lib/db/schema";
-import { pickBestOffer, type PurchasableTicketType } from "@/lib/pricing";
+import {
+  getTicketTiers,
+  pickBestOffer,
+  type PurchasableTicketType,
+  type TicketTier,
+} from "@/lib/pricing";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
@@ -17,11 +22,19 @@ interface TicketsPageClientProps {
 }
 
 export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
+  const [ticketTiers, setTicketTiers] = useState<Record<
+    PurchasableTicketType,
+    TicketTier
+  > | null>(null);
   const [selectedTier, setSelectedTier] =
     useState<PurchasableTicketType | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const { status } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    getTicketTiers().then(setTicketTiers);
+  }, []);
 
   const handleSelect = (type: PurchasableTicketType) => {
     if (status === "unauthenticated") {
@@ -31,6 +44,14 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
     setSelectedTier(type);
     setCheckoutOpen(true);
   };
+
+  if (!ticketTiers) {
+    return (
+      <div className="bg-black min-h-screen flex items-center justify-center">
+        <div className="text-white">Loading ticket tiers...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-black min-h-screen">
@@ -54,7 +75,7 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
           {(["np", "ip", "vip"] as const).map((type) => (
             <TicketTierCard
               key={type}
-              type={type}
+              tier={ticketTiers[type]}
               offer={pickBestOffer(offers, type)}
               onSelect={handleSelect}
               highlighted={type === "vip"}

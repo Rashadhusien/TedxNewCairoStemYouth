@@ -6,6 +6,7 @@ import {
   Percent,
   ReceiptText,
   Tag,
+  Ticket,
   Users,
   Users2,
 } from "lucide-react";
@@ -56,6 +57,11 @@ export const sidebarItems: NavGroup[] = [
         title: "Check-in",
         url: ROUTES.ADMIN.CHECK_IN,
         icon: Camera,
+      },
+      {
+        title: "Ticket Tiers",
+        url: ROUTES.ADMIN.TICKET_TIERS.HOME,
+        icon: Ticket,
       },
       {
         title: "Tickets",

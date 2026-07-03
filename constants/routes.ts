@@ -42,6 +42,11 @@ export const ROUTES = {
       CREATE: "/admin/offers/create",
       EDIT: (id: string) => `/admin/offers/edit/${id}`,
     },
+    TICKET_TIERS: {
+      HOME: "/admin/ticket-tiers",
+      CREATE: "/admin/ticket-tiers/create",
+      EDIT: (id: string) => `/admin/ticket-tiers/edit/${id}`,
+    },
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",

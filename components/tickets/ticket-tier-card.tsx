@@ -13,29 +13,28 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   formatPiastres,
-  TICKET_TIERS,
+  type TicketTier,
   type PurchasableTicketType,
 } from "@/lib/pricing";
 import type { Offer } from "@/lib/db/schema";
 
 interface TicketTierCardProps {
-  type: PurchasableTicketType;
+  tier: TicketTier;
   offer?: Offer | null;
   onSelect: (type: PurchasableTicketType) => void;
   highlighted?: boolean;
 }
 
 export default function TicketTierCard({
-  type,
+  tier,
   offer,
   onSelect,
   highlighted,
 }: TicketTierCardProps) {
-  const tier = TICKET_TIERS[type];
   const hasOffer =
     offer?.discountedPrice != null &&
     (!offer.applicableTicketTypes?.length ||
-      offer.applicableTicketTypes.includes(type));
+      offer.applicableTicketTypes.includes(tier.type));
 
   const displayPrice = hasOffer ? offer!.discountedPrice! : tier.pricePiastres;
 
@@ -81,7 +80,7 @@ export default function TicketTierCard({
       <CardFooter className="space-y-4">
         <Button
           className="w-full py-5 font-bold tracking-wide "
-          onClick={() => onSelect(type)}
+          onClick={() => onSelect(tier.type)}
         >
           Select {tier.label}
         </Button>
