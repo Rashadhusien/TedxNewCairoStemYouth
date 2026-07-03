@@ -22,20 +22,16 @@ import {
   pickBestOffer,
   type PurchasableTicketType,
 } from "@/lib/pricing";
-import {
-  OfferSchema,
-  TicketListSchema,
-  OfferListSchema,
-} from "@/lib/validation";
+import { OfferSchema, OfferListSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
-import type { z } from "zod";
-
-type OfferInput = z.infer<typeof OfferSchema>;
-type OfferListInput = z.infer<typeof OfferListSchema>;
 import { db } from "..";
 import { offers } from "../schema";
 import type { Offer } from "../schema";
 import { requireAdminSession } from "./auth-guards";
+import type { z } from "zod";
+
+type OfferInput = z.infer<typeof OfferSchema>;
+type OfferListInput = z.infer<typeof OfferListSchema>;
 
 function activeOfferConditions(now: Date) {
   return and(
@@ -205,7 +201,7 @@ export async function getOfferById(
   offerId: string,
 ): Promise<ActionResponse<Offer | null>> {
   try {
-    await requireAdmin();
+    await requireAdminSession();
 
     const [offer] = await db
       .select()

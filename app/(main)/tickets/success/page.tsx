@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getMyTicket } from "@/lib/db/actions/ticket.action";
 import { CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
@@ -14,7 +14,7 @@ type TicketStatus =
   | "cancelled"
   | "timeout";
 
-export default function TicketSuccessPage() {
+function TicketSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("orderId");
@@ -237,5 +237,28 @@ export default function TicketSuccessPage() {
     <div className="min-h-screen flex justify-center items-center bg-[#0a0a0a] text-white">
       <div className="container mx-auto max-w-2xl px-4">{renderContent()}</div>
     </div>
+  );
+}
+
+export default function TicketSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex justify-center items-center bg-[#0a0a0a] text-white">
+          <div className="container mx-auto max-w-2xl px-4">
+            <div className="flex flex-col items-center justify-center space-y-6 py-12">
+              <div className="relative">
+                <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-[#e62b1e]" />
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold text-white">Loading...</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <TicketSuccessContent />
+    </Suspense>
   );
 }

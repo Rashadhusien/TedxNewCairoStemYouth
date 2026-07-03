@@ -1,14 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { getMyTicket } from "@/lib/db/actions/ticket.action";
 import { XCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type TicketStatus = "loading" | "pending_payment" | "confirmed" | "rejected" | "cancelled";
+type TicketStatus =
+  | "loading"
+  | "pending_payment"
+  | "confirmed"
+  | "rejected"
+  | "cancelled";
 
-export default function TicketFailedPage() {
+function TicketFailedContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("orderId");
@@ -62,7 +67,8 @@ export default function TicketFailedPage() {
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-bold text-white">Payment Failed</h2>
             <p className="text-gray-300">
-              {error || "Your payment could not be completed. Please try again or use a different payment method."}
+              {error ||
+                "Your payment could not be completed. Please try again or use a different payment method."}
             </p>
             {orderId && (
               <p className="text-sm text-gray-500 font-mono">
@@ -88,5 +94,28 @@ export default function TicketFailedPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TicketFailedPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#0a0a0a] text-white">
+          <div className="container mx-auto max-w-2xl px-4">
+            <div className="flex flex-col items-center justify-center space-y-6 py-12">
+              <div className="relative">
+                <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-[#e62b1e]" />
+              </div>
+              <div className="text-center space-y-2">
+                <h2 className="text-2xl font-bold text-white">Loading...</h2>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <TicketFailedContent />
+    </Suspense>
   );
 }

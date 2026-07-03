@@ -47,7 +47,7 @@ export type TedxEvent =
       properties: {
         ticket_id: string;
         ticket_type: string;
-        payment_method: "instapay" | "vodacash";
+        payment_method: "cash" | "instapay" | "bank_transfer";
         amount_piastres: number;
       };
     }
@@ -71,7 +71,7 @@ export type TedxEvent =
         amount_piastres: number;
         coupon_used: boolean;
         offer_used: boolean;
-        payment_method: "instapay" | "vodacash";
+        payment_method: "cash" | "instapay" | "bank_transfer";
       };
     }
   | {

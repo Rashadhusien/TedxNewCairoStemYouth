@@ -548,7 +548,10 @@ export async function reviewTicket(
         amount_piastres: ticket.pricePaid,
         coupon_used: !!ticket.couponId,
         offer_used: !!ticket.offerId,
-        payment_method: ticket.paymentMethod as "instapay" | "vodacash",
+        payment_method: ticket.paymentMethod as
+          | "cash"
+          | "instapay"
+          | "bank_transfer",
       });
 
       return {

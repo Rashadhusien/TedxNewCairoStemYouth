@@ -174,8 +174,9 @@ export async function createCoupon(
 
     serverAnalytics.capture("admin_coupon_created", session.user.id, {
       coupon_code: data.code.trim().toUpperCase(),
-      discount_type: data.discountType,
-      discount_value: data.discountValue,
+      discount_type: data.type,
+      discount_value:
+        data.type === "fixed" ? data.discountAmount : data.percentageOff,
       admin_id: session.user.id,
     });
 
