@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     if (contentType.includes("application/json")) {
       payload = await request.json();
-      receivedSignature = payload.signature || "";
+      receivedSignature = payload.hash || payload.signature || "";
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
       const formData = await request.formData();
       payload = { data: {} as Record<string, unknown> };
