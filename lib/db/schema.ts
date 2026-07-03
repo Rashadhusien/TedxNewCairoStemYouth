@@ -450,7 +450,7 @@ export const sponsors = pgTable("sponsors", {
   description: text("description"),
   tier: sponsorTierEnum("tier").notNull(),
 
-  type: sponsorsTypeEnum("type").notNull(),
+  type: sponsorsTypeEnum("type").notNull().default("sponsor"),
 
   // Point multiplier for their booth scans
   // visionary = 2 (20 pts base × 2), gold = 1 (10 pts × 1), etc.
