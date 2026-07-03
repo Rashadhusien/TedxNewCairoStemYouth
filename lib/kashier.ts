@@ -48,6 +48,8 @@ function getKashierConfig() {
     secretKey: secretKey?.substring(0, 10) + "...",
   });
 
+  console.log("secret key length:", secretKey?.length);
+
   if (!merchantId) {
     throw new Error("Missing KASHIER_MERCHANT_ID environment variable");
   }
@@ -104,7 +106,7 @@ export async function createKashierSession(
 
   const requestBody = {
     merchantId,
-    orderId: req.order,
+    order: req.order,
     amount: req.amount,
     currency,
     paymentType: "credit",
@@ -117,28 +119,34 @@ export async function createKashierSession(
     display: req.display ?? "en",
     description: req.description || `Payment for order ${req.order}`,
     customer: req.customer,
-    mode,
   };
 
   console.log("[Kashier] Creating session:", {
     baseUrl,
     mode,
     merchantId,
-    orderId: req.order,
+    order: req.order,
     secretKeyLength: secretKey.length,
     apiKeyLength: apiKey.length,
     usingSecretKeyForAuth: true,
     usingApiKeyForHeader: true,
+    secretKeyPreview: secretKey.substring(0, 20) + "...",
+    apiKeyPreview: apiKey.substring(0, 20) + "...",
+    requestBodyKeys: Object.keys(requestBody),
   });
+
+  const headers = {
+    "Content-Type": "application/json",
+    Authorization: secretKey,
+    "api-key": apiKey,
+  };
+
+  console.log("[Kashier] Request headers:", headers);
 
   try {
     const response = await fetch(baseUrl, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: secretKey,
-        "api-key": apiKey,
-      },
+      headers,
       body: JSON.stringify(requestBody),
     });
 
@@ -156,8 +164,8 @@ export async function createKashierSession(
     const data = await response.json();
 
     return {
-      sessionUrl: data.sessionUrl,
-      sessionId: data._id,
+      sessionUrl: data.sessionUrl ?? data.data?.sessionUrl,
+      sessionId: data._id ?? data.data?.sessionId,
     };
   } catch (error) {
     console.error("[Kashier] Session creation failed:", error);
