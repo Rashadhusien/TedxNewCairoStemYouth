@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  ArrowLeft,
-  CircleUser,
-  CreditCard,
-  EllipsisVertical,
-  LogOut,
-  MessageSquareDot,
-} from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, EllipsisVertical, LogOut } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,11 +16,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getInitials } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { signOutAction } from "@/lib/db/actions/auth.action";
 import UserAvatar from "@/components/UserAvatar";
-import { IconSitemap } from "@tabler/icons-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 
@@ -93,6 +82,7 @@ export function NavUser() {
               <DropdownMenuItem asChild>
                 <Link
                   href={ROUTES.HOME}
+                  prefetch={false}
                   className="cursor-pointer hover:bg-muted"
                 >
                   <ArrowLeft />
