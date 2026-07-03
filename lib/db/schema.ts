@@ -79,6 +79,7 @@ export const sponsorTierEnum = pgEnum("sponsor_tier", [
   "bronze",
   "inkind",
 ]);
+export const speakerTypeEnum = pgEnum("speaker_type", ["main", "keyholder"]);
 
 export const sponsorsTypeEnum = pgEnum("sponsors_type", ["sponsor", "partner"]);
 

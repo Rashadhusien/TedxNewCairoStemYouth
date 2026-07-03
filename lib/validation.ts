@@ -268,7 +268,191 @@ export const sponsorFormSchema = z.object({
   isActive: z.boolean(),
 });
 
+export const speakerTypeEnum = z.enum(["main", "keyholder"]);
+
+export const speakerFormSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name is required")
+      .max(255, "Name cannot exceed 255 characters"),
+
+    role: z
+      .string()
+      .trim()
+      .min(1, "Role is required")
+      .max(255, "Role cannot exceed 255 characters"),
+
+    description: z
+      .string()
+      .trim()
+      .min(1, "Description is required")
+      .max(500, "Description cannot exceed 500 characters"),
+
+    tagline: z
+      .string()
+      .trim()
+      .min(1, "Tagline is required")
+      .max(500, "Tagline cannot exceed 500 characters"),
+
+    type: speakerTypeEnum,
+
+    symbol: z.string().max(10).optional(),
+    initials: z.string().max(10).optional(),
+    accent: z.string().max(100).optional(),
+    roleColor: z.string().max(100).optional(),
+
+    imageUrl: z
+      .string()
+      .trim()
+      .min(1, "Image URL is required")
+      .url("Invalid image URL"),
+
+    displayOrder: z.number().int().min(0),
+
+    isActive: z.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "main" && !data.symbol) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Symbol is required for main speakers",
+        path: ["symbol"],
+      });
+    }
+    if (data.type === "main" && !data.accent) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Accent is required for main speakers",
+        path: ["accent"],
+      });
+    }
+    if (data.type === "main" && !data.roleColor) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Role color is required for main speakers",
+        path: ["roleColor"],
+      });
+    }
+    if (data.type === "keyholder" && !data.initials) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Initials are required for keyholders",
+        path: ["initials"],
+      });
+    }
+  });
+
+export const SpeakerListSchema = z.object({
+  type: z.enum(["all", "main", "keyholder"]).default("all"),
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const SKILLS_OPTIONS = [
+  "Software & AI",
+  "Robotics & Electronics",
+  "Mechanical & Industrial Engineering",
+  "Civil Engineering & Architecture",
+  "Applied Sciences",
+  "Business & Finance",
+  "Entrepreneurship & Startups",
+  "Marketing & PR",
+  "Design & Media",
+  "Writing & Research",
+  "Leadership & Public Speaking",
+] as const;
+
+export type SkillOption = (typeof SKILLS_OPTIONS)[number];
+
+export const UpdateProfileSchema = z.object({
+  fullName: z
+    .string()
+    .min(2, "Name must be at least 2 characters")
+    .max(255, "Name is too long")
+    .trim(),
+  image: z
+    .string()
+    .url("Please enter a valid image URL")
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  phone: z
+    .string()
+    .max(20, "Phone number is too long")
+    .regex(/^[\d\s+\-()]*$/, "Invalid phone number format")
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  university: z
+    .string()
+    .max(255, "University name is too long")
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  major: z
+    .string()
+    .max(255, "Major name is too long")
+    .nullable()
+    .transform((v) => v?.trim() || null),
+  graduationYear: z
+    .number()
+    .int()
+    .min(2020, "Graduation year seems too far in the past")
+    .max(2035, "Graduation year seems too far in the future")
+    .nullable()
+    .transform((v) => v ?? null),
+  age: z
+    .number()
+    .int()
+    .min(16, "Must be at least 16")
+    .max(100, "Please enter a valid age")
+    .nullable()
+    .transform((v) => v ?? null),
+  skills: z.array(z.string()),
+});
+
+export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>;
+
+export const ForgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+});
+
+export const ResetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Reset token is required"),
+    password: z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(72, "Password must be under 72 characters") // bcrypt limit
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+        "Password must contain uppercase, lowercase, and a number",
+      ),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export type ForgotPasswordInput = z.infer<typeof ForgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof ResetPasswordSchema>;
+
 export const KashierCheckoutSchema = z.object({
   ticketType: z.enum(["general", "vip", "ip", "np"]),
   couponCode: z.string().max(50).trim().optional(),
+});
+
+export const UserListSchema = z.object({
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const UpdateUserActiveSchema = z.object({
+  userId: z.string().uuid("Invalid user id"),
+  isActive: z.boolean(),
 });

@@ -222,8 +222,14 @@ export async function createKashierCheckoutSession(
       amount: kashierAmount,
       currency: "EGP",
       merchantRedirect: `${appUrl}/tickets/success?orderId=${resultTicketId}`,
+      serverWebhook: `${appUrl}/api/webhooks/kashier`,
       allowedMethods: "card,wallet",
       display: "en",
+      description: `TEDx Ticket Purchase - ${data.ticketType}`,
+      customer: {
+        email: user.email,
+        reference: user.id,
+      },
     });
 
     await db

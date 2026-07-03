@@ -105,7 +105,7 @@ export function DashboardOverview({ stats }: DashboardOverviewProps) {
           value={stats.coupons.totalRedemptions}
           description={`${stats.coupons.active} active coupons`}
           icon={Percent}
-          href={ROUTES.ADMIN.COUPONS}
+          href={ROUTES.ADMIN.COUPONS.HOME}
         />
       </div>
 
@@ -162,7 +162,9 @@ export function DashboardOverview({ stats }: DashboardOverviewProps) {
               <Users2 className="size-4" />
               Speakers
             </CardDescription>
-            <CardTitle className="text-xl tabular-nums">{stats.speakers.total}</CardTitle>
+            <CardTitle className="text-xl tabular-nums">
+              {stats.speakers.total}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-xs">
@@ -179,12 +181,16 @@ export function DashboardOverview({ stats }: DashboardOverviewProps) {
             </CardDescription>
             <CardTitle className="text-xl tabular-nums">
               {stats.coupons.total}
-              <span className="text-muted-foreground text-sm font-normal"> total</span>
+              <span className="text-muted-foreground text-sm font-normal">
+                {" "}
+                total
+              </span>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground text-xs">
-              {stats.coupons.totalRedemptions.toLocaleString()} total redemptions
+              {stats.coupons.totalRedemptions.toLocaleString()} total
+              redemptions
             </p>
           </CardContent>
         </Card>

@@ -1,8 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { tickets, users } from "@/lib/db/schema";
-import { verifyKashierWebhookSignature } from "@/lib/kashier";
+import {
+  verifyKashierWebhookSignature,
+  type KashierWebhookPayload,
+} from "@/lib/kashier";
 import {
   notifyTicketConfirmed,
   notifyTicketRejected,
@@ -10,6 +13,7 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("🔥 WEBHOOK HIT");
     let payload;
     let receivedSignature = "";
 
@@ -20,12 +24,12 @@ export async function POST(request: NextRequest) {
       receivedSignature = payload.signature || "";
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
       const formData = await request.formData();
-      payload = { data: {} as Record<string, any> };
+      payload = { data: {} as Record<string, unknown> };
       for (const [key, value] of formData.entries()) {
         if (key === "signature") {
           receivedSignature = String(value);
         } else {
-          payload.data[key] = value;
+          (payload.data as Record<string, unknown>)[key] = value;
         }
       }
     } else {
@@ -36,13 +40,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log("[Kashier Webhook] Received payload:", payload);
+    console.log(
+      "[Kashier Webhook] Received payload:",
+      JSON.stringify(payload, null, 2),
+    );
 
-    if (!payload.data) {
+    // Handle new Payment Sessions API format
+    if (payload.data && typeof payload.data === "object") {
+      // New API format: { data: { sessionId, status, merchantOrderId, ... } }
+      return handlePayment(payload, receivedSignature);
+    } else if (payload.sessionId || payload.merchantOrderId) {
+      // New API format at root level: { sessionId, status, merchantOrderId, ... }
       payload = { data: payload };
+      return handlePayment(payload, receivedSignature);
+    } else {
+      // Fallback: wrap in data object
+      payload = { data: payload };
+      return handlePayment(payload, receivedSignature);
     }
-
-    return handlePayment(payload, receivedSignature);
   } catch (error) {
     console.error("[Kashier Webhook] Error:", error);
     return NextResponse.json(
@@ -54,10 +69,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    console.log("WEBHOOK GET HIT 🔥 ");
     const searchParams = request.nextUrl.searchParams;
     const receivedSignature = searchParams.get("signature") || "";
 
-    const payload = { data: {} as Record<string, any> };
+    const payload = { data: {} as Record<string, unknown> };
     for (const [key, value] of searchParams.entries()) {
       if (key !== "signature") {
         payload.data[key] = value;
@@ -76,10 +92,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-async function handlePayment(payload: any, receivedSignature: string) {
+async function handlePayment(
+  payload: { data: Record<string, unknown> },
+  receivedSignature: string,
+) {
   try {
     const isValidSignature = verifyKashierWebhookSignature(
-      payload,
+      payload as KashierWebhookPayload,
       receivedSignature,
     );
 
@@ -89,9 +108,9 @@ async function handlePayment(payload: any, receivedSignature: string) {
     }
 
     const { data } = payload;
-    const merchantOrderId = data.merchantOrderId || data.order;
+    const merchantOrderId = (data.merchantOrderId || data.order) as string;
     const amount = data.amount;
-    const paymentStatus = data.paymentStatus || data.status;
+    const paymentStatus = (data.paymentStatus || data.status) as string;
 
     if (!merchantOrderId) {
       console.error("[Kashier Webhook] Missing merchantOrderId");
@@ -109,7 +128,7 @@ async function handlePayment(payload: any, receivedSignature: string) {
       })
       .from(tickets)
       .innerJoin(users, eq(tickets.userId, users.id))
-      .where(eq(tickets.id, merchantOrderId))
+      .where(eq(tickets.id, merchantOrderId as string))
       .limit(1);
 
     if (!ticketRow) {
@@ -185,7 +204,7 @@ async function handlePayment(payload: any, receivedSignature: string) {
           updatedAt: now,
           reviewedAt: now,
         })
-        .where(eq(tickets.id, merchantOrderId));
+        .where(eq(tickets.id, merchantOrderId as string));
 
       console.log(
         "[Kashier Webhook] Ticket confirmed successfully:",
@@ -193,7 +212,7 @@ async function handlePayment(payload: any, receivedSignature: string) {
       );
 
       notifyTicketConfirmed({
-        ticketId: merchantOrderId,
+        ticketId: merchantOrderId as string,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
         attendeeEmail: ticketRow.email,
         ticketType: ticket.type,
@@ -210,7 +229,7 @@ async function handlePayment(payload: any, receivedSignature: string) {
           updatedAt: now,
           reviewedAt: now,
         })
-        .where(eq(tickets.id, merchantOrderId));
+        .where(eq(tickets.id, merchantOrderId as string));
 
       console.log(
         "[Kashier Webhook] Ticket rejected (payment failed):",
@@ -218,7 +237,7 @@ async function handlePayment(payload: any, receivedSignature: string) {
       );
 
       notifyTicketRejected({
-        ticketId: merchantOrderId,
+        ticketId: merchantOrderId as string,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
         attendeeEmail: ticketRow.email,
         ticketType: ticket.type,

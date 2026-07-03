@@ -7,10 +7,17 @@ export interface KashierSessionRequest {
   display?: "ar" | "en";
   allowedMethods?: string;
   merchantRedirect: string;
+  serverWebhook?: string;
+  description?: string;
+  customer?: {
+    email: string;
+    reference: string;
+  };
 }
 
 export interface KashierSessionResponse {
   sessionUrl: string;
+  sessionId: string;
 }
 
 export interface KashierWebhookPayload {
@@ -30,6 +37,17 @@ function getKashierConfig() {
   const secretKey = process.env.KASHIER_SECRET_KEY;
   const mode = process.env.KASHIER_MODE;
 
+  console.log("[Kashier] Config check:", {
+    hasMerchantId: !!merchantId,
+    hasApiKey: !!apiKey,
+    hasSecretKey: !!secretKey,
+    hasMode: !!mode,
+    mode,
+    merchantId: merchantId?.substring(0, 10) + "...",
+    apiKey: apiKey?.substring(0, 10) + "...",
+    secretKey: secretKey?.substring(0, 10) + "...",
+  });
+
   if (!merchantId) {
     throw new Error("Missing KASHIER_MERCHANT_ID environment variable");
   }
@@ -47,7 +65,17 @@ function getKashierConfig() {
 }
 
 function getKashierBaseUrl(): string {
-  return "https://checkout.kashier.io";
+  const { mode } = getKashierConfig();
+  return mode === "test"
+    ? "https://test-api.kashier.io/v3/payment/sessions"
+    : "https://api.kashier.io/v3/payment/sessions";
+}
+
+function getKashierPaymentUrl(): string {
+  const { mode } = getKashierConfig();
+  return mode === "test"
+    ? "https://test-api.kashier.io/v3/payment/sessions"
+    : "https://api.kashier.io/v3/payment/sessions";
 }
 
 export function generateKashierOrderHash(
@@ -55,38 +83,86 @@ export function generateKashierOrderHash(
   amount: string,
   currency: string,
 ): string {
+  // Hash is now handled by Kashier API in the new Payment Sessions
+  // This function is kept for backward compatibility
   const { merchantId, apiKey } = getKashierConfig();
-
   const path = `/?payment=${merchantId}.${merchantOrderId}.${amount}.${currency}`;
   const hash = createHmac("sha256", apiKey).update(path).digest("hex");
-
   return hash;
 }
 
 export async function createKashierSession(
   req: KashierSessionRequest,
 ): Promise<KashierSessionResponse> {
-  const { merchantId, mode } = getKashierConfig();
+  const { merchantId, secretKey, mode, apiKey } = getKashierConfig();
   const baseUrl = getKashierBaseUrl();
 
   const currency = req.currency ?? "EGP";
-  const hash = generateKashierOrderHash(req.order, req.amount, currency);
 
-  const params = new URLSearchParams({
+  // Calculate expiration time (30 minutes from now)
+  const expireAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+  const requestBody = {
     merchantId,
     orderId: req.order,
     amount: req.amount,
     currency,
-    hash,
+    paymentType: "credit",
+    type: "one-time",
+    expireAt,
+    maxFailureAttempts: 3,
     merchantRedirect: req.merchantRedirect,
+    serverWebhook: req.serverWebhook,
     allowedMethods: req.allowedMethods ?? "card,wallet",
     display: req.display ?? "en",
+    description: req.description || `Payment for order ${req.order}`,
+    customer: req.customer,
     mode,
+  };
+
+  console.log("[Kashier] Creating session:", {
+    baseUrl,
+    mode,
+    merchantId,
+    orderId: req.order,
+    secretKeyLength: secretKey.length,
+    apiKeyLength: apiKey.length,
+    usingSecretKeyForAuth: true,
+    usingApiKeyForHeader: true,
   });
 
-  const sessionUrl = `${baseUrl}?${params.toString()}`;
+  try {
+    const response = await fetch(baseUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: secretKey,
+        "api-key": apiKey,
+      },
+      body: JSON.stringify(requestBody),
+    });
 
-  return { sessionUrl };
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("[Kashier] API error:", response.status, errorText);
+      console.error("[Kashier] Request headers:", {
+        "Content-Type": "application/json",
+        Authorization: secretKey.substring(0, 10) + "...",
+        "api-key": apiKey.substring(0, 10) + "...",
+      });
+      throw new Error(`Kashier API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      sessionUrl: data.sessionUrl,
+      sessionId: data._id,
+    };
+  } catch (error) {
+    console.error("[Kashier] Session creation failed:", error);
+    throw error;
+  }
 }
 
 export function verifyKashierWebhookSignature(
@@ -148,6 +224,41 @@ export function verifyKashierWebhookSignature(
   } catch (error) {
     console.error("[Kashier] Signature comparison error:", error);
     return false;
+  }
+}
+
+export async function getKashierSessionStatus(
+  sessionId: string,
+): Promise<{ status: string; data?: Record<string, unknown> }> {
+  const { secretKey } = getKashierConfig();
+  const baseUrl = getKashierPaymentUrl();
+
+  try {
+    const response = await fetch(`${baseUrl}/${sessionId}/payment`, {
+      method: "GET",
+      headers: {
+        Authorization: secretKey,
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[Kashier] Status check error:",
+        response.status,
+        errorText,
+      );
+      throw new Error(`Kashier API error: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    return {
+      status: data.data?.status || "UNKNOWN",
+      data: data.data,
+    };
+  } catch (error) {
+    console.error("[Kashier] Status check failed:", error);
+    throw error;
   }
 }
 

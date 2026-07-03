@@ -7,14 +7,7 @@ import handleError from "@/lib/handlers/error";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 
 import { db } from "..";
-import {
-  coupons,
-  offers,
-  speakers,
-  sponsors,
-  tickets,
-  users,
-} from "../schema";
+import { coupons, offers, speakers, sponsors, tickets, users } from "../schema";
 import { requireAdminSession } from "./auth-guards";
 
 const REVENUE_STATUSES = ["confirmed", "checked_in"] as const;

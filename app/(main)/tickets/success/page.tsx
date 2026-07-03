@@ -32,12 +32,12 @@ export default function TicketSuccessPage() {
       setStatus("rejected");
       return;
     }
-    const knownFailure = paymentStatusParam && paymentStatusParam !== "SUCCESS";
+    // const knownFailure = paymentStatusParam && paymentStatusParam !== "SUCCESS";
 
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let attempts = 0;
-    const maxAttempts = knownFailure ? 5 : 30;
+    const maxAttempts = 30;
 
     const pollTicketStatus = async () => {
       try {
