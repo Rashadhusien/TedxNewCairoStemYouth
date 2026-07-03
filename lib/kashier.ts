@@ -204,7 +204,7 @@ export function verifyKashierWebhookSignature(
     signatureString = sortedKeys
       .map((key) => {
         const value = data[key];
-        return `${key}=${encodeURIComponent(String(value ?? ""))}`;
+        return `${key}=${value}`;
       })
       .join("&");
   } else {
