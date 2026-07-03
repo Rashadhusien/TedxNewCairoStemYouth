@@ -21,12 +21,10 @@ export async function POST(request: NextRequest) {
 
     if (contentType.includes("application/json")) {
       payload = await request.json();
-      receivedSignature = payload.hash || payload.signature || "";
-      console.log("[Kashier Webhook] Extracted signature:", receivedSignature);
-      console.log("[Kashier Webhook] Payload has hash:", !!payload.hash);
+      receivedSignature = request.headers.get("x-kashier-signature") || "";
       console.log(
-        "[Kashier Webhook] Payload has signature:",
-        !!payload.signature,
+        "[Kashier Webhook] Extracted signature from header:",
+        receivedSignature,
       );
     } else if (contentType.includes("application/x-www-form-urlencoded")) {
       const formData = await request.formData();

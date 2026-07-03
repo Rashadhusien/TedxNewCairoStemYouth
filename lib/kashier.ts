@@ -189,7 +189,7 @@ export function verifyKashierWebhookSignature(
   payload: KashierWebhookPayload,
   receivedSignature: string,
 ): boolean {
-  const { apiKey, secretKey } = getKashierConfig();
+  const { apiKey } = getKashierConfig();
   const { data } = payload;
 
   console.log("[Kashier Webhook] Data keys:", Object.keys(data));
@@ -199,16 +199,18 @@ export function verifyKashierWebhookSignature(
   const signatureKeys = data.signatureKeys;
 
   if (signatureKeys && Array.isArray(signatureKeys)) {
-    // Handle API case with signatureKeys - use secretKey for Payment Sessions API
+    // Handle Payment Sessions API case with signatureKeys
+    // Sort keys alphabetically as per Kashier docs
     const sortedKeys = [...signatureKeys].sort();
     signatureString = sortedKeys
       .map((key) => {
         const value = data[key];
-        return `${key}=${value}`;
+        // URL-encode only the values, not the entire string
+        return `${key}=${encodeURIComponent(String(value ?? ""))}`;
       })
       .join("&");
   } else {
-    // Handle HPP case with fixed keys - use apiKey for HPP
+    // Handle HPP case with fixed keys
     const keys = [
       "paymentStatus",
       "cardDataToken",
@@ -232,9 +234,8 @@ export function verifyKashierWebhookSignature(
       .join("&");
   }
 
-  // Use secretKey for Payment Sessions API, apiKey for HPP
-  const keyToUse = signatureKeys ? secretKey : apiKey;
-  const expectedSignature = createHmac("sha256", keyToUse)
+  // Use Payment API Key for signature calculation as per Kashier docs
+  const expectedSignature = createHmac("sha256", apiKey)
     .update(signatureString)
     .digest("hex");
 
