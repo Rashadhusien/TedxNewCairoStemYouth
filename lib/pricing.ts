@@ -93,8 +93,11 @@ export async function getTicketTiers(): Promise<
       }
     }
 
-    cachedTicketTiers = ticketTiersMap;
-    return ticketTiersMap;
+    cachedTicketTiers = ticketTiersMap as Record<
+      PurchasableTicketType,
+      TicketTier
+    >;
+    return cachedTicketTiers;
   } catch (error) {
     console.error("Error fetching ticket tiers:", error);
     return FALLBACK_TICKET_TIERS;
