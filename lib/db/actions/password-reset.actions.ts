@@ -136,6 +136,7 @@ export const forgotPassword = async (params: {
       name: displayName,
       resetUrl,
       expiresInMinutes: RESET_TOKEN_TTL_MINUTES,
+      idempotencyKey: `password-reset-${user.id}-${Date.now()}`,
     });
 
     serverAnalytics.capture("password_reset_requested", user.id, {});

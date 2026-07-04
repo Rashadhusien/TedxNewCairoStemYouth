@@ -25,6 +25,8 @@ import { VerifyEmailSchema } from "@/lib/validation";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { PENDING_REGISTER_PASSWORD_KEY } from "@/constants/auth";
 
+import { AlertTriangleIcon } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -144,6 +146,7 @@ function VerifyEmailForm() {
           </p>
 
           <p className="font-medium text-foreground">{email}</p>
+          {/* alert for spam */}
         </div>
 
         <form
@@ -201,6 +204,14 @@ function VerifyEmailForm() {
             Verify Email
           </Button>
         </form>
+
+        <Alert className="w-full border-amber-200 mt-4 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50">
+          <AlertTriangleIcon />
+          <AlertTitle>Check your spam folder</AlertTitle>
+          <AlertDescription>
+            If you don&apos;t see the email, check your spam or junk folder.
+          </AlertDescription>
+        </Alert>
 
         <div className="text-center text-sm">
           {seconds > 0 ? (

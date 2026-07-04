@@ -1,60 +1,50 @@
-import logger from "@/lib/logger";
+// lib/email/verification-email.ts
 
-import { getResendClient } from "./resend";
 import { escapeHtml } from "./escape-html";
+import { renderEmailShell } from "./design-system";
+import { sendTransactionalEmail } from "./send";
 
-type SendVerificationEmailParams = {
+interface SendVerificationEmailParams {
   to: string;
   code: string;
   name?: string;
   idempotencyKey: string;
-};
+}
 
 export async function sendVerificationEmail({
   to,
   code,
   name,
   idempotencyKey,
-}: SendVerificationEmailParams) {
-  const from = process.env.EMAIL_FROM;
-  const resend = getResendClient();
-
-  if (!resend || !from) {
-    if (process.env.NODE_ENV === "development") {
-      logger.info(
-        { to, code },
-        "[dev] Verification email (set RESEND_API_KEY and EMAIL_FROM to send for real)",
-      );
-      return;
-    }
-    throw new Error(
-      "Email service is not configured. Set RESEND_API_KEY and EMAIL_FROM.",
-    );
-  }
-
+}: SendVerificationEmailParams): Promise<void> {
   const displayName = escapeHtml(name?.trim() || "there");
   const safeCode = escapeHtml(code);
 
-  const { data, error } = await resend.emails.send(
-    {
-      from,
-      to: [to],
-      subject: "Verify your TEDx STEM Youth account",
-      html: `
-      <p>Hi ${displayName},</p>
-      <p>Your email verification code is:</p>
-      <p style="font-size: 28px; font-weight: bold; letter-spacing: 4px;">${safeCode}</p>
-      <p>This code expires in 15 minutes. If you did not create an account, you can ignore this email.</p>
-    `,
-      tags: [{ name: "category", value: "email_verification" }],
-    },
-    { idempotencyKey },
-  );
+  const bodyHtml = `
+    <p style="margin:0 0 16px;color:#aaaaaa;font-size:15px;line-height:1.6;">Hi ${displayName},</p>
+    <p style="margin:0 0 16px;color:#aaaaaa;font-size:15px;line-height:1.6;">
+      Your email verification code is:
+    </p>
+    <p style="margin:0 0 32px;font-family:'Space Mono','SFMono-Regular',Consolas,monospace;
+              font-size:32px;font-weight:700;letter-spacing:6px;color:#C9A84C;">
+      ${safeCode}
+    </p>
+    <p style="margin:0;color:#aaaaaa;font-size:14px;line-height:1.6;">
+      This code expires in 15 minutes. If you did not create an account, you can ignore this email.
+    </p>
+  `;
 
-  if (error) {
-    logger.error({ err: error, to }, "Failed to send verification email");
-    throw new Error(error.message);
-  }
+  const html = renderEmailShell({
+    eyebrow: "Verify your account",
+    heading: "Confirm your email",
+    bodyHtml,
+  });
 
-  logger.info({ emailId: data?.id, to }, "Verification email sent");
+  await sendTransactionalEmail({
+    to,
+    subject: "Verify your TEDxNewCairoSTEMYouth account",
+    html,
+    idempotencyKey,
+    tags: [{ name: "category", value: "email_verification" }],
+  });
 }

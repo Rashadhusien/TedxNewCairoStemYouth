@@ -1,4 +1,5 @@
 import type { Coupon, Offer } from "@/lib/db/schema";
+import { ActionResponse } from "@/types/actions";
 
 export type PurchasableTicketType = "vip" | "ip" | "np";
 

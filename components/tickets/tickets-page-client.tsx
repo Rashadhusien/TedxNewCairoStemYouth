@@ -13,31 +13,34 @@ import {
   type PurchasableTicketType,
   type TicketTier,
 } from "@/lib/pricing";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useSession } from "next-auth/react";
 
 interface TicketsPageClientProps {
   offers: Offer[];
+  ticketTiers: Record<PurchasableTicketType, TicketTier>;
 }
 
-export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
-  const [ticketTiers, setTicketTiers] = useState<Record<
-    PurchasableTicketType,
-    TicketTier
-  > | null>(null);
+export default function TicketsPageClient({
+  offers,
+  ticketTiers,
+}: TicketsPageClientProps) {
   const [selectedTier, setSelectedTier] =
     useState<PurchasableTicketType | null>(null);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const { status } = useSession();
+  const { status: authStatus } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-    getTicketTiers().then(setTicketTiers);
-  }, []);
-
   const handleSelect = (type: PurchasableTicketType) => {
-    if (status === "unauthenticated") {
+    if (authStatus === "unauthenticated") {
       router.push(ROUTES.LOGIN);
       return;
     }
@@ -47,30 +50,32 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
 
   if (!ticketTiers) {
     return (
-      <div className="bg-black min-h-screen flex items-center justify-center">
-        <div className="text-white">Loading ticket tiers...</div>
-      </div>
+      <section className="relative py-12 px-6 lg:px-10 max-w-6xl mx-auto space-y-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {(["np", "ip", "vip"] as const).map((type) => (
+            <Card className="w-full max-w-xs mx-auto" key={type}>
+              <CardHeader>
+                <Skeleton className="aspect-video w-full" />
+              </CardHeader>
+              <CardContent className="flex flex-col gap-4">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-4 w-1/2" />
+              </CardContent>
+              <CardFooter>
+                <Skeleton className="h-10 w-full" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="bg-black min-h-screen">
-      <section className="relative pt-28 pb-12 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-[#0a0000] to-black pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
-
-        <div className="relative px-6">
-          <SectionTitle
-            eyebrow="Event Access"
-            title="Get Your Ticket"
-            subTitle="Choose your seat tier and complete secure payment to secure your spot at Luminous Darkness 2026."
-          />
-        </div>
-      </section>
-
+    <>
       <section className="relative py-12 px-6 lg:px-10 max-w-6xl mx-auto space-y-12">
-        {/* <OffersBanner offers={offers} /> */}
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {(["np", "ip", "vip"] as const).map((type) => (
             <TicketTierCard
@@ -90,6 +95,6 @@ export default function TicketsPageClient({ offers }: TicketsPageClientProps) {
         ticketType={selectedTier}
         offers={offers}
       />
-    </div>
+    </>
   );
 }

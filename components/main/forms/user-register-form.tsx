@@ -45,8 +45,9 @@ import { registerWithCredentails } from "@/lib/db/actions/auth.action";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { PENDING_REGISTER_PASSWORD_KEY } from "@/constants/auth";
-import { AuthDivider } from "@/components/auth-divider";
-import { GoogleSignInButton } from "@/app/(auth)/google-sign-in-button";
+import { PhoneInput } from "@/components/ui/phone-input";
+// import { AuthDivider } from "@/components/auth-divider";
+// import { GoogleSignInButton } from "@/app/(auth)/google-sign-in-button";
 
 const skillLabels = majorSkills.map((skill) => skill.label);
 
@@ -166,19 +167,30 @@ function UserRegisterFrom() {
                 </Field>
               )}
             />
+
             <Controller
               name="phone"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-phone">Phone</FieldLabel>
-                  <Input
+                  {/* <Input
                     {...field}
                     id="form-rhf-demo-phone"
                     placeholder="Enter your phone number"
                     aria-invalid={fieldState.invalid}
                     autoComplete="off"
+                  /> */}
+
+                  <PhoneInput
+                    {...field}
+                    id="form-rhf-demo-phone"
+                    placeholder="Enter your phone number"
+                    aria-invalid={fieldState.invalid}
+                    autoComplete="off"
+                    defaultCountry="EG"
                   />
+
                   {fieldState.invalid && (
                     <FieldError errors={[fieldState.error]} />
                   )}
@@ -222,7 +234,7 @@ function UserRegisterFrom() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-university">
-                    University
+                    University / School
                   </FieldLabel>
                   <Input
                     {...field}
@@ -244,7 +256,9 @@ function UserRegisterFrom() {
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="form-rhf-demo-major">Major</FieldLabel>
+                  <FieldLabel htmlFor="form-rhf-demo-major">
+                    Major (Field of Study)
+                  </FieldLabel>
                   <Input
                     {...field}
                     id="form-rhf-demo-major"
@@ -264,7 +278,7 @@ function UserRegisterFrom() {
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
                   <FieldLabel htmlFor="form-rhf-demo-graduationYear">
-                    Graduation Year
+                    Graduation Year (Expected)
                   </FieldLabel>
                   <Input
                     type="number"
