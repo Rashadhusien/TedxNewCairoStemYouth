@@ -51,7 +51,7 @@ export function DataTable<TData, TValue>({
   data,
   search = "",
   total = 0,
-  pageSize = 20,
+  pageSize = 10,
   page = 1,
   status = "all",
   selectItems = [],
@@ -62,6 +62,8 @@ export function DataTable<TData, TValue>({
   const [searchInput, setSearchInput] = useState(search);
 
   const totalPages = Math.ceil(total / pageSize);
+
+  console.log(totalPages);
 
   const updateFilters = (next: {
     status?: string;

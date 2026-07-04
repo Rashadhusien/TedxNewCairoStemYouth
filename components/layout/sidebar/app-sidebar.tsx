@@ -30,6 +30,7 @@ import { sidebarItems } from "@/constants/sidebar-items";
 import { NavMain } from "@/components/layout/sidebar/nav-main";
 import { NavUser } from "@/components/layout/sidebar/nav-user";
 import { ROUTES } from "@/constants/routes";
+import { Session } from "next-auth";
 
 const _data = {
   navSecondary: [
@@ -68,7 +69,10 @@ const _data = {
   ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  session,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { session: Session }) {
   // const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
   //   useShallow((s) => ({
   //     sidebarVariant: s.sidebarVariant,
@@ -102,7 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        <NavUser session={session} />
       </SidebarFooter>
     </Sidebar>
   );

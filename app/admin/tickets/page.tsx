@@ -34,7 +34,7 @@ export default async function AdminTicketsPage({
   const data =
     result.success && result.data
       ? result.data
-      : { items: [], total: 0, page: 1, pageSize: 20 };
+      : { items: [], total: 0, page: 1, pageSize: 10 };
 
   return (
     <div className="space-y-6">

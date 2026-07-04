@@ -17,7 +17,11 @@ import { cn } from "@/lib/utils";
 import { AccountSwitcher } from "./components/account-switcher";
 import { SearchDialog } from "./components/search-dialog";
 
-export default async function AdminLayout({ children }: { children: ReactNode }) {
+export default async function AdminLayout({
+  children,
+}: {
+  children: ReactNode;
+}) {
   const session = await auth();
 
   if (!session?.user) {
@@ -42,7 +46,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
           } as React.CSSProperties
         }
       >
-        <AppSidebar />
+        <AppSidebar session={session} />
         <SidebarInset
           className={cn(
             "[html[data-content-layout=centered]_&>*]:mx-auto",

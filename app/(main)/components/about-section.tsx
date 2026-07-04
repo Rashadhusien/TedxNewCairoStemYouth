@@ -177,7 +177,7 @@ export default function AboutSection() {
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border to-transparent"
       />
 
-      <div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div ref={headerRef} className="mb-12 md:mb-16 lg:mb-20">
           <div
             ref={eyebrowRef}
@@ -187,7 +187,7 @@ export default function AboutSection() {
             About the event
           </div>
 
-          <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 md:gap-12 lg:gap-20">
+          <div className=" grid max-w-5xl grid-cols-1 items-start gap-8 md:grid-cols-2 md:gap-12 lg:gap-20">
             <h2
               id="about-heading"
               ref={titleRef}

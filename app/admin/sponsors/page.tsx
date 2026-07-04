@@ -20,7 +20,7 @@ export default async function AdminSponsorsPage({
 
   const result = await listSponsors({
     page: Number(params.page) || 1,
-    pageSize: Number(params.pageSize) || 20,
+    pageSize: Number(params.pageSize) || 10,
     status,
     search: params.search,
   });
@@ -28,7 +28,7 @@ export default async function AdminSponsorsPage({
   const data =
     result.success && result.data
       ? result.data
-      : { items: [], total: 0, page: 1, pageSize: 20 };
+      : { items: [], total: 0, page: 1, pageSize: 10 };
 
   return (
     <div className="space-y-6">

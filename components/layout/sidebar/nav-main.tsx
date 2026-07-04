@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import type { NavGroup, NavMainItem } from "../../../constants/sidebar-items";
+import { ROUTES } from "@/constants/routes";
 
 interface NavMainProps {
   readonly items: readonly NavGroup[];
@@ -223,11 +224,14 @@ export function NavMain({ items }: NavMainProps) {
             <SidebarMenuItem className="flex items-center gap-2">
               <SidebarMenuButton
                 tooltip="Quick Create"
+                asChild
                 className="min-w-8 bg-primary text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground"
               >
-                <PlusCircleIcon />
+                <Link href={ROUTES.ADMIN.SPEAKERS.CREATE}>
+                  <PlusCircleIcon />
 
-                <span>Quick Create</span>
+                  <span>Add Speaker</span>
+                </Link>
               </SidebarMenuButton>
 
               <Button

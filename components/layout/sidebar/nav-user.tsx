@@ -16,16 +16,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useSession } from "next-auth/react";
 import { signOutAction } from "@/lib/db/actions/auth.action";
 import UserAvatar from "@/components/UserAvatar";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
+import { Session } from "next-auth";
 
-export function NavUser() {
+export function NavUser({ session }: { session: Session }) {
   const { isMobile } = useSidebar();
-  const { data: session } = useSession();
-  const user = session?.user;
+  const user = session.user;
 
   return (
     <SidebarMenu>
