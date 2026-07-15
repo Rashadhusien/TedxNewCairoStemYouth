@@ -78,7 +78,7 @@ export default async function ProfilePage() {
         </div>
 
         {/* ── Ticket card (if confirmed or checked_in) ───────────────────────────────────── */}
-        {profile.ticket &&
+        {/* {profile.ticket &&
           (profile.ticket.status === "confirmed" ||
             profile.ticket.status === "checked_in") && (
             <div className="mb-6">
@@ -88,10 +88,10 @@ export default async function ProfilePage() {
                 attendeeEmail={profile.email}
               />
             </div>
-          )}
+          )} */}
 
         {/* ── Ticket under review/pending/rejected/cancelled state ───────────────────────────────────── */}
-        {profile.ticket &&
+        {/* {profile.ticket &&
           profile.ticket.status !== "confirmed" &&
           profile.ticket.status !== "checked_in" && (
             <div className="mb-6 rounded-xl border border-white/10 bg-[#111111] p-5 text-center">
@@ -116,10 +116,10 @@ export default async function ProfilePage() {
                 View Ticket Details
               </a>
             </div>
-          )}
+          )} */}
 
         {/* ── No ticket state ───────────────────────────────────────────── */}
-        {!profile.ticket && (
+        {/* {!profile.ticket && (
           <div className="mb-6 rounded-xl border border-dashed border-white/10 bg-transparent p-5 text-center">
             <p className="mb-1 text-sm font-medium text-white/40">
               No ticket yet
@@ -134,7 +134,7 @@ export default async function ProfilePage() {
               Get a ticket
             </a>
           </div>
-        )}
+        )} */}
 
         {/* ── Skills summary strip (read-only, above the form) ────────── */}
         {profile.skills && profile.skills.length > 0 && (
