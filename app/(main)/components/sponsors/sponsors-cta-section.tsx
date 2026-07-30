@@ -79,8 +79,8 @@ export default function SponsorsCtaSection() {
                 variant="outline"
                 className="h-12 gap-2 border-border px-8 text-xs font-bold uppercase tracking-[0.18em]"
               >
-                <Link href={ROUTES.EVENT}>
-                  Explore the event
+                <Link href={ROUTES.ABOUT}>
+                  About Us
                   <ArrowRight className="size-4" aria-hidden />
                 </Link>
               </Button>

@@ -8,6 +8,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ROUTES } from "@/constants/routes";
+import { socialLinks } from "@/constants";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -21,6 +22,34 @@ const Hero = () => {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   const [videoReady, setVideoReady] = useState(false);
+
+  const onMouseEnterSocial = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    gsap.to(el, {
+      scale: 1.12,
+      borderColor: "rgba(230, 0, 0, 0.4)",
+      backgroundColor: "rgba(230, 0, 0, 0.1)",
+      color: "#e60000",
+      boxShadow: "0 0 15px rgba(230, 0, 0, 0.3)",
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
+
+  const onMouseLeaveSocial = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    const el = e.currentTarget;
+    gsap.to(el, {
+      scale: 1.0,
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      backgroundColor: "rgba(255, 255, 255, 0.02)",
+      color: "rgba(255, 255, 255, 0.4)",
+      boxShadow: "none",
+      duration: 0.3,
+      ease: "power2.out",
+      overwrite: "auto",
+    });
+  };
 
   return (
     <div ref={containerRef} className="relative h-screen overflow-hidden">
@@ -100,7 +129,7 @@ const Hero = () => {
               className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95"
               asChild
             >
-              <Link href={ROUTES.TICKETS}>Get Your Ticket</Link>
+              <Link href={ROUTES.CONTACT}>Contact Us</Link>
             </Button>
             <Button
               className="py-6 sm:text-base transition-transform active:scale-95 "
@@ -109,6 +138,26 @@ const Hero = () => {
             >
               <Link href={ROUTES.SPONSORS}>Partner With Us</Link>
             </Button>
+          </div>
+
+          <div className="flex items-center gap-5 mt-8">
+            {socialLinks.map((soc) => {
+              const Icon = soc.icon;
+              return (
+                <Link
+                  key={soc.label}
+                  href={soc.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={soc.label}
+                  className="size-11 rounded-full border border-white/8 bg-white/2 flex items-center justify-center text-white/40 transition-colors"
+                  onMouseEnter={onMouseEnterSocial}
+                  onMouseLeave={onMouseLeaveSocial}
+                >
+                  <Icon className="size-6" />
+                </Link>
+              );
+            })}
           </div>
         </div>
       </div>

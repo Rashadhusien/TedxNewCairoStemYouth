@@ -159,7 +159,7 @@ export const PILLARS = [
   {
     icon: Clock,
     title: "One Day. One Stage.",
-    text: "From 11 AM to 7 PM on July 31 at Hilton Nile Maadi — an immersive day where speakers, performers, and thinkers share a single spotlight.",
+    text: "An immersive day where speakers, performers, and thinkers share a single spotlight.",
   },
   {
     icon: Users,
@@ -300,7 +300,7 @@ export const socialLinks = [
   {
     icon: LinkIcon,
     label: "Linktree",
-    href: "https://linktr.ee/tedxnewcairostemyouth",
+    href: "https://linktr.ee/TedxNewCairoSTEM",
   },
   {
     icon: GlobeIcon,

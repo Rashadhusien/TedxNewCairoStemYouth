@@ -8,11 +8,11 @@ export const sponsorDocuments = [
     href: "/files/TEDxNewCairoSTEMYouthProposal.pdf",
     variant: "primary" as const,
   },
-  {
-    label: "Download Portfolio",
-    href: "/files/Portfolio-of-TEDxNewCairoSTEMYouth.pdf",
-    variant: "outline" as const,
-  },
+  // {
+  //   label: "Download Portfolio",
+  //   href: "/files/Portfolio-of-TEDxNewCairoSTEMYouth.pdf",
+  //   variant: "outline" as const,
+  // },
 ];
 
 export const sponsorRoiStats = [

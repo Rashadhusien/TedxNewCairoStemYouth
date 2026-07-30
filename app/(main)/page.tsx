@@ -28,10 +28,11 @@ const Home = async () => {
       {/* <SponsorsSection sponsors={sponsors || []} /> */}
 
       <SponsorsSponsorsSection sponsors={sponsors || []} />
+
       <SponsorsPartnersSection partners={partners || []} />
 
       {/* <CTA /> */}
-      <CountdownTimer />
+      {/* <CountdownTimer /> */}
 
       <FloatingOfferBanner />
       {/* <OfferBanner /> */}

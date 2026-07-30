@@ -81,7 +81,7 @@ export default function SponsorsHero() {
           </p>
 
           <div className="sp-hero-actions mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-            {sponsorDocuments.map((doc) => (
+            {/* {sponsorDocuments.map((doc) => (
               <Button
                 key={doc.href}
                 asChild
@@ -98,7 +98,26 @@ export default function SponsorsHero() {
                   {doc.label}
                 </a>
               </Button>
-            ))}
+            ))} */}
+
+            <Button
+              asChild
+              size="lg"
+              variant="default"
+              className={cn(
+                "h-11 gap-2 px-6 text-xs font-bold uppercase tracking-[0.18em]",
+              )}
+            >
+              <a
+                href={"/files/TEDxNewCairoSTEMYouthProposal.pdf"}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Download className="size-4" aria-hidden />
+                Download Proposal
+              </a>
+            </Button>
+
             <Button
               asChild
               size="lg"
