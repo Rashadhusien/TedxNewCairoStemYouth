@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSession } from "next-auth/react";
+import confetti from "canvas-confetti";
 import {
   getWelcomeStatus,
   markWelcomeSeen,
@@ -13,6 +14,26 @@ type WelcomeStatus = {
   shouldShow: boolean;
   fullName: string | null;
 };
+
+// ── Design tokens ────────────────────────────────────────────────
+const GOLD = "#C9A84C";
+const TED_RED = "#e62b1e";
+const CONFETTI_COLORS = [GOLD, TED_RED, "#ffffff"] as const;
+const MAX_DISPLAY_NAME_LENGTH = 14;
+
+// Motion timeline (seconds), matches the spec exactly.
+const TIMELINE = {
+  piece: 0.15,
+  confettiStart: 0.45,
+  title: 0.65,
+  subtitle: 0.85,
+  button: 1.1,
+} as const;
+
+// Gentle falling confetti — small, staggered bursts instead of one explosion.
+const CONFETTI_FALL_DURATION_MS = 2000;
+const CONFETTI_TICK_MS = 220;
+const CONFETTI_PARTICLES_PER_TICK = 5;
 
 function usePrefersReducedMotion(): boolean {
   const [reduced, setReduced] = useState(() => {
@@ -35,10 +56,15 @@ export default function WelcomeAboardModal() {
   const [welcomeStatus, setWelcomeStatus] = useState<WelcomeStatus | null>(
     null,
   );
-  const [showText, setShowText] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isDismissing, setIsDismissing] = useState(false);
+  const [pieceSettled, setPieceSettled] = useState(false);
+
   const hasCheckedRef = useRef(false);
+  const hasFiredConfettiRef = useRef(false);
+  const confettiIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const ctaRef = useRef<HTMLButtonElement>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
 
@@ -72,7 +98,8 @@ export default function WelcomeAboardModal() {
     startTransition(async () => {
       await markWelcomeSeen();
       setWelcomeStatus(null);
-      setShowText(false);
+      setPieceSettled(false);
+      hasFiredConfettiRef.current = false;
       setIsDismissing(false);
     });
   }, [isDismissing]);
@@ -87,19 +114,46 @@ export default function WelcomeAboardModal() {
     };
   }, [isOpen]);
 
-  // Move focus to the CTA once it appears
+  // Gentle falling confetti: several small bursts from random top positions,
+  // low velocity/gravity, no single explosive call. Stops after ~2s.
   useEffect(() => {
-    if (showText) {
-      ctaRef.current?.focus();
+    if (!isOpen || prefersReducedMotion || hasFiredConfettiRef.current) {
+      return;
     }
-  }, [showText]);
+    hasFiredConfettiRef.current = true;
 
-  // If reduced motion, skip straight to the revealed state
-  useEffect(() => {
-    if (isOpen && prefersReducedMotion) {
-      const t = setTimeout(() => setShowText(true), 150);
-      return () => clearTimeout(t);
-    }
+    const startTimer = setTimeout(() => {
+      const stopAt = Date.now() + CONFETTI_FALL_DURATION_MS;
+
+      confettiIntervalRef.current = setInterval(() => {
+        if (Date.now() > stopAt) {
+          if (confettiIntervalRef.current) {
+            clearInterval(confettiIntervalRef.current);
+            confettiIntervalRef.current = null;
+          }
+          return;
+        }
+
+        confetti({
+          particleCount: CONFETTI_PARTICLES_PER_TICK,
+          startVelocity: 6,
+          gravity: 0.5,
+          spread: 100,
+          ticks: 220,
+          scalar: 0.7,
+          origin: { x: Math.random(), y: -0.05 },
+          colors: [...CONFETTI_COLORS],
+        });
+      }, CONFETTI_TICK_MS);
+    }, TIMELINE.confettiStart * 1000);
+
+    return () => {
+      clearTimeout(startTimer);
+      if (confettiIntervalRef.current) {
+        clearInterval(confettiIntervalRef.current);
+        confettiIntervalRef.current = null;
+      }
+    };
   }, [isOpen, prefersReducedMotion]);
 
   useEffect(() => {
@@ -120,7 +174,10 @@ export default function WelcomeAboardModal() {
   }
 
   const firstName = welcomeStatus?.fullName?.split(" ")[0]?.trim() || "there";
-  const pieceLabel = (welcomeStatus?.fullName ?? "YOU").slice(0, 14);
+  const displayName =
+    firstName.length > MAX_DISPLAY_NAME_LENGTH
+      ? `${firstName.slice(0, MAX_DISPLAY_NAME_LENGTH)}…`
+      : firstName;
 
   return (
     <AnimatePresence mode="wait">
@@ -129,198 +186,192 @@ export default function WelcomeAboardModal() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#0a0a0a]/97 px-4 py-8 backdrop-blur-sm sm:px-6"
+        className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto px-4 py-8 backdrop-blur-sm sm:px-6"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,0.10), transparent 60%)," +
+            "radial-gradient(ellipse 90% 70% at 50% 100%, rgba(230,43,30,0.05), transparent 65%)," +
+            "#0a0a0a",
+        }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="welcome-heading"
       >
-        <div className="relative flex w-full max-w-md flex-col items-center sm:max-w-xl md:max-w-2xl">
-          {/* Puzzle visual — scales fluidly via viewBox, no fixed px sizing */}
-          <div className="w-full max-w-70 xs:max-w-xs sm:max-w-sm md:max-w-md">
-            <svg
-              viewBox="0 0 600 400"
-              className="h-auto w-full"
-              aria-hidden="true"
+        {/* Vignette for depth */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(circle at 50% 45%, transparent 35%, rgba(0,0,0,0.55) 100%)",
+          }}
+        />
+
+        <div className="relative flex w-full max-w-sm flex-col items-center sm:max-w-md">
+          {/* Ambient gold glow behind the piece */}
+          <motion.div
+            className="absolute h-72 w-72 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(201,168,76,0.18), transparent 70%)",
+              filter: "blur(10px)",
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          />
+
+          {/* Puzzle piece */}
+          <motion.div
+            className="relative w-36 h-36 sm:w-40 sm:h-40"
+            initial={
+              prefersReducedMotion
+                ? undefined
+                : { opacity: 0, scale: 0.85, y: 24, rotate: -6 }
+            }
+            animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 170,
+              damping: 17,
+              delay: TIMELINE.piece,
+            }}
+            onAnimationComplete={() => setPieceSettled(true)}
+          >
+            {/* Subtle idle float, only once the entrance has settled */}
+            <motion.div
+              animate={
+                pieceSettled && !prefersReducedMotion
+                  ? { y: [0, -6, 0] }
+                  : { y: 0 }
+              }
+              transition={
+                pieceSettled && !prefersReducedMotion
+                  ? { duration: 3.4, repeat: Infinity, ease: "easeInOut" }
+                  : { duration: 0 }
+              }
             >
-              {/* Background puzzle pieces (team/community) */}
-              <g>
-                <motion.path
-                  d="M 50 50 L 150 50 L 150 100 L 180 100 L 180 130 L 150 130 L 150 180 L 50 180 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                />
-                <motion.path
-                  d="M 170 50 L 350 50 L 350 100 L 320 100 L 320 130 L 350 130 L 350 180 L 170 180 L 170 130 L 200 130 L 200 100 L 170 100 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3, duration: 0.5 }}
-                />
-                <motion.path
-                  d="M 370 50 L 550 50 L 550 180 L 520 180 L 520 150 L 490 150 L 490 180 L 370 180 L 370 130 L 400 130 L 400 100 L 370 100 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                />
-                <motion.path
-                  d="M 50 200 L 150 200 L 150 250 L 180 250 L 180 280 L 150 280 L 150 350 L 50 350 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.5 }}
-                />
-                <motion.path
-                  d="M 170 200 L 350 200 L 350 250 L 320 250 L 320 280 L 350 280 L 350 350 L 170 350 L 170 280 L 200 280 L 200 250 L 170 250 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                />
-                <motion.path
-                  d="M 370 200 L 550 200 L 550 350 L 370 350 L 370 280 L 400 280 L 400 250 L 370 250 Z"
-                  fill="none"
-                  stroke="#C9A84C"
-                  strokeWidth="2"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
-                />
-              </g>
-
-              {/* Empty slot — pulsing red dashed outline, visible until the piece lands */}
-              {!showText && (
-                <motion.path
-                  d="M 370 50 L 550 50 L 550 180 L 520 180 L 520 150 L 490 150 L 490 180 L 370 180 L 370 130 L 400 130 L 400 100 L 370 100 Z"
-                  fill="none"
-                  stroke="#e62b1e"
-                  strokeWidth="3"
-                  strokeDasharray="8 4"
-                  animate={
-                    prefersReducedMotion
-                      ? { opacity: 0 }
-                      : { opacity: [0.4, 1, 0.4], strokeDashoffset: [0, 24] }
-                  }
-                  transition={
-                    prefersReducedMotion
-                      ? { duration: 0 }
-                      : { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                  }
-                />
-              )}
-
-              {/* User's piece — flies in and locks into place */}
-              <motion.path
-                d="M 370 50 L 550 50 L 550 180 L 520 180 L 520 150 L 490 150 L 490 180 L 370 180 L 370 130 L 400 130 L 400 100 L 370 100 Z"
-                fill="#111111"
-                stroke="#C9A84C"
-                strokeWidth="2"
-                initial={
-                  prefersReducedMotion
-                    ? { opacity: 1, scale: 1, rotate: 0, x: 0, y: 0 }
-                    : { opacity: 0, scale: 0.8, rotate: -15, x: 200, y: -100 }
-                }
-                animate={{ opacity: 1, scale: 1, rotate: 0, x: 0, y: 0 }}
-                transition={
-                  prefersReducedMotion
-                    ? { duration: 0 }
-                    : {
-                        type: "spring",
-                        stiffness: 200,
-                        damping: 20,
-                        delay: 0.8,
-                      }
-                }
-                onAnimationComplete={() => {
-                  if (!prefersReducedMotion) {
-                    setTimeout(() => setShowText(true), 200);
-                  }
-                }}
-              />
-
-              {/* User's name on the piece */}
-              <motion.text
-                x="460"
-                y="120"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="font-mono uppercase"
-                fill="#C9A84C"
-                fontSize="11"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                  delay: prefersReducedMotion ? 0.1 : 1.2,
-                  duration: 0.3,
-                }}
+              <svg
+                viewBox="0 0 200 200"
+                className="h-auto w-full"
+                aria-hidden="true"
               >
-                {pieceLabel}
-              </motion.text>
-            </svg>
-          </div>
-
-          {/* Welcome text */}
-          <AnimatePresence>
-            {showText && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                className="mt-6 w-full text-center sm:mt-8"
-              >
-                <motion.h1
-                  id="welcome-heading"
-                  className="font-serif text-2xl leading-tight text-white xs:text-3xl sm:text-4xl md:text-5xl"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5 }}
-                >
-                  Welcome Aboard, {firstName}.
-                </motion.h1>
-                <motion.p
-                  className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-gray-400 sm:mt-4 sm:max-w-md sm:text-base"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                >
-                  You&apos;re officially part of TEDxNewCairoSTEMYouth —
-                  Luminous Darkness 2026.
-                </motion.p>
-                <motion.div
-                  className="mt-6 flex justify-center sm:mt-8"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6, duration: 0.5 }}
-                >
-                  <Button
-                    ref={ctaRef}
-                    onClick={handleDismiss}
-                    disabled={isPending}
-                    className="h-11 w-full rounded-md px-8 text-sm font-semibold sm:h-12 sm:w-auto"
-                    style={{
-                      backgroundColor: "#e62b1e",
-                      color: "white",
-                    }}
+                <defs>
+                  <filter
+                    id="pieceGlow"
+                    x="-50%"
+                    y="-50%"
+                    width="200%"
+                    height="200%"
                   >
-                    {isPending ? "…" : "Let's Go"}
-                  </Button>
-                </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+                {/* Modern jigsaw piece: rounded corners, tab top+right, blank bottom+left */}
+                <path
+                  d="M 40 50
+                     L 65 50
+                     C 65 30 115 30 115 50
+                     L 140 50
+                     Q 150 50 150 60
+                     L 150 85
+                     C 170 85 170 135 150 135
+                     L 150 160
+                     Q 150 170 140 170
+                     L 115 170
+                     C 115 150 65 150 65 170
+                     L 40 170
+                     Q 30 170 30 160
+                     L 30 135
+                     C 50 135 50 85 30 85
+                     L 30 60
+                     Q 30 50 40 50
+                     Z"
+                  fill="#111111"
+                  stroke={GOLD}
+                  strokeWidth="3.5"
+                  strokeLinejoin="round"
+                  filter="url(#pieceGlow)"
+                />
+                <text
+                  x="100"
+                  y="100"
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  className="fill-white text-2xl font-bold"
+                >
+                  {displayName}
+                </text>
+              </svg>
+            </motion.div>
+          </motion.div>
+
+          {/* Typography */}
+          <div className="mt-10 w-full text-center sm:mt-12">
+            <motion.div
+              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                ease: "easeOut",
+                delay: TIMELINE.title,
+              }}
+            >
+              <h1
+                id="welcome-heading"
+                className="mt-2 font-serif text-4xl font-semibold leading-tight text-white sm:text-5xl"
+              >
+                Welcome {displayName}
+              </h1>
+            </motion.div>
+
+            <motion.div
+              className="mt-5 space-y-0.5"
+              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                ease: "easeOut",
+                delay: TIMELINE.subtitle,
+              }}
+            >
+              <p className="text-sm text-gray-400 sm:text-base">
+                You&apos;re officially part of
+              </p>
+              <p className="text-sm font-medium text-gray-300 sm:text-base">
+                TEDx New Cairo STEM Youth.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="mt-9 flex justify-center"
+              initial={prefersReducedMotion ? undefined : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.5,
+                ease: "easeOut",
+                delay: TIMELINE.button,
+              }}
+              onAnimationComplete={() => ctaRef.current?.focus()}
+            >
+              <Button
+                ref={ctaRef}
+                onClick={handleDismiss}
+                disabled={isPending}
+                className="h-11 rounded-full px-9 text-sm font-medium shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 sm:h-12 sm:text-base"
+                style={{
+                  backgroundColor: TED_RED,
+                  color: "white",
+                  boxShadow: "0 8px 24px -8px rgba(230,43,30,0.5)",
+                }}
+              >
+                {isPending ? "…" : "Let's Go"}
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>
