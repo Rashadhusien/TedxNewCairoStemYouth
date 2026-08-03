@@ -157,6 +157,9 @@ export const users = pgTable(
     dataConsentGiven: boolean("data_consent_given").notNull().default(false),
     dataConsentAt: timestamp("data_consent_at"),
 
+    // Welcome aboard screen tracking
+    hasSeenWelcome: boolean("has_seen_welcome").notNull().default(false),
+
     // Account lifecycle (timestamp for Auth.js adapter compatibility)
     emailVerified: timestamp("email_verified", { mode: "date" }),
     isActive: boolean("is_active").notNull().default(true),

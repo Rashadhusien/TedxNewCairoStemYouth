@@ -480,7 +480,6 @@ export const registerWithCredentails = async (
 
     serverAnalytics.capture("user_signed_up", newUser.id, {
       intended_ticket_type: undefined,
-      referral_source: undefined,
     });
     serverAnalytics.identify(newUser.id, {
       email: normalizedEmail,

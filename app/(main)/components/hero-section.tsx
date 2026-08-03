@@ -140,7 +140,7 @@ const Hero = () => {
             </Button>
           </div>
 
-          <div className="flex items-center gap-5 mt-8">
+          <div className="flex items-center justify-center gap-5 mt-8 flex-wrap mx-auto ">
             {socialLinks.map((soc) => {
               const Icon = soc.icon;
               return (

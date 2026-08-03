@@ -1,7 +1,7 @@
 export type TedxEvent =
   | {
       event: "user_signed_up";
-      properties: { intended_ticket_type?: string; referral_source?: string };
+      properties: { intended_ticket_type?: string };
     }
   | { event: "user_logged_in"; properties: { method: "credentials" } }
   | {
