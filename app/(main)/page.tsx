@@ -8,7 +8,11 @@ import SponsorsPartnersSection from "./components/sponsors/sponsors-partners-sec
 import FloatingOfferBanner from "./components/floating-offer-banner";
 // import OfferBanner from "@/components/offer-banner";
 
+import { auth } from "@/auth";
+
 const Home = async () => {
+  const session = await auth();
+
   const [sponsorsResult, partnersResult] = await Promise.all([
     getAllSponsors({ type: "sponsor" }),
     getAllSponsors({ type: "partner" }),
@@ -19,7 +23,7 @@ const Home = async () => {
 
   return (
     <div className="relative">
-      <Hero />
+      <Hero session={session} />
 
       <AboutSection />
 

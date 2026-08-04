@@ -9,10 +9,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ROUTES } from "@/constants/routes";
 import { socialLinks } from "@/constants";
+import { Session } from "next-auth";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Hero = () => {
+const Hero = ({ session }: { session: Session | null }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -131,13 +132,23 @@ const Hero = () => {
             >
               <Link href={ROUTES.CONTACT}>Contact Us</Link>
             </Button>
-            <Button
-              className="py-6 sm:text-base transition-transform active:scale-95 "
-              variant="outline"
-              asChild
-            >
-              <Link href={ROUTES.SPONSORS}>Partner With Us</Link>
-            </Button>
+            {session ? (
+              <Button
+                className="py-6 sm:text-base transition-transform active:scale-95 "
+                variant="outline"
+                asChild
+              >
+                <Link href={ROUTES.SPONSORS}>Partner With Us</Link>
+              </Button>
+            ) : (
+              <Button
+                className="py-6 sm:text-base transition-transform active:scale-95 "
+                variant="outline"
+                asChild
+              >
+                <Link href={ROUTES.REGISTER}>Create Account</Link>
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center justify-center gap-5 mt-8 flex-wrap mx-auto ">
