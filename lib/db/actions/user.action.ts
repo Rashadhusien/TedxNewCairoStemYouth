@@ -7,10 +7,7 @@ import type { z } from "zod";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import { ForbiddenError, NotFoundError } from "@/lib/http-errors";
-import {
-  UpdateUserActiveSchema,
-  UserListSchema,
-} from "@/lib/validation";
+import { UpdateUserActiveSchema, UserListSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import { ROUTES } from "@/constants/routes";
 
@@ -62,7 +59,11 @@ export async function listUsers(params: UserListInput): Promise<
     const conditions = [];
 
     if (status !== "all") {
-      conditions.push(eq(users.isActive, status === "active"));
+      conditions.push(
+        status === "verified"
+          ? sql`${users.emailVerified} is not null`
+          : sql`${users.emailVerified} is null`,
+      );
     }
 
     if (search?.trim()) {
@@ -129,7 +130,8 @@ export async function updateUserActiveStatus(
 
   try {
     const { user: currentUser } = await requireAdminSession();
-    const { userId, isActive } = validationResult.params as UpdateUserActiveInput;
+    const { userId, isActive } =
+      validationResult.params as UpdateUserActiveInput;
 
     const [targetUser] = await db
       .select({

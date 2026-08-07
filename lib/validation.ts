@@ -477,7 +477,7 @@ export const KashierCheckoutSchema = z.object({
 });
 
 export const UserListSchema = z.object({
-  status: z.enum(["all", "active", "inactive"]).default("all"),
+  status: z.enum(["all", "verified", "pending"]).default("all"),
   search: z.string().optional(),
   ...paginationSchema.shape,
 });

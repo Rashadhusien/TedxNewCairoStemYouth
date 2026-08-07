@@ -55,26 +55,13 @@ export const usersColumns: ColumnDef<AdminUserListItem>[] = [
   },
   {
     accessorKey: "emailVerified",
-    header: "Verified",
+    header: "Status",
     cell: ({ row }) => {
       const isVerified = !!row.original.emailVerified;
 
       return (
         <Badge variant={isVerified ? "default" : "secondary"}>
           {isVerified ? "Verified" : "Pending"}
-        </Badge>
-      );
-    },
-  },
-  {
-    accessorKey: "isActive",
-    header: "Status",
-    cell: ({ row }) => {
-      const isActive = row.original.isActive;
-
-      return (
-        <Badge variant={isActive ? "default" : "destructive"}>
-          {isActive ? "Active" : "Inactive"}
         </Badge>
       );
     },

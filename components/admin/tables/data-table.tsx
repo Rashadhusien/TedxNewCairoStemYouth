@@ -72,7 +72,12 @@ export function DataTable<TData, TValue>({
   }) => {
     const params = new URLSearchParams();
     params.set("status", next.status ?? status);
-    if (next.search ?? search) params.set("search", next.search ?? search);
+    if (
+      (next.search ?? search) !== undefined &&
+      (next.search ?? search) !== ""
+    ) {
+      params.set("search", next.search ?? search);
+    }
     params.set("page", String(next.page ?? page));
     router.push(`${route}?${params.toString()}`);
   };

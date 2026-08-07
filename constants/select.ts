@@ -106,12 +106,12 @@ export const USERS_STATUS = [
     label: "All",
   },
   {
-    value: "active",
-    label: "Active",
+    value: "verified",
+    label: "Verified",
   },
   {
-    value: "inactive",
-    label: "Inactive",
+    value: "pending",
+    label: "Pending",
   },
 ];
 

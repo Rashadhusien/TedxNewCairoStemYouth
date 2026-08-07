@@ -13,7 +13,7 @@ export default async function AdminUsersPage({
   searchParams,
 }: AdminUsersPageProps) {
   const params = await searchParams;
-  const status = (params.status ?? "all") as "all" | "active" | "inactive";
+  const status = (params.status ?? "all") as "all" | "verified" | "pending";
 
   const result = await listUsers({
     page: Number(params.page) || 1,
