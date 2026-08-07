@@ -344,7 +344,7 @@ export async function createOrder(
         promoReservationExpiresAt = new Date(
           Date.now() + PROMO_RESERVATION_MINUTES * 60 * 1000,
         );
-      } catch (err) {
+      } catch {
         return handleError(
           new ValidationError({
             promoCode: ["Promo code has reached maximum usage limit"],
@@ -438,8 +438,6 @@ export async function createOrder(
           ticketType: "general",
           pricePaid: 0,
           qrCode: ticket.qrCode,
-        }).catch((err) => {
-          console.error("Failed to send confirmation email:", err);
         });
       }
 
@@ -451,9 +449,8 @@ export async function createOrder(
 
     // Create order with pricing snapshot (transactional)
     const now = new Date();
-    let orderId: string;
 
-    const orderResult = await db.transaction(async (tx) => {
+    const orderId = await db.transaction(async (tx) => {
       const [order] = await tx
         .insert(orders)
         .values({
@@ -498,8 +495,6 @@ export async function createOrder(
 
       return newOrderId;
     });
-
-    orderId = orderResult;
 
     // Create Kashier session (outside transaction)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
