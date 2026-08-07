@@ -77,8 +77,101 @@ export default async function ProfilePage() {
           </div>
         </div>
 
-        {/* ── Ticket card (if confirmed or checked_in) ───────────────────────────────────── */}
-        {/* {profile.ticket &&
+        {/* ── Orders section ───────────────────────────────────────────── */}
+        {profile.orders && profile.orders.length > 0 && (
+          <div className="mb-6 space-y-4">
+            <h2 className="text-sm font-semibold text-white/60">Your Orders</h2>
+            {profile.orders.map((order) => (
+              <div
+                key={order.id}
+                className="rounded-xl border border-white/10 bg-[#111111] p-4"
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-white">
+                      {order.packageName}
+                    </p>
+                    <p className="text-xs text-white/40">
+                      {order.packageTicketCount} ticket
+                      {order.packageTicketCount > 1 ? "s" : ""} · Order ID:{" "}
+                      {order.id.slice(0, 8)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-white">
+                      {(order.finalAmountPiastres / 100).toFixed(2)} EGP
+                    </p>
+                    <p
+                      className={`text-xs ${
+                        order.status === "paid"
+                          ? "text-green-400"
+                          : order.status === "failed"
+                            ? "text-red-400"
+                            : "text-yellow-400"
+                      }`}
+                    >
+                      {order.status.replace(/_/g, " ").toUpperCase()}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Order tickets */}
+                {order.tickets.length > 0 && (
+                  <div className="mt-3 space-y-2 border-t border-white/10 pt-3">
+                    <p className="text-xs font-medium text-white/50">Tickets</p>
+                    {order.tickets.map((ticket) => (
+                      <div
+                        key={ticket.id}
+                        className="flex items-center justify-between rounded-lg bg-white/5 p-2"
+                      >
+                        <div>
+                          <p className="text-xs font-medium text-white">
+                            {ticket.attendeeName || "Attendee"}
+                          </p>
+                          <p className="text-xs text-white/40">
+                            {ticket.attendeeEmail || profile.email}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p
+                            className={`text-xs font-medium ${
+                              ticket.status === "confirmed" ||
+                              ticket.status === "checked_in"
+                                ? "text-green-400"
+                                : ticket.status === "rejected"
+                                  ? "text-red-400"
+                                  : "text-yellow-400"
+                            }`}
+                          >
+                            {ticket.status.replace(/_/g, " ").toUpperCase()}
+                          </p>
+                          {ticket.qrCode && (
+                            <p className="text-xs text-white/30">
+                              QR Code available
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Order actions */}
+                {order.status === "pending_payment" && (
+                  <a
+                    href={`/tickets?orderId=${order.id}`}
+                    className="mt-3 inline-block rounded-md bg-[#e62b1e] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#c42419]"
+                  >
+                    Complete Payment
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Legacy ticket card (if confirmed or checked_in) ───────────────────────────────────── */}
+        {profile.ticket &&
           (profile.ticket.status === "confirmed" ||
             profile.ticket.status === "checked_in") && (
             <div className="mb-6">
@@ -88,10 +181,10 @@ export default async function ProfilePage() {
                 attendeeEmail={profile.email}
               />
             </div>
-          )} */}
+          )}
 
-        {/* ── Ticket under review/pending/rejected/cancelled state ───────────────────────────────────── */}
-        {/* {profile.ticket &&
+        {/* ── Legacy ticket under review/pending/rejected/cancelled state ───────────────────────────────────── */}
+        {profile.ticket &&
           profile.ticket.status !== "confirmed" &&
           profile.ticket.status !== "checked_in" && (
             <div className="mb-6 rounded-xl border border-white/10 bg-[#111111] p-5 text-center">
@@ -116,25 +209,26 @@ export default async function ProfilePage() {
                 View Ticket Details
               </a>
             </div>
-          )} */}
+          )}
 
-        {/* ── No ticket state ───────────────────────────────────────────── */}
-        {/* {!profile.ticket && (
-          <div className="mb-6 rounded-xl border border-dashed border-white/10 bg-transparent p-5 text-center">
-            <p className="mb-1 text-sm font-medium text-white/40">
-              No ticket yet
-            </p>
-            <p className="text-xs text-white/20">
-              Register for the event to get your ticket.
-            </p>
-            <a
-              href={ROUTES.REGISTER ?? "/register"}
-              className="mt-3 inline-block rounded-md bg-[#e62b1e] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c42419]"
-            >
-              Get a ticket
-            </a>
-          </div>
-        )} */}
+        {/* ── No ticket/order state ───────────────────────────────────────────── */}
+        {!profile.ticket &&
+          (!profile.orders || profile.orders.length === 0) && (
+            <div className="mb-6 rounded-xl border border-dashed border-white/10 bg-transparent p-5 text-center">
+              <p className="mb-1 text-sm font-medium text-white/40">
+                No tickets or orders yet
+              </p>
+              <p className="text-xs text-white/20">
+                Register for the event to get your ticket.
+              </p>
+              <a
+                href={ROUTES.REGISTER ?? "/register"}
+                className="mt-3 inline-block rounded-md bg-[#e62b1e] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c42419]"
+              >
+                Get a ticket
+              </a>
+            </div>
+          )}
 
         {/* ── Skills summary strip (read-only, above the form) ────────── */}
         {profile.skills && profile.skills.length > 0 && (

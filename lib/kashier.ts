@@ -53,9 +53,9 @@ function getKashierConfig() {
     merchantId: merchantId?.substring(0, 10) + "...",
     apiKey: apiKey?.substring(0, 10) + "...",
     secretKey: secretKey?.substring(0, 10) + "...",
+    secretKeyLength: secretKey?.length,
+    apiKeyLength: apiKey?.length,
   });
-
-  console.log("secret key length:", secretKey?.length);
 
   if (!merchantId) {
     throw new Error("Missing KASHIER_MERCHANT_ID environment variable");
@@ -136,6 +136,19 @@ export async function createKashierSession(
     Authorization: secretKey,
     "api-key": apiKey,
   };
+
+  console.log("[Kashier] Request details:", {
+    url: baseUrl,
+    headers: {
+      "Content-Type": headers["Content-Type"],
+      Authorization: secretKey.substring(0, 10) + "...",
+      "api-key": apiKey.substring(0, 10) + "...",
+    },
+    body: JSON.stringify({
+      ...requestBody,
+      customer: { ...requestBody.customer, email: "***" }, // Mask email
+    }),
+  });
 
   try {
     const response = await fetch(baseUrl, {

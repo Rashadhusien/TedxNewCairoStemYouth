@@ -1,10 +1,10 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, desc, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { db } from "@/lib/db";
-import { accounts, tickets, users } from "@/lib/db/schema";
+import { accounts, tickets, users, orders } from "@/lib/db/schema";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import { UpdateProfileSchema } from "@/lib/validation";
@@ -27,6 +27,7 @@ export type ProfileData = {
   skills: string[] | null;
   image: string | null;
   isCredentialsUser: boolean;
+  // Legacy single ticket (for backward compatibility)
   ticket: {
     id: string;
     type: string;
@@ -35,6 +36,26 @@ export type ProfileData = {
     pricePaid: number;
     createdAt: Date;
   } | null;
+  // New order system
+  orders: Array<{
+    id: string;
+    status: string;
+    packageName: string;
+    packageTicketCount: number;
+    finalAmountPiastres: number;
+    paidAt: Date | null;
+    createdAt: Date;
+    tickets: Array<{
+      id: string;
+      type: string;
+      qrCode: string | null;
+      status: Ticket["status"];
+      pricePaid: number;
+      attendeeName: string | null;
+      attendeeEmail: string | null;
+      attendeePhone: string | null;
+    }>;
+  }>;
 };
 
 export type UpdateProfileSuccessResponse = {
@@ -91,13 +112,53 @@ export async function getProfile(): Promise<ProfileData | null> {
         createdAt: tickets.createdAt,
       })
       .from(tickets)
-      .where(eq(tickets.userId, userId))
+      .where(and(eq(tickets.userId, userId), isNull(tickets.orderId))) // Only legacy tickets
       .limit(1);
+
+    // Fetch orders with their tickets
+    const userOrders = await db
+      .select({
+        id: orders.id,
+        status: orders.status,
+        packageName: orders.packageName,
+        packageTicketCount: orders.packageTicketCount,
+        finalAmountPiastres: orders.finalAmountPiastres,
+        paidAt: orders.paidAt,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt));
+
+    // Fetch tickets for each order
+    const ordersWithTickets = await Promise.all(
+      userOrders.map(async (order) => {
+        const orderTickets = await db
+          .select({
+            id: tickets.id,
+            type: tickets.type,
+            qrCode: tickets.qrCode,
+            status: tickets.status,
+            pricePaid: tickets.pricePaid,
+            attendeeName: tickets.attendeeName,
+            attendeeEmail: tickets.attendeeEmail,
+            attendeePhone: tickets.attendeePhone,
+          })
+          .from(tickets)
+          .where(eq(tickets.orderId, order.id));
+
+        return {
+          ...order,
+          tickets: orderTickets,
+        };
+      }),
+    );
 
     return {
       ...user,
       isCredentialsUser: !!credentialsAccount,
       ticket: ticket ?? null,
+      orders: ordersWithTickets,
     };
   } catch {
     return null;

@@ -270,10 +270,53 @@ export async function createOrder(
       ) as ErrorResponse;
     }
 
+    // Check for duplicate attendee emails within the same order
+    const attendeeEmails = data.attendees.map((a) =>
+      a.email.toLowerCase().trim(),
+    );
+    const uniqueEmails = new Set(attendeeEmails);
+    if (uniqueEmails.size !== attendeeEmails.length) {
+      return handleError(
+        new ValidationError({
+          attendees: [
+            "All attendee emails must be unique within the same order",
+          ],
+        }),
+      ) as ErrorResponse;
+    }
+
+    // Check if all attendee emails have registered accounts
+    const existingUsers = await db
+      .select({ email: users.email, id: users.id })
+      .from(users)
+      .where(sql`${users.email} = ANY(${attendeeEmails})`);
+
+    const existingEmails = existingUsers.map((u) => u.email.toLowerCase());
+    const missingAccounts = data.attendees
+      .filter((a) => !existingEmails.includes(a.email.toLowerCase().trim()))
+      .map((a) => a.email);
+
+    if (missingAccounts.length > 0) {
+      return handleError(
+        new ValidationError({
+          attendees: [
+            `The following attendee emails don't have registered accounts: ${missingAccounts.join(", ")}. All attendees must create an account before purchasing tickets.`,
+          ],
+        }),
+      ) as ErrorResponse;
+    }
+
+    // Create email to userId mapping for ticket creation
+    const emailToUserIdMap: Record<string, string> = {};
+    existingUsers.forEach((user) => {
+      emailToUserIdMap[user.email.toLowerCase()] = user.id;
+    });
+
     // Validate promo code if provided
     let promoCode = null;
     let discountPiastres = 0;
     let finalAmountPiastres = pkg.totalPricePiastres;
+    let promoReservationExpiresAt: Date | null = null;
 
     if (data.promoCode && data.promoCode.trim()) {
       promoCode = await getPromoCodeByCode(data.promoCode.trim());
@@ -337,7 +380,6 @@ export async function createOrder(
     }
 
     // Reserve promo capacity if applicable (atomic check-then-act)
-    let promoReservationExpiresAt = null;
     if (promoCode) {
       try {
         await incrementPromoCodeUsage(promoCode.id);
@@ -387,10 +429,13 @@ export async function createOrder(
         // Create confirmed tickets
         const ticketIds = [];
         for (const attendee of data.attendees) {
+          const attendeeUserId =
+            emailToUserIdMap[attendee.email.toLowerCase().trim()];
+
           const [ticket] = await tx
             .insert(tickets)
             .values({
-              userId: session.user.id,
+              userId: attendeeUserId, // Use the attendee's actual user ID
               orderId: orderId,
               type: "general",
               status: "confirmed",
@@ -474,11 +519,13 @@ export async function createOrder(
 
       const newOrderId = order.id;
 
-      // Store attendee information temporarily in tickets with pending status
-      // These will be converted to confirmed tickets after payment
+      // Create tickets for each attendee using their actual user accounts
       for (const attendee of data.attendees) {
+        const attendeeUserId =
+          emailToUserIdMap[attendee.email.toLowerCase().trim()];
+
         await tx.insert(tickets).values({
-          userId: session.user.id,
+          userId: attendeeUserId, // Use the attendee's actual user ID
           orderId: newOrderId,
           type: "general",
           status: "pending_payment",

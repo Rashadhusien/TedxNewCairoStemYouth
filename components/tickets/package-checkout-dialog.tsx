@@ -87,7 +87,7 @@ export default function PackageCheckoutDialog({
         setPromoError(data.data.error || "Invalid promo code");
         setPromoValid(false);
       }
-    } catch (err) {
+    } catch {
       setPromoError("Failed to validate promo code");
       setPromoValid(false);
     }
@@ -147,10 +147,21 @@ export default function PackageCheckoutDialog({
           typeof result.error === "string"
             ? result.error
             : result.error?.message || "Failed to create order";
-        setError(errorMessage);
+
+        // Check if the error is about missing accounts
+        if (errorMessage.includes("don't have registered accounts")) {
+          setError(
+            errorMessage +
+              " Please ask all attendees to create accounts first.",
+          );
+        } else {
+          setError(errorMessage);
+        }
       }
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred");
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -197,7 +208,7 @@ export default function PackageCheckoutDialog({
                 required
               />
               <p className="text-xs text-gray-500">
-                Enter the access code provided to you, or "N/A" if not
+                Enter the access code provided to you, or &quot;N/A&quot; if not
                 applicable
               </p>
             </div>
