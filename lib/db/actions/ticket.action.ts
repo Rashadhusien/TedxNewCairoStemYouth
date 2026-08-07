@@ -335,6 +335,7 @@ export async function getMyTicket(): Promise<
         and(
           eq(tickets.userId, session.user.id),
           ne(tickets.status, "cancelled"),
+          ne(tickets.status, "pending_payment"), // Filter out pending payment tickets
         ),
       )
       .orderBy(desc(tickets.createdAt))

@@ -57,6 +57,20 @@
       "when": 1785786883324,
       "tag": "0007_clear_dormammu",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786106408212,
+      "tag": "0008_calm_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1728000000000,
+      "tag": "0009_add_promo_applicable",
+      "breakpoints": true
     }
   ]
 }

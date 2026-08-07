@@ -220,6 +220,190 @@ export const SponsorListSchema = z.object({
   ...paginationSchema.shape,
 });
 
+// ─────────────────────────────────────────────
+// PACKAGE SYSTEM VALIDATION
+// ─────────────────────────────────────────────
+
+export const PackageCreateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Package name is required")
+    .max(255, "Package name cannot exceed 255 characters"),
+  description: z.string().optional(),
+  ticketCount: z
+    .number()
+    .int()
+    .positive("Ticket count must be at least 1")
+    .min(1, "Ticket count must be at least 1"),
+  pricePerTicketPiastres: z
+    .number()
+    .int()
+    .positive("Price per ticket must be greater than 0")
+    .min(100, "Price per ticket must be at least 1 EGP (100 piastres)"),
+  requiresAccessCode: z.boolean().default(false),
+  isPromoApplicable: z.boolean().default(false),
+  displayOrder: z.number().int().min(0).default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const PackageUpdateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Package name is required")
+    .max(255, "Package name cannot exceed 255 characters")
+    .optional(),
+  description: z.string().optional(),
+  ticketCount: z
+    .number()
+    .int()
+    .positive("Ticket count must be at least 1")
+    .min(1, "Ticket count must be at least 1")
+    .optional(),
+  pricePerTicketPiastres: z
+    .number()
+    .int()
+    .positive("Price per ticket must be greater than 0")
+    .min(100, "Price per ticket must be at least 1 EGP (100 piastres)")
+    .optional(),
+  requiresAccessCode: z.boolean().optional(),
+  isPromoApplicable: z.boolean().optional(),
+  displayOrder: z.number().int().min(0).optional(),
+  isActive: z.boolean().optional(),
+});
+
+export const PackageListSchema = z.object({
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const PromoCodeCreateSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .min(2, "Promo code must be at least 2 characters")
+      .max(50, "Promo code cannot exceed 50 characters")
+      .transform((val) => val.toUpperCase()),
+    owner: z.string().max(255).optional(),
+    description: z.string().optional(),
+    type: z.enum(["fixed_price", "discount", "free"]),
+    valuePiastres: z.number().int().min(0).default(0),
+    maxUses: z.number().int().positive().nullable().optional(),
+    validFrom: z.coerce.date().nullable().optional(),
+    validUntil: z.coerce.date().nullable().optional(),
+    isActive: z.boolean().default(true),
+  })
+  .superRefine((data, ctx) => {
+    if (data.type === "fixed_price" && data.valuePiastres <= 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Fixed price must be greater than 0",
+        path: ["valuePiastres"],
+      });
+    }
+    if (data.type === "discount" && data.valuePiastres <= 0) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Discount amount must be greater than 0",
+        path: ["valuePiastres"],
+      });
+    }
+    if (data.validFrom && data.validUntil && data.validFrom > data.validUntil) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Valid from date must be before valid until date",
+        path: ["validUntil"],
+      });
+    }
+  });
+
+export const PromoCodeUpdateSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .min(2, "Promo code must be at least 2 characters")
+      .max(50, "Promo code cannot exceed 50 characters")
+      .transform((val) => val.toUpperCase())
+      .optional(),
+    owner: z.string().max(255).optional(),
+    description: z.string().optional(),
+    type: z.enum(["fixed_price", "discount", "free"]).optional(),
+    valuePiastres: z.number().int().min(0).optional(),
+    maxUses: z.number().int().positive().nullable().optional(),
+    validFrom: z.coerce.date().nullable().optional(),
+    validUntil: z.coerce.date().nullable().optional(),
+    isActive: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.type === "fixed_price" &&
+      data.valuePiastres !== undefined &&
+      data.valuePiastres <= 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Fixed price must be greater than 0",
+        path: ["valuePiastres"],
+      });
+    }
+    if (
+      data.type === "discount" &&
+      data.valuePiastres !== undefined &&
+      data.valuePiastres <= 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Discount amount must be greater than 0",
+        path: ["valuePiastres"],
+      });
+    }
+    if (data.validFrom && data.validUntil && data.validFrom > data.validUntil) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Valid from date must be before valid until date",
+        path: ["validUntil"],
+      });
+    }
+  });
+
+export const PromoCodeListSchema = z.object({
+  status: z.enum(["all", "active", "inactive"]).default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const OrderListSchema = z.object({
+  status: z
+    .enum(["all", "pending_payment", "paid", "failed", "cancelled"])
+    .default("all"),
+  search: z.string().optional(),
+  ...paginationSchema.shape,
+});
+
+export const CreateOrderSchema = z.object({
+  packageId: z.string().uuid("Invalid package ID"),
+  promoCode: z.string().trim().max(50).optional(),
+  accessCode: z.string().trim().max(100).optional(),
+  attendees: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1, "Attendee name is required").max(255),
+        email: z.string().email("Invalid email address"),
+        phone: z.string().trim().min(1, "Phone number is required").max(20),
+      }),
+    )
+    .min(1, "At least one attendee is required"),
+});
+
+export const ValidatePromoCodeSchema = z.object({
+  code: z.string().trim().min(1, "Promo code is required"),
+  packageId: z.string().uuid("Invalid package ID"),
+});
+
 export const sponsorTierSchema = z.enum([
   "visionary",
   "platinum",

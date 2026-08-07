@@ -122,10 +122,10 @@ export const mainLinks = [
     route: ROUTES.SPONSORS,
     label: "Sponsors",
   },
-  // {
-  //   route: ROUTES.TICKETS,
-  //   label: "Tickets",
-  // },
+  {
+    route: ROUTES.TICKETS,
+    label: "Tickets",
+  },
   {
     route: ROUTES.ABOUT,
     label: "About Us",

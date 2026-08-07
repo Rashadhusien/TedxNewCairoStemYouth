@@ -78,6 +78,21 @@ export const sidebarItems: NavGroup[] = [
         url: ROUTES.ADMIN.OFFERS.HOME,
         icon: Tag,
       },
+      {
+        title: "Promo Codes",
+        url: ROUTES.ADMIN.PROMO_CODES.HOME,
+        icon: Tag,
+      },
+      {
+        title: "Packages",
+        url: ROUTES.ADMIN.PACKAGES.HOME,
+        icon: Tag,
+      },
+      {
+        title: "Orders",
+        url: ROUTES.ADMIN.ORDERS.HOME,
+        icon: Tag,
+      },
     ],
   },
   {

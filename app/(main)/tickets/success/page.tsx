@@ -2,15 +2,17 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { getOrderWithTickets } from "@/lib/db/actions/order.action";
 import { getMyTicket } from "@/lib/db/actions/ticket.action";
 import { CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { orders, tickets } from "@/lib/db/schema";
 
-type TicketStatus =
+type OrderStatus =
   | "loading"
   | "pending_payment"
-  | "confirmed"
-  | "rejected"
+  | "paid"
+  | "failed"
   | "cancelled"
   | "timeout";
 
@@ -20,75 +22,113 @@ function TicketSuccessContent() {
   const orderId = searchParams.get("orderId");
   const paymentStatusParam = searchParams.get("paymentStatus");
 
-  // console.log(paymentStatusParam);
-
-  const [status, setStatus] = useState<TicketStatus>("loading");
-  // const [pollCount, setPollCount] = useState(0);
+  const [status, setStatus] = useState<OrderStatus>("loading");
   const [error, setError] = useState<string | null>(null);
+  const [orderData, setOrderData] = useState<{
+    order: typeof orders.$inferSelect;
+    tickets: (typeof tickets.$inferSelect)[];
+  } | null>(null);
+  const [isLegacyTicket, setIsLegacyTicket] = useState(false);
 
   useEffect(() => {
     if (!orderId) {
-      setError("Missing order ID");
-      setStatus("rejected");
       return;
     }
-    // const knownFailure = paymentStatusParam && paymentStatusParam !== "SUCCESS";
 
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
     let attempts = 0;
     const maxAttempts = 30;
 
-    const pollTicketStatus = async () => {
+    const pollOrderStatus = async () => {
       try {
-        const result = await getMyTicket();
+        // Try new order system first
+        let result = await getOrderWithTickets(orderId);
+
         if (cancelled) return;
 
-        if (!result.success) {
-          setError("Failed to fetch ticket status");
+        // If no order found, try legacy ticket system
+        if (!result) {
+          const legacyTicket = await getMyTicket();
+          if (
+            legacyTicket.success &&
+            legacyTicket.data &&
+            legacyTicket.data.ticket &&
+            legacyTicket.data.ticket.id === orderId
+          ) {
+            // Legacy ticket found
+            setIsLegacyTicket(true);
+            const ticketStatus = legacyTicket.data.ticket.status;
+
+            console.log("Legacy ticket status:", ticketStatus);
+
+            if (ticketStatus === "confirmed" || ticketStatus === "checked_in") {
+              setStatus("paid");
+              return;
+            }
+
+            if (ticketStatus === "rejected" || ticketStatus === "cancelled") {
+              setStatus(ticketStatus as OrderStatus);
+              return;
+            }
+
+            if (
+              ticketStatus === "pending_payment" ||
+              ticketStatus === "payment_submitted"
+            ) {
+              setStatus("pending_payment");
+            }
+
+            attempts += 1;
+            if (attempts < maxAttempts) {
+              timeoutId = setTimeout(pollOrderStatus, 2000);
+            } else {
+              setStatus("timeout");
+            }
+            return;
+          }
+
+          setError("Order not found");
+          setStatus("failed");
           return;
         }
 
-        const ticketData = result.data;
-        if (!ticketData) {
-          setError("Ticket not found");
-          setStatus("rejected");
+        const { order, tickets: orderTickets } = result;
+        setOrderData({ order, tickets: orderTickets });
+
+        const orderStatus = order.status;
+
+        console.log("Order status:", orderStatus);
+
+        if (orderStatus === "paid") {
+          setStatus("paid");
           return;
         }
 
-        const ticketStatus = ticketData.ticket.status;
-
-        console.log(ticketStatus);
-
-        if (ticketStatus === "confirmed") {
-          setStatus("confirmed");
+        if (orderStatus === "failed" || orderStatus === "cancelled") {
+          setStatus(orderStatus as OrderStatus);
           return;
         }
 
-        if (ticketStatus === "rejected" || ticketStatus === "cancelled") {
-          setStatus(ticketStatus as TicketStatus);
-          return;
-        }
-
-        if (ticketStatus === "pending_payment") {
+        if (orderStatus === "pending_payment") {
           setStatus("pending_payment");
         }
 
         attempts += 1;
         if (attempts < maxAttempts) {
-          timeoutId = setTimeout(pollTicketStatus, 2000);
+          timeoutId = setTimeout(pollOrderStatus, 2000);
         } else {
           setStatus("timeout");
         }
       } catch (err) {
         if (cancelled) return;
-        console.error("Error polling ticket status:", err);
+        console.error("Error polling order status:", err);
         setError("An error occurred while checking your payment status");
-        setStatus("rejected");
+        setStatus("failed");
       }
     };
 
-    pollTicketStatus();
+    pollOrderStatus();
 
     return () => {
       cancelled = true;
@@ -118,7 +158,7 @@ function TicketSuccessContent() {
           </div>
         );
 
-      case "confirmed":
+      case "paid":
         return (
           <div className="flex flex-col items-center justify-center space-y-6 py-12">
             <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
@@ -129,22 +169,36 @@ function TicketSuccessContent() {
                 You&apos;re in! 🎉
               </h2>
               <p className="text-gray-300">
-                Your payment has been confirmed and your ticket is ready.
+                Your payment has been confirmed and your tickets are ready.
               </p>
               <p className="text-sm text-gray-500 font-mono">
-                Order ID: {orderId}
+                {isLegacyTicket ? "Ticket ID" : "Order ID"}: {orderId}
               </p>
+              {orderData && orderData.tickets && (
+                <div className="mt-4 p-4 bg-gray-800 rounded-lg">
+                  <p className="text-sm text-gray-400 mb-2">
+                    {orderData.tickets.length} ticket
+                    {orderData.tickets.length > 1 ? "s" : ""} generated
+                  </p>
+                  {orderData.tickets.map((ticket: any, i: number) => (
+                    <div key={i} className="text-sm text-gray-300">
+                      {ticket.attendeeName || `Ticket ${i + 1}`} -{" "}
+                      {ticket.attendeeEmail || "No email"}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <Button
               onClick={() => router.push("/profile")}
               className="bg-[#e62b1e] hover:bg-[#c42318] text-white"
             >
-              View My Ticket
+              View My Tickets
             </Button>
           </div>
         );
 
-      case "rejected":
+      case "failed":
       case "cancelled":
         return (
           <div className="flex flex-col items-center justify-center space-y-6 py-12">
@@ -195,7 +249,7 @@ function TicketSuccessContent() {
                 onClick={() => router.push("/profile")}
                 className="bg-[#e62b1e] hover:bg-[#c42318] text-white"
               >
-                Check My Ticket
+                Check My Tickets
               </Button>
               <Button
                 onClick={() => router.push("/tickets")}

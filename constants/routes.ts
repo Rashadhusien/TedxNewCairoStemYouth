@@ -47,6 +47,21 @@ export const ROUTES = {
       CREATE: "/admin/ticket-tiers/create",
       EDIT: (id: string) => `/admin/ticket-tiers/edit/${id}`,
     },
+    PACKAGES: {
+      HOME: "/admin/packages",
+      CREATE: "/admin/packages/create",
+      EDIT: (id: string) => `/admin/packages/edit/${id}`,
+    },
+    PROMO_CODES: {
+      HOME: "/admin/promo-codes",
+      CREATE: "/admin/promo-codes/create",
+      EDIT: (id: string) => `/admin/promo-codes/edit/${id}`,
+      USAGE: (id: string) => `/admin/promo-codes/usage/${id}`,
+    },
+    ORDERS: {
+      HOME: "/admin/orders",
+      DETAILS: (id: string) => `/admin/orders/${id}`,
+    },
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",

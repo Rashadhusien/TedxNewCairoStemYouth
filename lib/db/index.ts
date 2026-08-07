@@ -1,25 +1,28 @@
 /**
- * Drizzle ORM client — Neon Serverless PostgreSQL
+ * Drizzle ORM client — Neon PostgreSQL
  *
- * Uses @neondatabase/serverless driver which works in:
- * - Next.js App Router (both Node.js and Edge runtimes)
+ * Uses node-postgres driver with Neon PostgreSQL which works in:
+ * - Next.js App Router (Node.js runtime)
  * - Vercel serverless functions
  *
+ * Uses standard PostgreSQL connection with full transaction support.
  * Connection is pooled via Neon's built-in connection pooler.
  * Never import this in client components — server-only.
  */
 
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import * as schema from "@/lib/db/schema";
 
 if (!process.env.DATABASE_URL) {
   throw new Error("DATABASE_URL environment variable is not set");
 }
 
-const sql = neon(process.env.DATABASE_URL!);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
-export const db = drizzle(sql, {
+export const db = drizzle(pool, {
   schema,
   logger: process.env.NODE_ENV === "development",
 });

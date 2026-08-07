@@ -85,6 +85,59 @@ export const TICKET_TIERS_STATUS = [
   },
 ];
 
+export const PACKAGE_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+];
+
+export const PROMO_CODE_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "active",
+    label: "Active",
+  },
+  {
+    value: "inactive",
+    label: "Inactive",
+  },
+];
+
+export const ORDER_STATUS = [
+  {
+    value: "all",
+    label: "All",
+  },
+  {
+    value: "pending_payment",
+    label: "Pending Payment",
+  },
+  {
+    value: "paid",
+    label: "Paid",
+  },
+  {
+    value: "failed",
+    label: "Failed",
+  },
+  {
+    value: "cancelled",
+    label: "Cancelled",
+  },
+];
+
 export const SPEAKER_STATUS = [
   {
     value: "all",

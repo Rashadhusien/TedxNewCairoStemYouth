@@ -9,6 +9,7 @@
  *   surveys, survey_questions, survey_responses
  *   games, game_entries
  *   point_transactions
+ *   packages, orders, promo_codes, promo_code_usages
  *   Views: leaderboard_view
  */
 
@@ -23,7 +24,6 @@ import {
   integer,
   smallint,
   timestamp,
-  date,
   jsonb,
   unique,
   index,
@@ -118,6 +118,23 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "lightning_talk_winner",
   "manual_admin",
   "bonus",
+]);
+
+// ─────────────────────────────────────────────
+// TICKET PACKAGES & PROMO CODES
+// ─────────────────────────────────────────────
+
+export const orderStatusEnum = pgEnum("order_status", [
+  "pending_payment",
+  "paid",
+  "failed",
+  "cancelled",
+]);
+
+export const promoCodeTypeEnum = pgEnum("promo_code_type", [
+  "fixed_price", // Specific price in piastres (e.g., 20000 = 200 EGP)
+  "discount", // Discount amount in piastres (e.g., 5000 = 50 EGP off)
+  "free", // Free ticket
 ]);
 
 // ─────────────────────────────────────────────
@@ -322,6 +339,14 @@ export const tickets = pgTable(
     offerPriceApplied: integer("offer_price_applied"),
     // ───────
 
+    // New package system fields (nullable to preserve legacy functionality)
+    orderId: uuid("order_id").references(() => orders.id),
+
+    // For package tickets: attendee-specific information
+    attendeeName: varchar("attendee_name", { length: 255 }),
+    attendeeEmail: varchar("attendee_email", { length: 255 }),
+    attendeePhone: varchar("attendee_phone", { length: 20 }),
+
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -332,6 +357,7 @@ export const tickets = pgTable(
     gatewayOrderIdx: index("tickets_gateway_order_idx").on(
       t.paymentGatewayOrderId,
     ),
+    orderIdx: index("tickets_order_idx").on(t.orderId),
   }),
 );
 
@@ -473,6 +499,212 @@ export const offers = pgTable(
     endsAtIdx: index("offers_ends_at_idx").on(t.endsAt),
   }),
 );
+
+// ─────────────────────────────────────────────
+// PACKAGES
+// ─────────────────────────────────────────────
+
+export const packages = pgTable(
+  "packages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    name: varchar("name", { length: 255 }).notNull(),
+    // e.g., "Regular", "3 Friends", "5 Friends"
+
+    description: text("description"),
+
+    // Number of tickets included in this package
+    ticketCount: integer("ticket_count").notNull(),
+
+    // Price per ticket in piastres
+    pricePerTicketPiastres: integer("price_per_ticket_piastres").notNull(),
+
+    // Total price for the package (ticketCount × pricePerTicketPiastres)
+    // Snapshotted at package creation to preserve historical pricing
+    totalPricePiastres: integer("total_price_piastres").notNull(),
+
+    // Whether this package requires an access code
+    requiresAccessCode: boolean("requires_access_code")
+      .notNull()
+      .default(false),
+
+    // Whether promo codes can be applied to this package
+    isPromoApplicable: boolean("is_promo_applicable").notNull().default(false),
+
+    // Display order on the tickets page
+    displayOrder: smallint("display_order").notNull().default(0),
+
+    isActive: boolean("is_active").notNull().default(true),
+
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    activeIdx: index("packages_active_idx").on(t.isActive),
+    displayOrderIdx: index("packages_display_order_idx").on(t.displayOrder),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// PROMO CODES
+// ─────────────────────────────────────────────
+
+export const promoCodes = pgTable(
+  "promo_codes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // The code the user types in at checkout (case-insensitive at the app layer)
+    code: varchar("code", { length: 50 }).notNull().unique(),
+
+    // For admin reference
+    owner: varchar("owner", { length: 255 }),
+
+    description: text("description"),
+
+    type: promoCodeTypeEnum("type").notNull(),
+
+    // For type='fixed_price': specific price in piastres (e.g., 20000 = 200 EGP)
+    // For type='discount': discount amount in piastres (e.g., 5000 = 50 EGP off)
+    // For type='free': ignored
+    valuePiastres: integer("value_piastres").notNull().default(0),
+
+    // Maximum number of times this promo code can be used (null = unlimited)
+    maxUses: integer("max_uses"),
+
+    // Current usage count
+    usedCount: integer("used_count").notNull().default(0),
+
+    // Validity window
+    validFrom: timestamp("valid_from"),
+    validUntil: timestamp("valid_until"),
+
+    isActive: boolean("is_active").notNull().default(true),
+
+    // Soft delete
+    deletedAt: timestamp("deleted_at"),
+
+    createdBy: uuid("created_by").references(() => users.id),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    codeIdx: index("promo_codes_code_idx").on(t.code),
+    activeIdx: index("promo_codes_active_idx").on(t.isActive),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// PROMO CODE USAGES
+// ─────────────────────────────────────────────
+
+export const promoCodeUsages = pgTable(
+  "promo_code_usages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    promoCodeId: uuid("promo_code_id")
+      .notNull()
+      .references(() => promoCodes.id),
+
+    orderId: uuid("order_id")
+      .notNull()
+      .references(() => orders.id),
+
+    // Snapshot of the promo code details at time of use
+    originalAmountPiastres: integer("original_amount_piastres").notNull(),
+    discountPiastres: integer("discount_piastres").notNull(),
+    finalAmountPiastres: integer("final_amount_piastres").notNull(),
+
+    usedAt: timestamp("used_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    promoCodeIdx: index("pcu_promo_code_idx").on(t.promoCodeId),
+    orderIdx: index("pcu_order_idx").on(t.orderId),
+    // Prevent duplicate usage records for the same order
+    uniqueOrderPromo: unique("unique_order_promo").on(t.orderId, t.promoCodeId),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// ORDERS
+// ─────────────────────────────────────────────
+
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // The user who placed the order (buyer)
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id),
+
+    // The package purchased
+    packageId: uuid("package_id")
+      .notNull()
+      .references(() => packages.id),
+
+    status: orderStatusEnum("status").notNull().default("pending_payment"),
+
+    // Pricing snapshot (locked at order creation)
+    originalAmountPiastres: integer("original_amount_piastres").notNull(),
+    discountPiastres: integer("discount_piastres").notNull().default(0),
+    finalAmountPiastres: integer("final_amount_piastres").notNull(),
+
+    // Package snapshot (locked at order creation)
+    packageName: varchar("package_name", { length: 255 }).notNull(),
+    packageTicketCount: integer("package_ticket_count").notNull(),
+    packagePricePerTicketPiastres: integer(
+      "package_price_per_ticket_piastres",
+    ).notNull(),
+
+    // Promo code (if any)
+    promoCodeId: uuid("promo_code_id").references(() => promoCodes.id),
+    promoCode: varchar("promo_code", { length: 50 }),
+
+    // Promo reservation expiration (to handle abandoned checkouts)
+    promoReservationExpiresAt: timestamp("promo_reservation_expires_at"),
+
+    // Package access code (free-form, validated only for basic constraints)
+    accessCode: varchar("access_code", { length: 100 }),
+
+    // Kashier payment session
+    kashierSessionId: varchar("kashier_session_id", { length: 255 }),
+    kashierOrderId: varchar("kashier_order_id", { length: 255 }),
+
+    // Payment confirmation
+    paidAt: timestamp("paid_at"),
+    paymentReference: varchar("payment_reference", { length: 255 }),
+
+    // Failure tracking
+    failedAt: timestamp("failed_at"),
+    failureReason: text("failure_reason"),
+
+    // Cancellation
+    cancelledAt: timestamp("cancelled_at"),
+    cancellationReason: text("cancellation_reason"),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index("orders_user_idx").on(t.userId),
+    packageIdx: index("orders_package_idx").on(t.packageId),
+    statusIdx: index("orders_status_idx").on(t.status),
+    promoCodeIdx: index("orders_promo_code_idx").on(t.promoCodeId),
+    kashierSessionIdx: index("orders_kashier_session_idx").on(
+      t.kashierSessionId,
+    ),
+    // For cleanup of expired promo reservations
+    promoReservationExpiresIdx: index(
+      "orders_promo_reservation_expires_idx",
+    ).on(t.promoReservationExpiresAt),
+  }),
+);
+
 // ─────────────────────────────────────────────
 // SPONSORS & BOOTHS
 // ─────────────────────────────────────────────
@@ -942,6 +1174,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   boothScanRequests: many(boothScanRequests),
   session: many(sessions),
   accounts: many(accounts),
+  orders: many(orders),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -968,6 +1201,10 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
   offer: one(offers, {
     fields: [tickets.offerId],
     references: [offers.id],
+  }),
+  order: one(orders, {
+    fields: [tickets.orderId],
+    references: [orders.id],
   }),
 }));
 
@@ -1078,6 +1315,60 @@ export const pointTransactionsRelations = relations(
   }),
 );
 
+// Relations for new package system
+export const packagesRelations = relations(packages, ({ one, many }) => ({
+  createdByUser: one(users, {
+    fields: [packages.createdBy],
+    references: [users.id],
+    relationName: "package_creator",
+  }),
+  orders: many(orders),
+}));
+
+export const promoCodesRelations = relations(promoCodes, ({ one, many }) => ({
+  createdByUser: one(users, {
+    fields: [promoCodes.createdBy],
+    references: [users.id],
+    relationName: "promo_code_creator",
+  }),
+  usages: many(promoCodeUsages),
+  orders: many(orders),
+}));
+
+export const promoCodeUsagesRelations = relations(
+  promoCodeUsages,
+  ({ one }) => ({
+    promoCode: one(promoCodes, {
+      fields: [promoCodeUsages.promoCodeId],
+      references: [promoCodes.id],
+    }),
+    order: one(orders, {
+      fields: [promoCodeUsages.orderId],
+      references: [orders.id],
+    }),
+  }),
+);
+
+export const ordersRelations = relations(orders, ({ one, many }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
+  package: one(packages, {
+    fields: [orders.packageId],
+    references: [packages.id],
+  }),
+  promoCode: one(promoCodes, {
+    fields: [orders.promoCodeId],
+    references: [promoCodes.id],
+  }),
+  tickets: many(tickets),
+  promoUsage: one(promoCodeUsages, {
+    fields: [orders.id],
+    references: [promoCodeUsages.orderId],
+  }),
+}));
+
 // ─────────────────────────────────────────────
 // TYPE EXPORTS
 // (Inferred TypeScript types from schema)
@@ -1134,3 +1425,15 @@ export type NewGameEntry = typeof gameEntries.$inferInsert;
 
 export type PointTransaction = typeof pointTransactions.$inferSelect;
 export type NewPointTransaction = typeof pointTransactions.$inferInsert;
+
+export type Package = typeof packages.$inferSelect;
+export type NewPackage = typeof packages.$inferInsert;
+
+export type PromoCode = typeof promoCodes.$inferSelect;
+export type NewPromoCode = typeof promoCodes.$inferInsert;
+
+export type PromoCodeUsage = typeof promoCodeUsages.$inferSelect;
+export type NewPromoCodeUsage = typeof promoCodeUsages.$inferInsert;
+
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
