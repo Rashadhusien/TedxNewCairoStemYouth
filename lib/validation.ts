@@ -241,10 +241,14 @@ export const PackageCreateSchema = z.object({
     .positive("Price per ticket must be greater than 0")
     .min(100, "Price per ticket must be at least 1 EGP (100 piastres)"),
   discountedPricePerTicketPiastres: z
-    .number()
-    .int()
-    .positive("Discounted price must be greater than 0")
-    .min(100, "Discounted price must be at least 1 EGP (100 piastres)")
+    .union([
+      z
+        .number()
+        .int()
+        .positive("Discounted price must be greater than 0")
+        .min(100, "Discounted price must be at least 1 EGP (100 piastres)"),
+      z.null(),
+    ])
     .optional(),
   requiresAccessCode: z.boolean().default(false),
   isPromoApplicable: z.boolean().default(false),
@@ -273,12 +277,15 @@ export const PackageUpdateSchema = z.object({
     .min(100, "Price per ticket must be at least 1 EGP (100 piastres)")
     .optional(),
   discountedPricePerTicketPiastres: z
-    .number()
-    .int()
-    .positive("Discounted price must be greater than 0")
-    .min(100, "Discounted price must be at least 1 EGP (100 piastres)")
-    .optional()
-    .nullable(),
+    .union([
+      z
+        .number()
+        .int()
+        .positive("Discounted price must be greater than 0")
+        .min(100, "Discounted price must be at least 1 EGP (100 piastres)"),
+      z.null(),
+    ])
+    .optional(),
   requiresAccessCode: z.boolean().optional(),
   isPromoApplicable: z.boolean().optional(),
   displayOrder: z.number().int().min(0).optional(),

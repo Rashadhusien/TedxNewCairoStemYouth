@@ -126,7 +126,8 @@ export async function createPackage(
         description: data.description,
         ticketCount: data.ticketCount,
         pricePerTicketPiastres: data.pricePerTicketPiastres,
-        discountedPricePerTicketPiastres: data.discountedPricePerTicketPiastres,
+        discountedPricePerTicketPiastres:
+          data.discountedPricePerTicketPiastres ?? null,
         totalPricePiastres: calculatedTotal,
         requiresAccessCode: data.requiresAccessCode,
         displayOrder: data.displayOrder,
@@ -158,7 +159,6 @@ export async function updatePackage(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const session = validationResult.session!;
   const data = validationResult.params as PackageUpdateInput;
 
   try {
@@ -180,7 +180,8 @@ export async function updatePackage(
         description: data.description,
         ticketCount: data.ticketCount,
         pricePerTicketPiastres: data.pricePerTicketPiastres,
-        discountedPricePerTicketPiastres: data.discountedPricePerTicketPiastres,
+        discountedPricePerTicketPiastres:
+          data.discountedPricePerTicketPiastres ?? null,
         totalPricePiastres: calculatedTotal,
         requiresAccessCode: data.requiresAccessCode,
         isPromoApplicable: data.isPromoApplicable,

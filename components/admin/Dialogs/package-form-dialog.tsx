@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Edit } from "lucide-react";
+import { Plus } from "lucide-react";
 import { createPackage, updatePackage } from "@/lib/db/actions/package.action";
 import { useRouter } from "next/navigation";
 import type { Package } from "@/lib/db/schema";
@@ -34,57 +34,53 @@ export default function PackageFormDialog({
   const router = useRouter();
   const isEdit = !!pkg;
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    ticketCount: 1,
-    pricePerTicketPiastres: 38000,
-    discountedPricePerTicketPiastres: undefined as number | undefined,
-    requiresAccessCode: false,
-    isPromoApplicable: false,
-    displayOrder: 0,
-    isActive: true,
-  });
-
-  useEffect(() => {
+  const getInitialFormData = () => {
     if (pkg) {
-      setFormData({
+      return {
         name: pkg.name || "",
         description: pkg.description || "",
         ticketCount: pkg.ticketCount || 1,
         pricePerTicketPiastres: pkg.pricePerTicketPiastres || 38000,
         discountedPricePerTicketPiastres:
-          pkg.discountedPricePerTicketPiastres || undefined,
+          pkg.discountedPricePerTicketPiastres ?? undefined,
         requiresAccessCode: pkg.requiresAccessCode || false,
         isPromoApplicable: pkg.isPromoApplicable || false,
         displayOrder: pkg.displayOrder || 0,
         isActive: pkg.isActive ?? true,
-      });
-    } else {
-      setFormData({
-        name: "",
-        description: "",
-        ticketCount: 1,
-        pricePerTicketPiastres: 38000,
-        discountedPricePerTicketPiastres: undefined,
-        requiresAccessCode: false,
-        isPromoApplicable: false,
-        displayOrder: 0,
-        isActive: true,
-      });
+      };
     }
-  }, [pkg, open]);
+    return {
+      name: "",
+      description: "",
+      ticketCount: 1,
+      pricePerTicketPiastres: 38000,
+      discountedPricePerTicketPiastres: undefined as number | undefined,
+      requiresAccessCode: false,
+      isPromoApplicable: false,
+      displayOrder: 0,
+      isActive: true,
+    };
+  };
+
+  const [formData, setFormData] = useState(getInitialFormData());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Convert undefined to null for discountedPricePerTicketPiastres
+      const submitData = {
+        ...formData,
+        discountedPricePerTicketPiastres:
+          formData.discountedPricePerTicketPiastres ?? null,
+      };
+
       let result;
       if (isEdit && pkg) {
-        result = await updatePackage({ id: pkg.id, ...formData });
+        result = await updatePackage({ id: pkg.id, ...submitData });
       } else {
-        result = await createPackage(formData);
+        result = await createPackage(submitData);
       }
       if (result.success) {
         setOpen(false);
@@ -105,7 +101,7 @@ export default function PackageFormDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={setOpen} key={pkg?.id}>
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-125">
         <DialogHeader>
