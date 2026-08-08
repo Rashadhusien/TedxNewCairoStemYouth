@@ -29,6 +29,11 @@ interface Attendee {
   phone: string;
 }
 
+interface ValidatedPromo {
+  type: "fixed_price" | "discount" | "free";
+  valuePiastres: number;
+}
+
 export default function PackageCheckoutDialog({
   pkg,
   open,
@@ -41,6 +46,9 @@ export default function PackageCheckoutDialog({
   const [accessCode, setAccessCode] = useState("");
   const [promoError, setPromoError] = useState<string | null>(null);
   const [promoValid, setPromoValid] = useState<boolean | null>(null);
+  const [validatedPromo, setValidatedPromo] = useState<ValidatedPromo | null>(
+    null,
+  );
 
   // Initialize attendees based on package ticket count
   const [attendees, setAttendees] = useState<Attendee[]>(
@@ -65,6 +73,7 @@ export default function PackageCheckoutDialog({
     if (!promoCode.trim()) {
       setPromoError(null);
       setPromoValid(null);
+      setValidatedPromo(null);
       return;
     }
 
@@ -83,13 +92,16 @@ export default function PackageCheckoutDialog({
       if (data.success && data.data.valid) {
         setPromoError(null);
         setPromoValid(true);
+        setValidatedPromo(data.data.promoCode);
       } else {
         setPromoError(data.data.error || "Invalid promo code");
         setPromoValid(false);
+        setValidatedPromo(null);
       }
     } catch {
       setPromoError("Failed to validate promo code");
       setPromoValid(false);
+      setValidatedPromo(null);
     }
   };
 
@@ -167,8 +179,28 @@ export default function PackageCheckoutDialog({
     }
   };
 
-  const totalPrice = formatPiastres(pkg.totalPricePiastres);
   const pricePerTicket = formatPiastres(pkg.pricePerTicketPiastres);
+
+  let finalAmountPiastres = pkg.totalPricePiastres;
+  let discountPiastres = 0;
+
+  if (validatedPromo) {
+    if (validatedPromo.type === "fixed_price") {
+      finalAmountPiastres = validatedPromo.valuePiastres;
+      discountPiastres = pkg.totalPricePiastres - finalAmountPiastres;
+    } else if (validatedPromo.type === "discount") {
+      discountPiastres = validatedPromo.valuePiastres;
+      finalAmountPiastres = Math.max(
+        0,
+        pkg.totalPricePiastres - discountPiastres,
+      );
+    } else if (validatedPromo.type === "free") {
+      discountPiastres = pkg.totalPricePiastres;
+      finalAmountPiastres = 0;
+    }
+  }
+  const finalPrice = formatPiastres(finalAmountPiastres);
+  const discountDisplay = formatPiastres(discountPiastres);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -186,12 +218,22 @@ export default function PackageCheckoutDialog({
           <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium">{pkg.name}</span>
-              <span className="font-bold">{totalPrice}</span>
+              <span className="font-bold">{finalPrice}</span>
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
               {pkg.ticketCount} ticket{pkg.ticketCount > 1 ? "s" : ""} ×{" "}
               {pricePerTicket}
             </div>
+            {validatedPromo && discountPiastres > 0 && (
+              <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-300 dark:border-gray-600 text-sm">
+                <span className="text-gray-600 dark:text-gray-400">
+                  Discount applied
+                </span>
+                <span className="text-green-600 dark:text-green-400">
+                  -{discountDisplay}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Access Code (if required) */}
@@ -225,6 +267,7 @@ export default function PackageCheckoutDialog({
                   setPromoCode(e.target.value);
                   setPromoValid(null);
                   setPromoError(null);
+                  setValidatedPromo(null);
                 }}
                 placeholder="Enter promo code"
                 onBlur={validatePromoCode}
@@ -331,7 +374,7 @@ export default function PackageCheckoutDialog({
                   Processing...
                 </>
               ) : (
-                `Pay ${totalPrice}`
+                `Pay ${finalPrice}`
               )}
             </Button>
           </div>
