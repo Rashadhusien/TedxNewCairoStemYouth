@@ -1,4 +1,9 @@
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Package } from "@/lib/db/schema";
 import { formatPiastres } from "@/lib/pricing";
@@ -17,6 +22,16 @@ export default function PackageCard({
   const pricePerTicket = formatPiastres(pkg.pricePerTicketPiastres);
   const totalPrice = formatPiastres(pkg.totalPricePiastres);
 
+  const hasDiscount =
+    pkg.discountedPricePerTicketPiastres != null &&
+    pkg.discountedPricePerTicketPiastres > 0;
+  const displayTotalPrice = hasDiscount
+    ? formatPiastres(pkg.discountedPricePerTicketPiastres! * pkg.ticketCount)
+    : totalPrice;
+  const displayPricePerTicket = hasDiscount
+    ? formatPiastres(pkg.discountedPricePerTicketPiastres!)
+    : pricePerTicket;
+
   return (
     <Card
       className={`w-full max-w-xs mx-auto transition-all hover:scale-105 ${
@@ -33,12 +48,20 @@ export default function PackageCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="text-center">
-          <div className="text-3xl font-bold text-white mb-1">{totalPrice}</div>
+          {hasDiscount && (
+            <div className="text-sm text-gray-500 line-through mb-1">
+              {totalPrice}
+            </div>
+          )}
+          <div className="text-3xl font-bold text-white mb-1">
+            {displayTotalPrice}
+          </div>
           <div className="text-sm text-gray-400">
-            {pkg.ticketCount} ticket{pkg.ticketCount > 1 ? "s" : ""} × {pricePerTicket}
+            {pkg.ticketCount} ticket{pkg.ticketCount > 1 ? "s" : ""} ×{" "}
+            {displayPricePerTicket}
           </div>
         </div>
-        
+
         <div className="space-y-2 text-sm">
           <div className="flex justify-between text-gray-300">
             <span>Tickets included:</span>

@@ -315,7 +315,15 @@ export async function createOrder(
     // Validate promo code if provided
     let promoCode = null;
     let discountPiastres = 0;
-    let finalAmountPiastres = pkg.totalPricePiastres;
+
+    // Use package discounted price if available
+    const basePricePiastres =
+      pkg.discountedPricePerTicketPiastres &&
+      pkg.discountedPricePerTicketPiastres > 0
+        ? pkg.discountedPricePerTicketPiastres * pkg.ticketCount
+        : pkg.totalPricePiastres;
+
+    let finalAmountPiastres = basePricePiastres;
     let promoReservationExpiresAt: Date | null = null;
 
     if (data.promoCode && data.promoCode.trim()) {

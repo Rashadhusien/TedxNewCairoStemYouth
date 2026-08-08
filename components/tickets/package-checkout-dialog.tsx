@@ -179,10 +179,22 @@ export default function PackageCheckoutDialog({
     }
   };
 
-  const pricePerTicket = formatPiastres(pkg.pricePerTicketPiastres);
+  const hasPackageDiscount =
+    pkg.discountedPricePerTicketPiastres != null &&
+    pkg.discountedPricePerTicketPiastres > 0;
+  const basePricePerTicket = hasPackageDiscount
+    ? pkg.discountedPricePerTicketPiastres!
+    : pkg.pricePerTicketPiastres;
+  const baseTotalPrice = hasPackageDiscount
+    ? pkg.discountedPricePerTicketPiastres! * pkg.ticketCount
+    : pkg.totalPricePiastres;
 
-  let finalAmountPiastres = pkg.totalPricePiastres;
-  let discountPiastres = 0;
+  const pricePerTicket = formatPiastres(basePricePerTicket);
+
+  let finalAmountPiastres = baseTotalPrice;
+  let discountPiastres = hasPackageDiscount
+    ? pkg.totalPricePiastres - baseTotalPrice
+    : 0;
 
   if (validatedPromo) {
     if (validatedPromo.type === "fixed_price") {
