@@ -323,6 +323,13 @@ export async function createOrder(
         ? pkg.discountedPricePerTicketPiastres * pkg.ticketCount
         : pkg.totalPricePiastres;
 
+    // Calculate price per ticket to use (discounted or regular)
+    const pricePerTicketPiastres =
+      pkg.discountedPricePerTicketPiastres &&
+      pkg.discountedPricePerTicketPiastres > 0
+        ? pkg.discountedPricePerTicketPiastres
+        : pkg.pricePerTicketPiastres;
+
     let finalAmountPiastres = basePricePiastres;
     let promoReservationExpiresAt: Date | null = null;
 
@@ -422,7 +429,7 @@ export async function createOrder(
             finalAmountPiastres,
             packageName: pkg.name,
             packageTicketCount: pkg.ticketCount,
-            packagePricePerTicketPiastres: pkg.pricePerTicketPiastres,
+            packagePricePerTicketPiastres: pricePerTicketPiastres,
             promoCodeId: promoCode?.id,
             promoCode: data.promoCode?.trim() || null,
             promoReservationExpiresAt: null, // No reservation needed for free orders
@@ -515,7 +522,7 @@ export async function createOrder(
           finalAmountPiastres,
           packageName: pkg.name,
           packageTicketCount: pkg.ticketCount,
-          packagePricePerTicketPiastres: pkg.pricePerTicketPiastres,
+          packagePricePerTicketPiastres: pricePerTicketPiastres,
           promoCodeId: promoCode?.id,
           promoCode: data.promoCode?.trim() || null,
           promoReservationExpiresAt,
@@ -537,7 +544,7 @@ export async function createOrder(
           orderId: newOrderId,
           type: "general",
           status: "pending_payment",
-          pricePaid: pkg.pricePerTicketPiastres,
+          pricePaid: pricePerTicketPiastres,
           currency: "EGP",
           paymentMethod: "kashier_card",
           attendeeName: attendee.name,
