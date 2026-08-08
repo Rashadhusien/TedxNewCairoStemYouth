@@ -48,17 +48,23 @@ export default function PackageCard({
       </CardHeader>
       <CardContent className="flex flex-col gap-4">
         <div className="text-center">
+          <div className="mb-2">
+            <span className="text-3xl font-bold text-white ">
+              {displayPricePerTicket}
+            </span>{" "}
+            <span className="text-sm text-gray-500  ">
+              × {pkg.ticketCount} ticket{pkg.ticketCount > 1 ? "s" : ""}
+            </span>
+          </div>
+
           {hasDiscount && (
             <div className="text-sm text-gray-500 line-through mb-1">
               {totalPrice}
             </div>
           )}
-          <div className="text-3xl font-bold text-white mb-1">
+
+          <div className="text-md font-bold text-gray-400">
             {displayTotalPrice}
-          </div>
-          <div className="text-sm text-gray-400">
-            {pkg.ticketCount} ticket{pkg.ticketCount > 1 ? "s" : ""} ×{" "}
-            {displayPricePerTicket}
           </div>
         </div>
 
@@ -67,12 +73,14 @@ export default function PackageCard({
             <span>Tickets included:</span>
             <span className="text-white font-medium">{pkg.ticketCount}</span>
           </div>
-          {pkg.requiresAccessCode && (
-            <div className="flex justify-between text-gray-300">
-              <span>Access code required:</span>
-              <span className="text-white font-medium">Yes</span>
-            </div>
-          )}
+
+          <div className="flex justify-between text-gray-300">
+            <span>Access code required:</span>
+            <span className="text-white font-medium">
+              {" "}
+              {pkg.requiresAccessCode ? "Yes" : "No"}
+            </span>
+          </div>
         </div>
       </CardContent>
       <CardFooter>
