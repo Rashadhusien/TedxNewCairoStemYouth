@@ -43,27 +43,27 @@ export function DashboardOverview({ stats }: DashboardOverviewProps) {
         <StatCard
           title="Total Revenue"
           value={formatPiastres(overview.totalRevenuePiastres)}
-          description="From confirmed & checked-in tickets"
+          description="From paid orders"
           icon={TrendingUp}
         />
         <StatCard
-          title="Awaiting Review"
-          value={overview.pendingReview}
-          description="Payment proofs to verify"
+          title="Pending Payment"
+          value={overview.pendingPayment}
+          description="Orders awaiting payment"
           icon={ReceiptText}
-          href={`${ROUTES.ADMIN.TICKETS}?status=payment_submitted`}
+          href={`${ROUTES.ADMIN.TICKETS}?status=pending_payment`}
           trend={
-            overview.pendingReview > 0
+            overview.pendingPayment > 0
               ? { label: "Action required", positive: false }
               : undefined
           }
         />
         <StatCard
-          title="Confirmed Tickets"
-          value={overview.confirmedTickets}
-          description="Approved and ready for check-in"
+          title="Paid Orders"
+          value={overview.paidOrders}
+          description="Completed purchases"
           icon={UserCheck}
-          href={`${ROUTES.ADMIN.TICKETS}?status=confirmed`}
+          href={`${ROUTES.ADMIN.TICKETS}?status=paid`}
         />
         <StatCard
           title="Checked In"
@@ -94,9 +94,9 @@ export function DashboardOverview({ stats }: DashboardOverviewProps) {
           }
         />
         <StatCard
-          title="Total Tickets"
-          value={overview.totalTickets}
-          description="All ticket records"
+          title="Total Orders"
+          value={overview.totalOrders}
+          description="All package orders"
           icon={ReceiptText}
           href={ROUTES.ADMIN.TICKETS}
         />

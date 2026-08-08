@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDownIcon, Loader2, Plus } from "lucide-react";
+import { ChevronDownIcon, Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -9,13 +9,6 @@ import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import {
   Field,
   FieldError,
@@ -33,11 +26,7 @@ import {
 } from "@/components/ui/select";
 import { createOffer, updateOffer } from "@/lib/db/actions/offer.action";
 import { getActionErrorMessage } from "@/types/actions";
-import {
-  egpToPiastres,
-  PurchasableTicketType,
-  TICKET_TIERS,
-} from "@/lib/pricing";
+import { egpToPiastres } from "@/lib/pricing";
 import type { Offer } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
 import { OFFER_TYPES } from "@/constants/select";
@@ -57,7 +46,6 @@ const formSchema = z.object({
   discountedPriceEgp: z.number().min(0).nullable().optional(),
   originalPriceEgp: z.number().min(0).nullable().optional(),
   remainingSlots: z.number().nullable().optional(),
-  applicableTicketTypes: z.array(z.enum(["vip", "ip", "np"])),
   startsAt: z.date().optional(),
   endsAt: z.date().optional(),
   badgeLabel: z.string().optional(),
@@ -83,7 +71,6 @@ export default function OfferForm({ offer }: OfferFormProps) {
       displayOrder: 0,
       startsAt: undefined,
       endsAt: undefined,
-      applicableTicketTypes: ["np"],
       isFeatured: false,
       isActive: true,
     },
@@ -106,8 +93,6 @@ export default function OfferForm({ offer }: OfferFormProps) {
         remainingSlots: offer.remainingSlots,
         badgeLabel: offer.badgeLabel ?? "",
         displayOrder: offer.displayOrder,
-        applicableTicketTypes:
-          offer.applicableTicketTypes as unknown as PurchasableTicketType[],
         isFeatured: offer.isFeatured,
         isActive: offer.isActive,
       });
@@ -135,9 +120,6 @@ export default function OfferForm({ offer }: OfferFormProps) {
       startsAt: data.startsAt ?? undefined,
       endsAt: data.endsAt ?? undefined,
       displayOrder: data.displayOrder,
-      applicableTicketTypes:
-        data.applicableTicketTypes as PurchasableTicketType[],
-
       isFeatured: data.isFeatured,
       isActive: data.isActive,
     };
@@ -206,32 +188,6 @@ export default function OfferForm({ offer }: OfferFormProps) {
           )}
         />
 
-        <Controller
-          name="applicableTicketTypes"
-          control={form.control}
-          render={({ field }) => (
-            <Field>
-              <FieldLabel>Type (applicable to)</FieldLabel>
-              <Select
-                value={field.value?.join(",") ?? ""}
-                onValueChange={(value) =>
-                  field.onChange(value.split(",") as PurchasableTicketType[])
-                }
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(TICKET_TIERS).map((type) => (
-                    <SelectItem key={type.type} value={type.type}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          )}
-        />
         <Controller
           name="startsAt"
           control={form.control}

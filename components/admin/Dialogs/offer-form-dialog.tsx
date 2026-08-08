@@ -33,11 +33,7 @@ import {
 } from "@/components/ui/select";
 import { createOffer, updateOffer } from "@/lib/db/actions/offer.action";
 import { getActionErrorMessage } from "@/types/actions";
-import {
-  egpToPiastres,
-  PurchasableTicketType,
-  TICKET_TIERS,
-} from "@/lib/pricing";
+import { egpToPiastres } from "@/lib/pricing";
 import type { Offer } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
 import { OFFER_TYPES } from "@/constants/select";
@@ -49,7 +45,6 @@ const formSchema = z.object({
   discountedPriceEgp: z.number().min(0).nullable().optional(),
   originalPriceEgp: z.number().min(0).nullable().optional(),
   remainingSlots: z.number().nullable().optional(),
-  applicableTicketTypes: z.array(z.enum(["vip", "ip", "np"])),
 
   badgeLabel: z.string().optional(),
   displayOrder: z.number().min(0),
@@ -72,7 +67,6 @@ export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
       description: "",
       type: "promotional",
       displayOrder: 0,
-      applicableTicketTypes: ["np"],
       isFeatured: false,
       isActive: true,
     },
@@ -93,8 +87,6 @@ export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
         remainingSlots: offer.remainingSlots,
         badgeLabel: offer.badgeLabel ?? "",
         displayOrder: offer.displayOrder,
-        applicableTicketTypes:
-          offer.applicableTicketTypes as unknown as PurchasableTicketType[],
         isFeatured: offer.isFeatured,
         isActive: offer.isActive,
       });
@@ -119,9 +111,6 @@ export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
       remainingSlots: data.remainingSlots ?? null,
       badgeLabel: data.badgeLabel,
       displayOrder: data.displayOrder,
-      applicableTicketTypes:
-        data.applicableTicketTypes as PurchasableTicketType[],
-
       isFeatured: data.isFeatured,
       isActive: data.isActive,
     };
@@ -199,35 +188,6 @@ export default function OfferFormDialog({ offer }: OfferFormDialogProps) {
                           value={offerType.value}
                         >
                           {offerType.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="applicableTicketTypes"
-              control={form.control}
-              render={({ field }) => (
-                <Field>
-                  <FieldLabel>Type (applicable to)</FieldLabel>
-                  <Select
-                    value={field.value?.join(",") ?? ""}
-                    onValueChange={(value) =>
-                      field.onChange(
-                        value.split(",") as PurchasableTicketType[],
-                      )
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(TICKET_TIERS).map((type) => (
-                        <SelectItem key={type.type} value={type.type}>
-                          {type.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

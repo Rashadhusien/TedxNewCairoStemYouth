@@ -22,43 +22,16 @@ async function seedTicketTiers() {
 
   const tiers = [
     {
-      type: "vip" as const,
-      label: "VIP Seat",
-      subtitle: "Very Important Person",
-      pricePiastres: 55_000,
-      features: [
-        "Front-row seating",
-        "VIP lounge access",
-        "Exclusive networking session",
-        "Premium event kit",
-      ],
-      displayOrder: 0,
-      isActive: true,
-    },
-    {
-      type: "ip" as const,
-      label: "IP Seat",
-      subtitle: "Important Person",
-      pricePiastres: 45_000,
-      features: [
-        "Priority seating",
-        "Networking break access",
-        "Event kit included",
-      ],
-      displayOrder: 1,
-      isActive: true,
-    },
-    {
-      type: "np" as const,
-      label: "NP Seat",
-      subtitle: "Normal Person",
+      type: "general" as const,
+      label: "Regular Ticket",
+      subtitle: "General Admission",
       pricePiastres: 35_000,
       features: [
         "General admission",
         "Full-day access to all talks",
         "Event kit included",
       ],
-      displayOrder: 2,
+      displayOrder: 0,
       isActive: true,
     },
   ];

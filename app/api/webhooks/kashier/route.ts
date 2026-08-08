@@ -247,7 +247,7 @@ async function handlePayment(
         ticketId: merchantOrderId as string,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
         attendeeEmail: ticketRow.email,
-        ticketType: ticket.type,
+        packageName: "Regular Package",
         pricePaid: ticket.pricePaid,
         qrCode: ticket.qrCode,
       });
@@ -271,7 +271,7 @@ async function handlePayment(
         ticketId: merchantOrderId as string,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
         attendeeEmail: ticketRow.email,
-        ticketType: ticket.type,
+        packageName: "Regular Package",
         pricePaid: ticket.pricePaid,
         rejectionReason: "Payment failed",
       });
@@ -456,7 +456,7 @@ async function handleOrderPayment(
           attendeeName: ticket.attendeeName || "Attendee",
           attendeeEmail:
             ticket.attendeeEmail || user?.email || "support@example.com",
-          ticketType: "general",
+          packageName: "Regular Package",
           pricePaid: ticket.pricePaid,
           qrCode: ticket.qrCode,
         });

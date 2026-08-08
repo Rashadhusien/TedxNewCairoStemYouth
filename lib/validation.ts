@@ -81,8 +81,8 @@ export const ContactFormSchema = z.object({
   message: z.string().min(5, "must be atleast 5 characters"),
 });
 
-const ticketTypeSchema = z.enum(["vip", "ip", "np"]);
-const ticketTierTypeSchema = z.enum(["vip", "ip", "np"]);
+const ticketTypeSchema = z.enum(["general"]);
+const ticketTierTypeSchema = z.enum(["general"]);
 const couponTypeSchema = z.enum(["fixed", "percentage"]);
 const offerTypeSchema = z.enum([
   "early_bird",
@@ -133,7 +133,6 @@ export const OfferSchema = z.object({
   type: offerTypeSchema,
   discountedPrice: z.number().int().min(0).nullable().optional(),
   originalPrice: z.number().int().min(0).nullable().optional(),
-  applicableTicketTypes: z.array(ticketTypeSchema).optional(),
   minQuantity: z.number().int().positive().nullable().optional(),
   remainingSlots: z.number().int().min(0).nullable().optional(),
   startsAt: z.coerce.date().nullable().optional(),
@@ -241,6 +240,12 @@ export const PackageCreateSchema = z.object({
     .int()
     .positive("Price per ticket must be greater than 0")
     .min(100, "Price per ticket must be at least 1 EGP (100 piastres)"),
+  discountedPricePerTicketPiastres: z
+    .number()
+    .int()
+    .positive("Discounted price must be greater than 0")
+    .min(100, "Discounted price must be at least 1 EGP (100 piastres)")
+    .optional(),
   requiresAccessCode: z.boolean().default(false),
   isPromoApplicable: z.boolean().default(false),
   displayOrder: z.number().int().min(0).default(0),
@@ -267,6 +272,13 @@ export const PackageUpdateSchema = z.object({
     .positive("Price per ticket must be greater than 0")
     .min(100, "Price per ticket must be at least 1 EGP (100 piastres)")
     .optional(),
+  discountedPricePerTicketPiastres: z
+    .number()
+    .int()
+    .positive("Discounted price must be greater than 0")
+    .min(100, "Discounted price must be at least 1 EGP (100 piastres)")
+    .optional()
+    .nullable(),
   requiresAccessCode: z.boolean().optional(),
   isPromoApplicable: z.boolean().optional(),
   displayOrder: z.number().int().min(0).optional(),

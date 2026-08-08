@@ -1,7 +1,7 @@
 import type { Coupon, Offer } from "@/lib/db/schema";
 import { ActionResponse } from "@/types/actions";
 
-export type PurchasableTicketType = "vip" | "ip" | "np";
+export type PurchasableTicketType = "general";
 
 export interface TicketTier {
   type: PurchasableTicketType;
@@ -14,33 +14,10 @@ export interface TicketTier {
 // Fallback constants in case API fails
 export const FALLBACK_TICKET_TIERS: Record<PurchasableTicketType, TicketTier> =
   {
-    vip: {
-      type: "vip",
-      label: "VIP Seat",
-      subtitle: "Very Important Person",
-      pricePiastres: 55_000,
-      features: [
-        "Front-row seating",
-        "VIP lounge access",
-        "Exclusive networking session",
-        "Premium event kit",
-      ],
-    },
-    ip: {
-      type: "ip",
-      label: "IP Seat",
-      subtitle: "Important Person",
-      pricePiastres: 45_000,
-      features: [
-        "Priority seating",
-        "Networking break access",
-        "Event kit included",
-      ],
-    },
-    np: {
-      type: "np",
-      label: "NP Seat",
-      subtitle: "Normal Person",
+    general: {
+      type: "general",
+      label: "Regular Ticket",
+      subtitle: "General Admission",
       pricePiastres: 35_000,
       features: [
         "General admission",
@@ -88,7 +65,7 @@ export async function getTicketTiers(): Promise<
     }
 
     // Ensure all types are present, use fallback for missing ones
-    for (const type of ["vip", "ip", "np"] as PurchasableTicketType[]) {
+    for (const type of ["general"] as PurchasableTicketType[]) {
       if (!ticketTiersMap[type]) {
         ticketTiersMap[type] = FALLBACK_TICKET_TIERS[type];
       }
@@ -139,11 +116,12 @@ export function isCouponActive(coupon: Coupon, now = new Date()): boolean {
 }
 
 export function offerAppliesToTier(
-  offer: Offer,
-  ticketType: PurchasableTicketType,
+  _offer: Offer,
+  _ticketType: PurchasableTicketType,
 ): boolean {
-  if (!offer.applicableTicketTypes?.length) return true;
-  return offer.applicableTicketTypes.includes(ticketType);
+  // Offers now apply to all ticket types by default (simplified for package system)
+  // If you need to restrict offers to specific types, you can add that logic back
+  return true;
 }
 
 export function couponAppliesToTier(

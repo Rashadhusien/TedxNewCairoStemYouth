@@ -31,10 +31,7 @@ export default function TicketTierCard({
   onSelect,
   highlighted,
 }: TicketTierCardProps) {
-  const hasOffer =
-    offer?.discountedPrice != null &&
-    (!offer.applicableTicketTypes?.length ||
-      offer.applicableTicketTypes.includes(tier.type));
+  const hasOffer = offer?.discountedPrice != null;
 
   const displayPrice = hasOffer ? offer!.discountedPrice! : tier.pricePiastres;
 

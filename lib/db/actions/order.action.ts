@@ -480,7 +480,7 @@ export async function createOrder(
           ticketId: ticket.id,
           attendeeName: ticket.attendeeName,
           attendeeEmail: ticket.attendeeEmail,
-          ticketType: "general",
+          packageName: pkg.name,
           pricePaid: 0,
           qrCode: ticket.qrCode,
         });

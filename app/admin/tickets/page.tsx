@@ -1,8 +1,8 @@
-import { ticketColumns } from "@/components/admin/tables/tickets/columns";
+import { orderColumns } from "@/components/admin/tables/orders/columns";
 import { DataTable } from "@/components/admin/tables/data-table";
-import { TICKETS_STATUS } from "@/constants/select";
+import { ORDER_STATUS } from "@/constants/select";
 import { ROUTES } from "@/constants/routes";
-import { listTickets } from "@/lib/db/actions/ticket.action";
+import { listOrders } from "@/lib/db/actions/order.action";
 
 import { SearchParams } from "@/types";
 
@@ -18,42 +18,38 @@ export default async function AdminTicketsPage({
   const status = (params.status ?? "all") as
     | "all"
     | "pending_payment"
-    | "payment_submitted"
-    | "confirmed"
-    | "rejected"
-    | "checked_in"
+    | "paid"
+    | "failed"
     | "cancelled";
 
-  const result = await listTickets({
+  const result = await listOrders({
+    page: Number(params.page) || 1,
+    pageSize: Number(params.pageSize) || 10,
     status,
     search: params.search,
-    page: Number(params.page) || 1,
-    pageSize: 10,
   });
 
   const data =
-    result.success && result.data
-      ? result.data
-      : { items: [], total: 0, page: 1, pageSize: 10 };
+    result.success && result.data ? result.data : { orders: [], total: 0 };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Ticket Verification</h1>
+        <h1 className="text-2xl font-bold">Orders</h1>
         <p className="text-muted-foreground text-sm">
-          Review payment proofs and approve or reject tickets.
+          Manage ticket package orders.
         </p>
       </div>
 
       <DataTable
-        columns={ticketColumns}
-        data={data.items}
+        columns={orderColumns}
+        data={data.orders}
         search={params.search || ""}
         total={data.total}
-        pageSize={data.pageSize}
-        page={data.page}
+        pageSize={Number(params.pageSize) || 10}
+        page={Number(params.page) || 1}
         status={params.status ?? "all"}
-        selectItems={TICKETS_STATUS}
+        selectItems={ORDER_STATUS}
         route={ROUTES.ADMIN.TICKETS}
       />
     </div>

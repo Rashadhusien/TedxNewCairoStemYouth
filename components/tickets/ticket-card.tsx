@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatPiastres, TICKET_TIERS } from "@/lib/pricing";
 import type { Ticket } from "@/lib/db/schema";
+
 interface TicketCardProps {
   ticket: {
     id: string;
@@ -20,17 +21,27 @@ interface TicketCardProps {
   };
   attendeeName: string;
   attendeeEmail: string;
+  packageName?: string;
+  promoCode?: string | null;
+  originalAmountPiastres?: number;
+  discountPiastres?: number;
 }
 
 export default function TicketCard({
   ticket,
   attendeeName,
   attendeeEmail,
+  packageName,
+  promoCode,
+  originalAmountPiastres,
+  discountPiastres,
 }: TicketCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const tierLabel =
-    ticket.type in TICKET_TIERS
+  // Use package name if available, otherwise fall back to ticket tier
+  const displayLabel = packageName
+    ? packageName
+    : ticket.type in TICKET_TIERS
       ? TICKET_TIERS[ticket.type as keyof typeof TICKET_TIERS].label
       : ticket.type.toUpperCase();
 
@@ -73,9 +84,27 @@ export default function TicketCard({
         </div>
 
         <div className="space-y-1">
-          <p className="text-sm text-muted-foreground">Ticket Tier</p>
-          <p className="text-xl font-semibold text-primary">{tierLabel}</p>
-          <p className="text-sm">{formatPiastres(ticket.pricePaid)}</p>
+          <p className="text-sm text-muted-foreground">Package</p>
+          <p className="text-xl font-semibold text-primary">{displayLabel}</p>
+          {originalAmountPiastres &&
+          discountPiastres &&
+          discountPiastres > 0 ? (
+            <div className="flex items-center justify-center gap-2 text-sm">
+              <span className="line-through text-muted-foreground">
+                {formatPiastres(originalAmountPiastres)}
+              </span>
+              <span className="text-green-500 font-semibold">
+                {formatPiastres(ticket.pricePaid)}
+              </span>
+            </div>
+          ) : (
+            <p className="text-sm">{formatPiastres(ticket.pricePaid)}</p>
+          )}
+          {promoCode && (
+            <p className="text-xs text-primary font-medium">
+              Promo: {promoCode}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col items-center gap-3">

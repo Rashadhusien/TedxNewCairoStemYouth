@@ -47,7 +47,7 @@ export default function TicketTierForm({ ticketTier }: TicketTierFormProps) {
   const form = useForm<FormValues>({
     resolver: zodResolver(ticketTierFormSchema),
     defaultValues: {
-      type: "np",
+      type: "general",
       label: "",
       subtitle: "",
       pricePiastres: 0,
@@ -60,7 +60,7 @@ export default function TicketTierForm({ ticketTier }: TicketTierFormProps) {
   useEffect(() => {
     if (ticketTier) {
       form.reset({
-        type: ticketTier.type,
+        type: "general", // Force to general since we removed other types
         label: ticketTier.label,
         subtitle: ticketTier.subtitle,
         pricePiastres: ticketTier.pricePiastres,
@@ -70,7 +70,7 @@ export default function TicketTierForm({ ticketTier }: TicketTierFormProps) {
       });
     } else {
       form.reset({
-        type: "np",
+        type: "general",
         label: "",
         subtitle: "",
         pricePiastres: 0,

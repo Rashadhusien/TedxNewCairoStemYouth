@@ -1,32 +1,37 @@
 "use server";
 
-import { and, count, eq, gte, inArray, isNull, sql, sum } from "drizzle-orm";
+import { and, count, eq, gte, isNull, sql, sum } from "drizzle-orm";
 import { subDays } from "date-fns";
 
 import handleError from "@/lib/handlers/error";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 
 import { db } from "..";
-import { coupons, offers, speakers, sponsors, tickets, users } from "../schema";
+import {
+  coupons,
+  offers,
+  orders,
+  speakers,
+  sponsors,
+  tickets,
+  users,
+} from "../schema";
 import { requireAdminSession } from "./auth-guards";
 
-const REVENUE_STATUSES = ["confirmed", "checked_in"] as const;
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  pending_payment: "Pending Payment",
+  paid: "Paid",
+  failed: "Failed",
+  cancelled: "Cancelled",
+};
 
-const STATUS_LABELS: Record<string, string> = {
+const TICKET_STATUS_LABELS: Record<string, string> = {
   pending_payment: "Pending Payment",
   payment_submitted: "Awaiting Review",
   confirmed: "Confirmed",
   rejected: "Rejected",
   checked_in: "Checked In",
   cancelled: "Cancelled",
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  general: "General",
-  vip: "VIP",
-  organizer: "Organizer",
-  ip: "IP",
-  np: "NP",
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -57,15 +62,18 @@ export type DashboardStats = {
     totalUsers: number;
     activeUsers: number;
     newUsersThisWeek: number;
+    totalOrders: number;
+    pendingPayment: number;
+    paidOrders: number;
     totalTickets: number;
-    pendingReview: number;
     confirmedTickets: number;
     checkedInTickets: number;
     totalRevenuePiastres: number;
     checkInRate: number;
   };
+  ordersByStatus: DashboardBreakdownItem[];
+  ordersByPackage: DashboardBreakdownItem[];
   ticketsByStatus: DashboardBreakdownItem[];
-  ticketsByType: DashboardBreakdownItem[];
   registrationsByDay: DashboardDayPoint[];
   revenueByDay: DashboardRevenueDayPoint[];
   usersByRole: DashboardBreakdownItem[];
@@ -105,10 +113,12 @@ export async function getDashboardStats(): Promise<
     const [
       userTotals,
       newUsersThisWeek,
+      orderStatusRows,
+      orderPackageRows,
+      orderRevenueRow,
+      pendingPaymentRow,
+      paidOrdersRow,
       ticketStatusRows,
-      ticketTypeRows,
-      revenueRow,
-      pendingReviewRow,
       confirmedRow,
       checkedInRow,
       registrationDays,
@@ -135,31 +145,44 @@ export async function getDashboardStats(): Promise<
 
       db
         .select({
+          status: orders.status,
+          count: count(),
+        })
+        .from(orders)
+        .groupBy(orders.status),
+
+      db
+        .select({
+          packageName: orders.packageName,
+          count: count(),
+        })
+        .from(orders)
+        .groupBy(orders.packageName),
+
+      db
+        .select({
+          total: sum(orders.finalAmountPiastres),
+        })
+        .from(orders)
+        .where(eq(orders.status, "paid")),
+
+      db
+        .select({ count: count() })
+        .from(orders)
+        .where(eq(orders.status, "pending_payment")),
+
+      db
+        .select({ count: count() })
+        .from(orders)
+        .where(eq(orders.status, "paid")),
+
+      db
+        .select({
           status: tickets.status,
           count: count(),
         })
         .from(tickets)
         .groupBy(tickets.status),
-
-      db
-        .select({
-          type: tickets.type,
-          count: count(),
-        })
-        .from(tickets)
-        .groupBy(tickets.type),
-
-      db
-        .select({
-          total: sum(tickets.pricePaid),
-        })
-        .from(tickets)
-        .where(inArray(tickets.status, [...REVENUE_STATUSES])),
-
-      db
-        .select({ count: count() })
-        .from(tickets)
-        .where(eq(tickets.status, "payment_submitted")),
 
       db
         .select({ count: count() })
@@ -173,28 +196,25 @@ export async function getDashboardStats(): Promise<
 
       db
         .select({
-          date: sql<string>`to_char(date_trunc('day', ${tickets.createdAt}), 'YYYY-MM-DD')`,
+          date: sql<string>`to_char(date_trunc('day', ${orders.createdAt}), 'YYYY-MM-DD')`,
           count: sql<number>`count(*)::int`,
         })
-        .from(tickets)
-        .where(gte(tickets.createdAt, thirtyDaysAgo))
-        .groupBy(sql`date_trunc('day', ${tickets.createdAt})`)
-        .orderBy(sql`date_trunc('day', ${tickets.createdAt})`),
+        .from(orders)
+        .where(gte(orders.createdAt, thirtyDaysAgo))
+        .groupBy(sql`date_trunc('day', ${orders.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${orders.createdAt})`),
 
       db
         .select({
-          date: sql<string>`to_char(date_trunc('day', ${tickets.createdAt}), 'YYYY-MM-DD')`,
-          amountPiastres: sql<number>`coalesce(sum(${tickets.pricePaid}), 0)::int`,
+          date: sql<string>`to_char(date_trunc('day', ${orders.createdAt}), 'YYYY-MM-DD')`,
+          amountPiastres: sql<number>`coalesce(sum(${orders.finalAmountPiastres}), 0)::int`,
         })
-        .from(tickets)
+        .from(orders)
         .where(
-          and(
-            gte(tickets.createdAt, thirtyDaysAgo),
-            inArray(tickets.status, [...REVENUE_STATUSES]),
-          ),
+          and(gte(orders.createdAt, thirtyDaysAgo), eq(orders.status, "paid")),
         )
-        .groupBy(sql`date_trunc('day', ${tickets.createdAt})`)
-        .orderBy(sql`date_trunc('day', ${tickets.createdAt})`),
+        .groupBy(sql`date_trunc('day', ${orders.createdAt})`)
+        .orderBy(sql`date_trunc('day', ${orders.createdAt})`),
 
       db
         .select({
@@ -258,6 +278,10 @@ export async function getDashboardStats(): Promise<
         .where(isNull(speakers.deletedAt)),
     ]);
 
+    const totalOrders = orderStatusRows.reduce(
+      (acc, row) => acc + Number(row.count),
+      0,
+    );
     const totalTickets = ticketStatusRows.reduce(
       (acc, row) => acc + Number(row.count),
       0,
@@ -275,21 +299,28 @@ export async function getDashboardStats(): Promise<
         totalUsers: Number(userTotals[0]?.total ?? 0),
         activeUsers: Number(userTotals[0]?.active ?? 0),
         newUsersThisWeek: Number(newUsersThisWeek[0]?.count ?? 0),
+        totalOrders,
+        pendingPayment: Number(pendingPaymentRow[0]?.count ?? 0),
+        paidOrders: Number(paidOrdersRow[0]?.count ?? 0),
         totalTickets,
-        pendingReview: Number(pendingReviewRow[0]?.count ?? 0),
         confirmedTickets,
         checkedInTickets,
-        totalRevenuePiastres: Number(revenueRow[0]?.total ?? 0),
+        totalRevenuePiastres: Number(orderRevenueRow[0]?.total ?? 0),
         checkInRate,
       },
-      ticketsByStatus: ticketStatusRows.map((row) => ({
+      ordersByStatus: orderStatusRows.map((row) => ({
         key: row.status,
-        label: STATUS_LABELS[row.status] ?? row.status,
+        label: ORDER_STATUS_LABELS[row.status] ?? row.status,
         count: Number(row.count),
       })),
-      ticketsByType: ticketTypeRows.map((row) => ({
-        key: row.type,
-        label: TYPE_LABELS[row.type] ?? row.type,
+      ordersByPackage: orderPackageRows.map((row) => ({
+        key: row.packageName,
+        label: row.packageName,
+        count: Number(row.count),
+      })),
+      ticketsByStatus: ticketStatusRows.map((row) => ({
+        key: row.status,
+        label: TICKET_STATUS_LABELS[row.status] ?? row.status,
         count: Number(row.count),
       })),
       registrationsByDay: registrationDays.map((row) => ({

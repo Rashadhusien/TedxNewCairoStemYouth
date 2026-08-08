@@ -105,11 +105,19 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Ticket Registrations</CardTitle>
-          <CardDescription>Daily ticket registrations over the last 30 days</CardDescription>
+          <CardDescription>
+            Daily ticket registrations over the last 30 days
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={registrationsConfig} className="aspect-auto h-[280px] w-full">
-            <AreaChart data={stats.registrationsByDay} margin={{ left: 0, right: 8, top: 8 }}>
+          <ChartContainer
+            config={registrationsConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
+            <AreaChart
+              data={stats.registrationsByDay}
+              margin={{ left: 0, right: 8, top: 8 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
@@ -119,7 +127,12 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                 tickFormatter={formatChartDate}
                 minTickGap={32}
               />
-              <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={32}
+                allowDecimals={false}
+              />
               <ChartTooltip
                 content={
                   <ChartTooltipContent
@@ -148,8 +161,14 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={revenueConfig} className="aspect-auto h-[280px] w-full">
-            <BarChart data={stats.revenueByDay} margin={{ left: 0, right: 8, top: 8 }}>
+          <ChartContainer
+            config={revenueConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
+            <BarChart
+              data={stats.revenueByDay}
+              margin={{ left: 0, right: 8, top: 8 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
@@ -175,7 +194,11 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                   />
                 }
               />
-              <Bar dataKey="amountPiastres" fill="var(--color-amountPiastres)" radius={4} />
+              <Bar
+                dataKey="amountPiastres"
+                fill="var(--color-amountPiastres)"
+                radius={4}
+              />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -184,10 +207,15 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
       <Card>
         <CardHeader>
           <CardTitle>Tickets by Status</CardTitle>
-          <CardDescription>Current distribution across all ticket statuses</CardDescription>
+          <CardDescription>
+            Current distribution across all ticket statuses
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={statusConfig} className="aspect-auto h-[280px] w-full">
+          <ChartContainer
+            config={statusConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
             <PieChart>
               <ChartTooltip
                 content={
@@ -197,7 +225,9 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                     formatter={(value, name) => (
                       <span className="flex w-full justify-between gap-4">
                         <span>{name}</span>
-                        <span className="font-mono">{Number(value).toLocaleString()}</span>
+                        <span className="font-mono">
+                          {Number(value).toLocaleString()}
+                        </span>
                       </span>
                     )}
                   />
@@ -212,7 +242,12 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                 paddingAngle={2}
               >
                 {statusChartData.map((entry, index) => (
-                  <Cell key={entry.key} fill={entry.fill ?? CHART_COLORS[index % CHART_COLORS.length]} />
+                  <Cell
+                    key={entry.key}
+                    fill={
+                      entry.fill ?? CHART_COLORS[index % CHART_COLORS.length]
+                    }
+                  />
                 ))}
               </Pie>
             </PieChart>
@@ -222,18 +257,26 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Tickets by Type</CardTitle>
-          <CardDescription>Breakdown by ticket tier</CardDescription>
+          <CardTitle>Orders by Package</CardTitle>
+          <CardDescription>Breakdown by package type</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={typeConfig} className="aspect-auto h-[280px] w-full">
+          <ChartContainer
+            config={typeConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
             <BarChart
-              data={stats.ticketsByType}
+              data={stats.ordersByPackage}
               layout="vertical"
               margin={{ left: 8, right: 16, top: 8 }}
             >
               <CartesianGrid horizontal={false} />
-              <XAxis type="number" tickLine={false} axisLine={false} allowDecimals={false} />
+              <XAxis
+                type="number"
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
               <YAxis
                 type="category"
                 dataKey="label"
@@ -251,11 +294,19 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
       <Card>
         <CardHeader>
           <CardTitle>User Signups</CardTitle>
-          <CardDescription>New user registrations over the last 30 days</CardDescription>
+          <CardDescription>
+            New user registrations over the last 30 days
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={signupsConfig} className="aspect-auto h-[280px] w-full">
-            <LineChart data={stats.signupsByDay} margin={{ left: 0, right: 8, top: 8 }}>
+          <ChartContainer
+            config={signupsConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
+            <LineChart
+              data={stats.signupsByDay}
+              margin={{ left: 0, right: 8, top: 8 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
@@ -265,7 +316,12 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                 tickFormatter={formatChartDate}
                 minTickGap={32}
               />
-              <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={32}
+                allowDecimals={false}
+              />
               <ChartTooltip
                 content={
                   <ChartTooltipContent
@@ -291,8 +347,14 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
           <CardDescription>Platform user role distribution</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={roleConfig} className="aspect-auto h-[280px] w-full">
-            <BarChart data={stats.usersByRole} margin={{ left: 0, right: 8, top: 8 }}>
+          <ChartContainer
+            config={roleConfig}
+            className="aspect-auto h-[280px] w-full"
+          >
+            <BarChart
+              data={stats.usersByRole}
+              margin={{ left: 0, right: 8, top: 8 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="label"
@@ -300,7 +362,12 @@ export function DashboardCharts({ stats }: DashboardChartsProps) {
                 axisLine={false}
                 tickMargin={8}
               />
-              <YAxis tickLine={false} axisLine={false} width={32} allowDecimals={false} />
+              <YAxis
+                tickLine={false}
+                axisLine={false}
+                width={32}
+                allowDecimals={false}
+              />
               <ChartTooltip content={<ChartTooltipContent nameKey="label" />} />
               <Bar dataKey="count" fill="var(--color-count)" radius={4} />
             </BarChart>

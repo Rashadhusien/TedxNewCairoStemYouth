@@ -50,11 +50,7 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
   "np", // Non-Profit / Partner
 ]);
 
-export const ticketTierTypeEnum = pgEnum("ticket_tier_type", [
-  "vip",
-  "ip",
-  "np",
-]);
+export const ticketTierTypeEnum = pgEnum("ticket_tier_type", ["general"]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
   "pending_payment", // registered, no screenshot yet
@@ -465,12 +461,6 @@ export const offers = pgTable(
     // Original price in piastres (shown struck-through in the UI)
     originalPrice: integer("original_price"),
 
-    // Which ticket types this offer applies to
-    // null = applies to all types
-    applicableTicketTypes: text("applicable_ticket_types")
-      .array()
-      .$type<Array<"general" | "vip" | "organizer" | "ip" | "np">>(),
-
     // group offer: how many tickets must be purchased together to qualify
     minQuantity: integer("min_quantity"),
 
@@ -519,6 +509,11 @@ export const packages = pgTable(
 
     // Price per ticket in piastres
     pricePerTicketPiastres: integer("price_per_ticket_piastres").notNull(),
+
+    // Discounted price per ticket in piastres (optional, for offers)
+    discountedPricePerTicketPiastres: integer(
+      "discounted_price_per_ticket_piastres",
+    ),
 
     // Total price for the package (ticketCount × pricePerTicketPiastres)
     // Snapshotted at package creation to preserve historical pricing

@@ -14,7 +14,6 @@ export const ROUTES = {
   RESET_PASSWORD: "/reset-password",
   PROFILE: "/profile",
   UNAUTHORIZED: "/unauthorized",
-  MY_TICKET: "/my-ticket",
   ADMIN: {
     HOME: "/admin",
     LOGIN: "/admin/login",

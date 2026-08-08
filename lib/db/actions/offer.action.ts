@@ -18,7 +18,6 @@ import handleError from "@/lib/handlers/error";
 import { NotFoundError } from "@/lib/http-errors";
 import {
   isOfferActive,
-  offerAppliesToTier,
   pickBestOffer,
   type PurchasableTicketType,
 } from "@/lib/pricing";
@@ -244,4 +243,4 @@ export async function deleteOffer(
   }
 }
 
-export { isOfferActive, offerAppliesToTier };
+export { isOfferActive };

@@ -39,6 +39,7 @@ export default function PackageFormDialog({
     description: "",
     ticketCount: 1,
     pricePerTicketPiastres: 38000,
+    discountedPricePerTicketPiastres: undefined as number | undefined,
     requiresAccessCode: false,
     isPromoApplicable: false,
     displayOrder: 0,
@@ -52,6 +53,8 @@ export default function PackageFormDialog({
         description: pkg.description || "",
         ticketCount: pkg.ticketCount || 1,
         pricePerTicketPiastres: pkg.pricePerTicketPiastres || 38000,
+        discountedPricePerTicketPiastres:
+          pkg.discountedPricePerTicketPiastres || undefined,
         requiresAccessCode: pkg.requiresAccessCode || false,
         isPromoApplicable: pkg.isPromoApplicable || false,
         displayOrder: pkg.displayOrder || 0,
@@ -63,6 +66,7 @@ export default function PackageFormDialog({
         description: "",
         ticketCount: 1,
         pricePerTicketPiastres: 38000,
+        discountedPricePerTicketPiastres: undefined,
         requiresAccessCode: false,
         isPromoApplicable: false,
         displayOrder: 0,
@@ -172,6 +176,26 @@ export default function PackageFormDialog({
                     })
                   }
                   required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="discountedPricePerTicketPiastres">
+                  Discounted Price per Ticket (piastres, optional)
+                </Label>
+                <Input
+                  id="discountedPricePerTicketPiastres"
+                  type="number"
+                  min="100"
+                  value={formData.discountedPricePerTicketPiastres || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      discountedPricePerTicketPiastres: e.target.value
+                        ? parseInt(e.target.value)
+                        : undefined,
+                    })
+                  }
+                  placeholder="Leave empty for no discount"
                 />
               </div>
             </div>

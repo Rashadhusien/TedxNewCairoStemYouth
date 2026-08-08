@@ -34,6 +34,12 @@ export interface MyTicketData {
     fullName: string | null;
     email: string;
   };
+  order?: {
+    packageName: string;
+    promoCode: string | null;
+    originalAmountPiastres: number;
+    discountPiastres: number;
+  } | null;
 }
 
 export type TicketWithRelations = Ticket & {

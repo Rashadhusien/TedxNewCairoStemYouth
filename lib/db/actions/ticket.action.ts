@@ -46,7 +46,7 @@ type TicketReviewInput = z.infer<typeof TicketReviewSchema>;
 type CheckInInput = z.infer<typeof CheckInSchema>;
 
 import { db } from "..";
-import { coupons, offers, tickets, users } from "../schema";
+import { coupons, offers, orders, tickets, users } from "../schema";
 import type { Ticket } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
 import { serverAnalytics } from "@/lib/analytics/server";
@@ -295,7 +295,7 @@ export async function purchaseTicket(
       ticketId,
       attendeeName: user.fullName ?? user.email,
       attendeeEmail: user.email,
-      ticketType: data.ticketType,
+      packageName: "Regular Package",
       pricePaid: breakdown.finalPrice,
       paymentMethod: data.paymentMethod,
     });
@@ -328,17 +328,17 @@ export async function getMyTicket(): Promise<
         ticket: tickets,
         fullName: users.fullName,
         email: users.email,
+        order: orders,
       })
       .from(tickets)
       .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(orders, eq(tickets.orderId, orders.id))
       .where(
         and(
           eq(tickets.userId, session.user.id),
-          ne(tickets.status, "cancelled"),
-          ne(tickets.status, "pending_payment"), // Filter out pending payment tickets
+          or(eq(tickets.status, "confirmed"), eq(tickets.status, "checked_in")),
         ),
       )
-      .orderBy(desc(tickets.createdAt))
       .limit(1);
 
     if (!row) {
@@ -355,6 +355,14 @@ export async function getMyTicket(): Promise<
       data: {
         ticket: row.ticket,
         user: { fullName: row.fullName, email: row.email },
+        order: row.order
+          ? {
+              packageName: row.order.packageName,
+              promoCode: row.order.promoCode,
+              originalAmountPiastres: row.order.originalAmountPiastres,
+              discountPiastres: row.order.discountPiastres,
+            }
+          : null,
       },
     };
   } catch (error) {
@@ -474,9 +482,11 @@ export async function reviewTicket(
         ticket: tickets,
         email: users.email,
         fullName: users.fullName,
+        order: orders,
       })
       .from(tickets)
       .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(orders, eq(tickets.orderId, orders.id))
       .where(eq(tickets.id, ticketId))
       .limit(1);
 
@@ -484,7 +494,7 @@ export async function reviewTicket(
       return handleError(new NotFoundError("Ticket")) as ErrorResponse;
     }
 
-    const { ticket } = ticketRow;
+    const { ticket, order } = ticketRow;
 
     if (ticket.status !== "payment_submitted") {
       return handleError(
@@ -523,11 +533,18 @@ export async function reviewTicket(
           );
       }
 
+      // Use package name from order if available, otherwise fall back to ticket type
+      const packageName =
+        order?.packageName ??
+        (ticket.type === "general"
+          ? "Regular Package"
+          : `${ticket.type.toUpperCase()} Package`);
+
       notifyTicketConfirmed({
         ticketId,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
         attendeeEmail: ticketRow.email,
-        ticketType: ticket.type,
+        packageName,
         pricePaid: ticket.pricePaid,
         qrCode: ticket.qrCode,
       });
@@ -572,11 +589,18 @@ export async function reviewTicket(
       })
       .where(eq(tickets.id, ticketId));
 
+    // Use package name from order if available, otherwise fall back to ticket type
+    const packageName =
+      order?.packageName ??
+      (ticket.type === "general"
+        ? "Regular Package"
+        : `${ticket.type.toUpperCase()} Package`);
+
     notifyTicketRejected({
       ticketId,
       attendeeName: ticketRow.fullName ?? ticketRow.email,
       attendeeEmail: ticketRow.email,
-      ticketType: ticket.type,
+      packageName,
       pricePaid: ticket.pricePaid,
       rejectionReason: rejectionReason ?? null,
     });

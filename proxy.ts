@@ -95,7 +95,7 @@ export default auth((req) => {
     }
 
     if (ticketStatus !== "confirmed" && ticketStatus !== "checked_in") {
-      const url = new URL(ROUTES.MY_TICKET, req.url);
+      const url = new URL(ROUTES.PROFILE, req.url);
       url.searchParams.set("reason", "ticket_required");
       return NextResponse.redirect(url);
     }

@@ -2,11 +2,7 @@ import QRCode from "qrcode";
 
 import { ROUTES } from "@/constants/routes";
 import logger from "@/lib/logger";
-import {
-  formatPiastres,
-  TICKET_TIERS,
-  type PurchasableTicketType,
-} from "@/lib/pricing";
+import { formatPiastres } from "@/lib/pricing";
 
 import { getAppUrl } from "./app-url";
 import { escapeHtml } from "./escape-html";
@@ -18,19 +14,12 @@ type TicketEmailContext = {
   ticketId: string;
   attendeeName: string;
   attendeeEmail: string;
-  ticketType: string;
+  packageName: string;
   pricePaid: number;
   qrCode?: string;
   paymentMethod?: string | null;
   rejectionReason?: string | null;
 };
-
-function getTierLabel(ticketType: string): string {
-  if (ticketType in TICKET_TIERS) {
-    return TICKET_TIERS[ticketType as PurchasableTicketType].label;
-  }
-  return ticketType.toUpperCase();
-}
 
 function detailsRow(label: string, value: string): string {
   return `
@@ -56,7 +45,6 @@ export async function sendTicketSubmittedAdminEmail(
 
   const appUrl = getAppUrl();
   const reviewUrl = `${appUrl}${ROUTES.ADMIN.TICKETS}`;
-  const tierLabel = getTierLabel(ctx.ticketType);
   const name = escapeHtml(ctx.attendeeName);
   const email = escapeHtml(ctx.attendeeEmail);
   const method = escapeHtml(ctx.paymentMethod ?? "—");
@@ -68,7 +56,7 @@ export async function sendTicketSubmittedAdminEmail(
     <table style="width:100%;border-collapse:collapse;margin:0 0 32px;">
       ${detailsRow("Attendee", `<strong style="color:#fff;">${name}</strong>`)}
       ${detailsRow("Email", email)}
-      ${detailsRow("Tier", escapeHtml(tierLabel))}
+      ${detailsRow("Package", escapeHtml(ctx.packageName))}
       ${detailsRow("Amount", escapeHtml(formatPiastres(ctx.pricePaid)))}
       ${detailsRow("Payment method", method)}
     </table>
@@ -98,8 +86,7 @@ export async function sendTicketConfirmedAttendeeEmail(
   }
 
   const appUrl = getAppUrl();
-  const myTicketUrl = `${appUrl}${ROUTES.MY_TICKET}`;
-  const tierLabel = getTierLabel(ctx.ticketType);
+  const myTicketUrl = `${appUrl}${ROUTES.PROFILE}`;
   const name = escapeHtml(ctx.attendeeName);
   const qrBuffer = await QRCode.toBuffer(ctx.qrCode, {
     width: 280,
@@ -114,7 +101,7 @@ export async function sendTicketConfirmedAttendeeEmail(
       <strong style="color:#fff;">Luminous Darkness 2026</strong> is confirmed.
     </p>
     <table style="width:100%;border-collapse:collapse;margin:0 0 24px;">
-      ${detailsRow("Tier", `<strong style="color:#fff;">${escapeHtml(tierLabel)}</strong>`)}
+      ${detailsRow("Package", `<strong style="color:#fff;">${escapeHtml(ctx.packageName)}</strong>`)}
       ${detailsRow("Amount paid", escapeHtml(formatPiastres(ctx.pricePaid)))}
       ${detailsRow("Ticket ID", escapeHtml(ctx.qrCode))}
     </table>
@@ -149,8 +136,7 @@ export async function sendTicketRejectedAttendeeEmail(
   ctx: TicketEmailContext,
 ): Promise<void> {
   const appUrl = getAppUrl();
-  const myTicketUrl = `${appUrl}${ROUTES.MY_TICKET}`;
-  const tierLabel = getTierLabel(ctx.ticketType);
+  const myTicketUrl = `${appUrl}${ROUTES.PROFILE}`;
   const name = escapeHtml(ctx.attendeeName);
   const reason = escapeHtml(
     ctx.rejectionReason?.trim() || "No reason provided.",
@@ -160,7 +146,7 @@ export async function sendTicketRejectedAttendeeEmail(
     <p style="margin:0 0 16px;color:#aaaaaa;font-size:15px;line-height:1.6;">Hi ${name},</p>
     <p style="margin:0 0 24px;color:#aaaaaa;font-size:15px;line-height:1.6;">
       We reviewed your payment proof for the
-      <strong style="color:#fff;">${escapeHtml(tierLabel)}</strong> ticket,
+      <strong style="color:#fff;">${escapeHtml(ctx.packageName)}</strong> package,
       but we were unable to confirm it.
     </p>
     <div style="background:#1a0f0e;border-left:4px solid #e62b1e;padding:12px 16px;margin:0 0 24px;">

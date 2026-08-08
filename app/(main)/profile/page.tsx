@@ -4,10 +4,12 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getProfile } from "@/lib/db/actions/profile.action";
+import { getActiveOffers } from "@/lib/db/actions/offer.action";
+import { getMyTicket } from "@/lib/db/actions/ticket.action";
 import { ROUTES } from "@/constants/routes";
 import { ProfileForm } from "./profile-form";
-// import { TicketCard } from "./ticket-card";
 import Image from "next/image";
+import MyTicketClient from "@/components/tickets/my-ticket-client";
 
 export const metadata = {
   title: "My Profile — TEDxNewCairoSTEMYouth",
@@ -29,6 +31,19 @@ export default async function ProfilePage() {
   if (!profile) {
     redirect(ROUTES.LOGIN);
   }
+
+  const [ticketResult, offersResult] = await Promise.all([
+    getMyTicket(),
+    getActiveOffers(),
+  ]);
+
+  const ticketData =
+    ticketResult.success && ticketResult.data !== undefined
+      ? ticketResult.data
+      : null;
+
+  const offers =
+    offersResult.success && offersResult.data ? offersResult.data : [];
 
   // Derive initials for avatar fallback
   const initials = (profile.fullName ?? profile.email)
@@ -170,66 +185,6 @@ export default async function ProfilePage() {
           </div>
         )}
 
-        {/* ── Legacy ticket card (if confirmed or checked_in) ───────────────────────────────────── */}
-        {profile.ticket &&
-          (profile.ticket.status === "confirmed" ||
-            profile.ticket.status === "checked_in") && (
-            <div className="mb-6">
-              <TicketCard
-                ticket={profile.ticket}
-                attendeeName={profile.fullName ?? ""}
-                attendeeEmail={profile.email}
-              />
-            </div>
-          )}
-
-        {/* ── Legacy ticket under review/pending/rejected/cancelled state ───────────────────────────────────── */}
-        {profile.ticket &&
-          profile.ticket.status !== "confirmed" &&
-          profile.ticket.status !== "checked_in" && (
-            <div className="mb-6 rounded-xl border border-white/10 bg-[#111111] p-5 text-center">
-              <p className="mb-1 text-sm font-medium text-white/40">
-                Ticket Status:{" "}
-                {profile.ticket.status.replace(/_/g, " ").toUpperCase()}
-              </p>
-              <p className="text-xs text-white/20">
-                {profile.ticket.status === "payment_submitted" &&
-                  "Your payment is under review. You'll be notified once confirmed."}
-                {profile.ticket.status === "pending_payment" &&
-                  "Complete your payment to activate your ticket."}
-                {profile.ticket.status === "rejected" &&
-                  "Your payment was rejected. Please resubmit."}
-                {profile.ticket.status === "cancelled" &&
-                  "Your ticket has been cancelled."}
-              </p>
-              <a
-                href={ROUTES.MY_TICKET}
-                className="mt-3 inline-block rounded-md bg-[#e62b1e] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c42419]"
-              >
-                View Ticket Details
-              </a>
-            </div>
-          )}
-
-        {/* ── No ticket/order state ───────────────────────────────────────────── */}
-        {!profile.ticket &&
-          (!profile.orders || profile.orders.length === 0) && (
-            <div className="mb-6 rounded-xl border border-dashed border-white/10 bg-transparent p-5 text-center">
-              <p className="mb-1 text-sm font-medium text-white/40">
-                No tickets or orders yet
-              </p>
-              <p className="text-xs text-white/20">
-                Register for the event to get your ticket.
-              </p>
-              <a
-                href={ROUTES.REGISTER ?? "/register"}
-                className="mt-3 inline-block rounded-md bg-[#e62b1e] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[#c42419]"
-              >
-                Get a ticket
-              </a>
-            </div>
-          )}
-
         {/* ── Skills summary strip (read-only, above the form) ────────── */}
         {profile.skills && profile.skills.length > 0 && (
           <div className="mb-6 flex flex-wrap gap-1.5">
@@ -243,6 +198,18 @@ export default async function ProfilePage() {
             ))}
           </div>
         )}
+
+        {/* ── Ticket display (using MyTicketClient) ───────────────────────────────────── */}
+        <div className="mb-6">
+          <MyTicketClient
+            data={ticketData}
+            offers={offers}
+            packageName={ticketData?.order?.packageName}
+            promoCode={ticketData?.order?.promoCode}
+            originalAmountPiastres={ticketData?.order?.originalAmountPiastres}
+            discountPiastres={ticketData?.order?.discountPiastres}
+          />
+        </div>
 
         {/* ── Section divider ───────────────────────────────────────────── */}
         <div className="mb-6 flex items-center gap-3">
@@ -279,5 +246,3 @@ export default async function ProfilePage() {
     </main>
   );
 }
-
-import TicketCard from "@/components/tickets/ticket-card";
