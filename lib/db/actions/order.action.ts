@@ -1,6 +1,6 @@
 "use server";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { piastresToKashierAmount, createKashierSession } from "@/lib/kashier";
 import action from "@/lib/handlers/action";
@@ -289,7 +289,7 @@ export async function createOrder(
     const existingUsers = await db
       .select({ email: users.email, id: users.id })
       .from(users)
-      .where(sql`${users.email} = ANY(${attendeeEmails})`);
+      .where(inArray(users.email, attendeeEmails));
 
     const existingEmails = existingUsers.map((u) => u.email.toLowerCase());
     const missingAccounts = data.attendees
