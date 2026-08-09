@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { MapPin } from "lucide-react";
+import Link from "next/link";
 
 export default function TheaterParallax() {
   const ref = useRef<HTMLDivElement>(null);
@@ -88,11 +89,11 @@ export default function TheaterParallax() {
               fontFamily: "'Bebas Neue', sans-serif",
             }}
           >
-            Ain Shams University
+            The Art Theater
             <br />
           </h2>
           <span className="text-white text-lg sm:text-5xl font-bold mb-4 inline-block">
-            Grand Conference Hall
+            Galal El Sharkawy
           </span>
 
           <p
@@ -105,7 +106,7 @@ export default function TheaterParallax() {
             font-medium
           "
           >
-            Where the light will ignite · July 31, 2026
+            Where the light will ignite · Sep 5, 2026
           </p>
 
           {/* Location pill */}
@@ -126,20 +127,24 @@ export default function TheaterParallax() {
             bg-black/50
             backdrop-blur-md
             shadow-lg
+            hover:border-primary
+            transition-colors
           "
           >
             <MapPin className="size-4 text-primary" />
 
-            <span
+            <Link
+              href="https://www.google.com/maps/search/?api=1&query=The+Art+Theater+Galal+El+Sharkawy+Cairo"
+              target="_blank"
               className="
               text-xs
               font-medium
               tracking-wide
-              text-white/75
+              text-white/75 
             "
             >
-              Ain Shams University · Grand Conference Hall · Cairo
-            </span>
+              22 Ramses Street, Downtown Cairo, Egypt
+            </Link>
           </motion.div>
         </motion.div>
       </div>

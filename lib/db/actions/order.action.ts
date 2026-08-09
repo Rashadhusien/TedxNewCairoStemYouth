@@ -20,6 +20,7 @@ import {
   decrementPromoCodeUsage,
 } from "./promo-code.action";
 import { getPackageById } from "./package.action";
+import { getTicketLimitSetting } from "./setting.action";
 import { serverAnalytics } from "@/lib/analytics/server";
 
 type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
@@ -237,6 +238,18 @@ export async function createOrder(
     if (!pkg.isActive) {
       return handleError(
         new ValidationError({ package: ["This package is not available"] }),
+      ) as ErrorResponse;
+    }
+
+    // Enforce the global total ticket limit (confirmed + checked-in only)
+    const capacity = await getTicketLimitSetting();
+    if (capacity.totalTicketsSold + pkg.ticketCount > capacity.maxTotalTickets) {
+      return handleError(
+        new ValidationError({
+          tickets: [
+            `Sorry, only ${capacity.remainingTickets} ticket(s) remain. This package requires ${pkg.ticketCount} ticket(s) and can't be completed.`,
+          ],
+        }),
       ) as ErrorResponse;
     }
 

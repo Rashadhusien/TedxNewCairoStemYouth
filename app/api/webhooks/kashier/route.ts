@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { eq, sql, and } from "drizzle-orm";
+import { eq, sql, and, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   tickets,
@@ -20,6 +20,7 @@ import {
   getOrderByIdInternal,
   cleanupExpiredPromoReservations,
 } from "@/lib/db/actions/order.action";
+import { getTicketLimitSetting } from "@/lib/db/actions/setting.action";
 
 export async function POST(request: NextRequest) {
   try {
@@ -365,6 +366,62 @@ async function handleOrderPayment(
         amountToCheck,
       );
       return NextResponse.json({ error: "Amount mismatch" }, { status: 400 });
+    }
+
+    // Re-check the global ticket limit (confirmed + checked-in only) before
+    // confirming tickets. Guards against concurrent checkouts overselling.
+    const capacity = await getTicketLimitSetting();
+    const confirmedCount = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(tickets)
+      .where(inArray(tickets.status, ["confirmed", "checked_in"]));
+    const alreadyConfirmed = confirmedCount[0]?.count ?? 0;
+
+    // Count tickets in THIS order that were already confirmed (retry scenario)
+    const existingOrderTickets = await db
+      .select({ status: tickets.status })
+      .from(tickets)
+      .where(eq(tickets.orderId, order.id));
+
+    const thisOrderConfirmed = existingOrderTickets.filter(
+      (t) => t.status === "confirmed" || t.status === "checked_in",
+    ).length;
+
+    // Capacity needed = confirmed elsewhere + this order's not-yet-confirmed tickets
+    const pendingInThisOrder = existingOrderTickets.length - thisOrderConfirmed;
+
+    if (alreadyConfirmed + pendingInThisOrder > capacity.maxTotalTickets) {
+      // Sold out: mark the order failed and release any promo reservation so the
+      // purchaser can be handled/refunded by admins. Ack to stop Kashier retries.
+      await db.transaction(async (tx) => {
+        await tx
+          .update(orders)
+          .set({
+            status: "failed",
+            failedAt: now,
+            failureReason:
+              "Tickets sold out - global ticket limit reached",
+            updatedAt: now,
+          })
+          .where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")));
+
+        if (order.promoCodeId) {
+          await tx
+            .update(promoCodes)
+            .set({
+              usedCount: sql`GREATEST(${promoCodes.usedCount} - 1, 0)`,
+              updatedAt: now,
+            })
+            .where(eq(promoCodes.id, order.promoCodeId));
+        }
+      });
+
+      console.error(
+        "[Kashier Webhook] Sold out - global ticket limit reached:",
+        order.id,
+      );
+
+      return NextResponse.json({ received: true });
     }
 
     // Transactional payment confirmation (idempotent)

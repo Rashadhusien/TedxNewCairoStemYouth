@@ -9,6 +9,7 @@ import FloatingOfferBanner from "./components/floating-offer-banner";
 // import OfferBanner from "@/components/offer-banner";
 
 import { auth } from "@/auth";
+import TheaterParallax from "./components/theater-parallex";
 
 const Home = async () => {
   const session = await auth();
@@ -27,6 +28,8 @@ const Home = async () => {
 
       <AboutSection />
 
+      <TheaterParallax />
+
       <SpeakersSection hideKeyholders />
 
       {/* <SponsorsSection sponsors={sponsors || []} /> */}
@@ -36,7 +39,7 @@ const Home = async () => {
       <SponsorsPartnersSection partners={partners || []} />
 
       {/* <CTA /> */}
-      {/* <CountdownTimer /> */}
+      <CountdownTimer />
 
       <FloatingOfferBanner />
       {/* <OfferBanner /> */}

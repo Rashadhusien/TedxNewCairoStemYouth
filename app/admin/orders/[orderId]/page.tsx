@@ -5,6 +5,7 @@ import { getOrderWithTickets } from "@/lib/db/actions/order.action";
 import { notFound } from "next/navigation";
 import { formatPiastres } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import TicketStatusBadge from "@/components/tickets/ticket-status-badge";
 
 interface AdminOrderDetailsPageProps {
   params: Promise<{ orderId: string }>;
@@ -133,12 +134,15 @@ export default async function AdminOrderDetailsPage({
                       {ticket.attendeePhone || "—"}
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium">
-                      {formatPiastres(ticket.pricePaid)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {ticket.qrCode.slice(0, 8)}...
+                  <div className="flex items-center gap-4">
+                    <TicketStatusBadge status={ticket.status} />
+                    <div className="text-right">
+                      <div className="font-medium">
+                        {formatPiastres(ticket.pricePaid)}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {ticket.qrCode.slice(0, 8)}...
+                      </div>
                     </div>
                   </div>
                 </div>

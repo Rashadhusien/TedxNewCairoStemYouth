@@ -758,6 +758,24 @@ export const orders = pgTable(
 );
 
 // ─────────────────────────────────────────────
+// APP SETTINGS (key-value store for admin-editable config)
+// ─────────────────────────────────────────────
+
+export const appSettings = pgTable(
+  "app_settings",
+  {
+    key: varchar("key", { length: 100 }).primaryKey(),
+    // JSON-encoded value so a single table can hold numbers, strings, etc.
+    value: text("value").notNull(),
+    updatedBy: uuid("updated_by").references(() => users.id),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    updatedByIdx: index("app_settings_updated_by_idx").on(t.updatedBy),
+  }),
+);
+
+// ─────────────────────────────────────────────
 // SPONSORS & BOOTHS
 // ─────────────────────────────────────────────
 
@@ -1511,3 +1529,6 @@ export type NewPromoCodeTag = typeof promoCodeTags.$inferInsert;
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
+
+export type AppSetting = typeof appSettings.$inferSelect;
+export type NewAppSetting = typeof appSettings.$inferInsert;
