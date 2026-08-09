@@ -98,6 +98,11 @@ export const sidebarItems: NavGroup[] = [
         url: ROUTES.ADMIN.ORDERS.HOME,
         icon: Tag,
       },
+      {
+        title: "Ticket Limit",
+        url: ROUTES.ADMIN.SETTINGS.TICKET_LIMIT,
+        icon: Ticket,
+      },
     ],
   },
   {

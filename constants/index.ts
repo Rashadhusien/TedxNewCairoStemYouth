@@ -118,10 +118,10 @@ export const mainLinks = [
   //   route: ROUTES.EVENT,
   //   label: "Event 2026",
   // },
-  {
-    route: ROUTES.SPONSORS,
-    label: "Sponsors",
-  },
+  // {
+  //   route: ROUTES.SPONSORS,
+  //   label: "Sponsors",
+  // },
   {
     route: ROUTES.TICKETS,
     label: "Tickets",
@@ -268,8 +268,8 @@ export const faculties = [
   { id: 8, label: "Arts" },
   { id: 9, label: "Other" },
 ];
-export const EMAIL = "contact@tedxnewcairostemyouth.org";
-export const PHONE = "+201206593899";
+export const EMAIL = "tedxnewcairostemyouth@gmail.com";
+export const PHONE = "+201041250042";
 export const socialLinks = [
   {
     icon: FacebookIcon,
@@ -295,7 +295,7 @@ export const socialLinks = [
   {
     icon: IconBrandWhatsappFilled,
     label: "WhatsApp",
-    href: "https://wa.me/+966536413647",
+    href: "https://wa.me/+201041250042",
   },
   {
     icon: LinkIcon,

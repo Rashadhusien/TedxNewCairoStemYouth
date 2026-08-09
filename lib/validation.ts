@@ -317,6 +317,13 @@ export const TagUpdateSchema = z.object({
   color: z.string().trim().max(20).optional(),
 });
 
+export const TicketLimitSettingSchema = z.object({
+  maxTotalTickets: z
+    .number()
+    .int()
+    .min(1, "Ticket limit must be at least 1"),
+});
+
 export const PromoCodeCreateSchema = z
   .object({
     code: z

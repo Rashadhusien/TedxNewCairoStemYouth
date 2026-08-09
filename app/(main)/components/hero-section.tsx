@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import Image from "next/image";
@@ -130,7 +130,10 @@ const Hero = ({ session }: { session: Session | null }) => {
               className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95"
               asChild
             >
-              <Link href={ROUTES.CONTACT}>Contact Us</Link>
+              <Link href={ROUTES.TICKETS}>
+                <Ticket className="size-5" />
+                Buy a Ticket
+              </Link>
             </Button>
             {session ? (
               <Button
