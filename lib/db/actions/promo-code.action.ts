@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
@@ -15,8 +15,15 @@ import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type { z } from "zod";
 
 import { db } from "..";
-import { promoCodes, promoCodeUsages, orders } from "../schema";
+import {
+  promoCodes,
+  promoCodeUsages,
+  promoCodeTags,
+  orders,
+  tags,
+} from "../schema";
 import { requireAdminSession } from "./auth-guards";
+import { getTagsByIds, getPromoCodeTags } from "./tag.action";
 import { ROUTES } from "@/constants/routes";
 
 type PromoCodeCreateInput = z.infer<typeof PromoCodeCreateSchema>;
@@ -81,7 +88,7 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
   | ErrorResponse
 > {
   try {
-    const { status, search, page, pageSize } = params;
+    const { status, search, page, pageSize, tagIds } = params;
 
     const conditions = [sql`${promoCodes.deletedAt} IS NULL`];
 
@@ -102,6 +109,19 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
       }
     }
 
+    // AND filtering: promo code must belong to ALL selected tags
+    if (tagIds && tagIds.length > 0) {
+      conditions.push(
+        sql`${promoCodes.id} IN (
+          SELECT ${promoCodeTags.promoCodeId}
+          FROM ${promoCodeTags}
+          WHERE ${inArray(promoCodeTags.tagId, tagIds)}
+          GROUP BY ${promoCodeTags.promoCodeId}
+          HAVING count(DISTINCT ${promoCodeTags.tagId}) = ${tagIds.length}
+        )`,
+      );
+    }
+
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
     const [countResult] = await db
@@ -119,16 +139,56 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
       .limit(pageSize)
       .offset((page - 1) * pageSize);
 
+    // Attach tags to each row (batched, DB-level lookup)
+    const rowsWithTags = await attachTagsToPromoCodes(promoCodeList);
+
     return {
       success: true,
       data: {
-        promoCodes: promoCodeList,
+        promoCodes: rowsWithTags,
         total,
       },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
+}
+
+async function attachTagsToPromoCodes(
+  promoCodeList: (typeof promoCodes.$inferSelect)[],
+) {
+  if (promoCodeList.length === 0) return promoCodeList;
+
+  const ids = promoCodeList.map((p) => p.id);
+  const tagRows = await db
+    .select({
+      promoCodeId: promoCodeTags.promoCodeId,
+      id: tags.id,
+      name: tags.name,
+      slug: tags.slug,
+      color: tags.color,
+    })
+    .from(promoCodeTags)
+    .innerJoin(tags, eq(promoCodeTags.tagId, tags.id))
+    .where(inArray(promoCodeTags.promoCodeId, ids));
+
+  type PromoTag = { id: string; name: string; slug: string; color: string | null };
+  const tagsByPromo = new Map<string, PromoTag[]>();
+  for (const row of tagRows) {
+    const list = tagsByPromo.get(row.promoCodeId) ?? [];
+    list.push({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      color: row.color,
+    });
+    tagsByPromo.set(row.promoCodeId, list);
+  }
+
+  return promoCodeList.map((promoCode) => ({
+    ...promoCode,
+    tags: tagsByPromo.get(promoCode.id) ?? [],
+  }));
 }
 
 export async function validatePromoCode(
@@ -228,6 +288,60 @@ export async function validatePromoCode(
   }
 }
 
+async function validateAndSyncTags(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  promoCodeId: string,
+  tagIds?: string[],
+) {
+  const ids = tagIds ?? [];
+  if (ids.length === 0) return;
+
+  const existingTags = await getTagsByIds(ids);
+  if (existingTags.length !== new Set(ids).size) {
+    throw new ValidationError({ tagIds: ["One or more tags do not exist"] });
+  }
+
+  // Insert only valid IDs, dedupe + ignore existing (unique constraint safety)
+  const uniqueIds = [...new Set(existingTags.map((t) => t.id))];
+  await tx
+    .insert(promoCodeTags)
+    .values(
+      uniqueIds.map((tagId) => ({
+        promoCodeId,
+        tagId,
+        createdAt: new Date(),
+      })),
+    )
+    .onConflictDoNothing();
+}
+
+async function replacePromoCodeTags(promoCodeId: string, tagIds?: string[]) {
+  if (!tagIds) return;
+
+  const existingTags = await getTagsByIds(tagIds);
+  if (existingTags.length !== new Set(tagIds).size) {
+    throw new ValidationError({ tagIds: ["One or more tags do not exist"] });
+  }
+
+  await db.transaction(async (tx) => {
+    await tx.delete(promoCodeTags).where(eq(promoCodeTags.promoCodeId, promoCodeId));
+
+    const uniqueIds = [...new Set(existingTags.map((t) => t.id))];
+    if (uniqueIds.length > 0) {
+      await tx
+        .insert(promoCodeTags)
+        .values(
+          uniqueIds.map((tagId) => ({
+            promoCodeId,
+            tagId,
+            createdAt: new Date(),
+          })),
+        )
+        .onConflictDoNothing();
+    }
+  });
+}
+
 export async function createPromoCode(
   params: PromoCodeCreateInput,
 ): Promise<ActionResponse<{ promoCodeId: string }> | ErrorResponse> {
@@ -254,21 +368,27 @@ export async function createPromoCode(
       ) as ErrorResponse;
     }
 
-    const [created] = await db
-      .insert(promoCodes)
-      .values({
-        code: data.code,
-        owner: data.owner,
-        description: data.description,
-        type: data.type,
-        valuePiastres: data.valuePiastres,
-        maxUses: data.maxUses,
-        validFrom: data.validFrom,
-        validUntil: data.validUntil,
-        isActive: data.isActive,
-        createdBy: session.user.id,
-      })
-      .returning({ id: promoCodes.id });
+    const created = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(promoCodes)
+        .values({
+          code: data.code,
+          owner: data.owner,
+          description: data.description,
+          type: data.type,
+          valuePiastres: data.valuePiastres,
+          maxUses: data.maxUses,
+          validFrom: data.validFrom,
+          validUntil: data.validUntil,
+          isActive: data.isActive,
+          createdBy: session.user.id,
+        })
+        .returning({ id: promoCodes.id });
+
+      await validateAndSyncTags(tx, row.id, data.tagIds);
+
+      return row;
+    });
 
     return {
       success: true,
@@ -312,22 +432,30 @@ export async function updatePromoCode(
       }
     }
 
-    const [updated] = await db
-      .update(promoCodes)
-      .set({
-        code: data.code,
-        owner: data.owner,
-        description: data.description,
-        type: data.type,
-        valuePiastres: data.valuePiastres,
-        maxUses: data.maxUses,
-        validFrom: data.validFrom,
-        validUntil: data.validUntil,
-        isActive: data.isActive,
-        updatedAt: new Date(),
-      })
-      .where(eq(promoCodes.id, id))
-      .returning({ id: promoCodes.id });
+    const updated = await db.transaction(async (tx) => {
+      const [row] = await tx
+        .update(promoCodes)
+        .set({
+          code: data.code,
+          owner: data.owner,
+          description: data.description,
+          type: data.type,
+          valuePiastres: data.valuePiastres,
+          maxUses: data.maxUses,
+          validFrom: data.validFrom,
+          validUntil: data.validUntil,
+          isActive: data.isActive,
+          updatedAt: new Date(),
+        })
+        .where(eq(promoCodes.id, id))
+        .returning({ id: promoCodes.id });
+
+      if (data.tagIds !== undefined) {
+        await replacePromoCodeTags(id, data.tagIds);
+      }
+
+      return row;
+    });
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.HOME);
 
@@ -416,6 +544,23 @@ export async function getPromoCodeUsageHistory(promoCodeId: string) {
     .orderBy(desc(promoCodeUsages.usedAt));
 
   return usageHistory;
+}
+
+export async function getPromoCodeWithTags(id: string) {
+  const [promoCode] = await db
+    .select()
+    .from(promoCodes)
+    .where(eq(promoCodes.id, id))
+    .limit(1);
+
+  if (!promoCode) return null;
+
+  const promoCodeTagsList = await getPromoCodeTags(id);
+
+  return {
+    ...promoCode,
+    tags: promoCodeTagsList,
+  };
 }
 
 export async function incrementPromoCodeUsage(promoCodeId: string) {

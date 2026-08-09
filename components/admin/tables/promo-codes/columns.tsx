@@ -60,6 +60,35 @@ export const promoCodeColumns = [
     cell: ({ row }: any) => <div>{row.getValue("maxUses") || "Unlimited"}</div>,
   },
   {
+    accessorKey: "tags",
+    header: "Tags",
+    cell: ({ row }: any) => {
+      const tags = row.getValue("tags") as
+        | { id: string; name: string; color: string | null }[]
+        | undefined;
+      if (!tags || tags.length === 0) return <div className="text-sm">—</div>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {tags.map((tag) => (
+            <span
+              key={tag.id}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+              style={{
+                backgroundColor: tag.color ? `${tag.color}1a` : undefined,
+                borderColor: tag.color
+                  ? `${tag.color}40`
+                  : undefined,
+                color: tag.color ?? undefined,
+              }}
+            >
+              {tag.name}
+            </span>
+          ))}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "usedCount",
     header: "Used",
     cell: ({ row }: any) => <div>{row.getValue("usedCount")}</div>,
@@ -107,7 +136,9 @@ export const promoCodeColumns = [
   {
     id: "actions",
     cell: ({ row }: any) => {
-      const promoCode = row.original as PromoCode;
+      const promoCode = row.original as PromoCode & {
+        tags?: { id: string; name: string; slug: string; color: string | null }[];
+      };
 
       return (
         <div className="flex items-center gap-2">

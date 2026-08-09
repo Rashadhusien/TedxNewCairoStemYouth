@@ -43,6 +43,11 @@ interface DataTableProps<TData, TValue> {
     value: string;
     label: string;
   }[];
+  tagItems?: {
+    value: string;
+    label: string;
+  }[];
+  selectedTagIds?: string;
   route: string;
 }
 
@@ -55,6 +60,8 @@ export function DataTable<TData, TValue>({
   page = 1,
   status = "all",
   selectItems = [],
+  tagItems = [],
+  selectedTagIds = "",
   route,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
@@ -69,6 +76,7 @@ export function DataTable<TData, TValue>({
     status?: string;
     search?: string;
     page?: number;
+    tagIds?: string;
   }) => {
     const params = new URLSearchParams();
     params.set("status", next.status ?? status);
@@ -77,6 +85,9 @@ export function DataTable<TData, TValue>({
       (next.search ?? search) !== ""
     ) {
       params.set("search", next.search ?? search);
+    }
+    if ((next.tagIds ?? selectedTagIds) !== "") {
+      params.set("tagIds", next.tagIds ?? selectedTagIds);
     }
     params.set("page", String(next.page ?? page));
     router.push(`${route}?${params.toString()}`);
@@ -106,6 +117,25 @@ export function DataTable<TData, TValue>({
             ))}
           </SelectContent>
         </Select>
+
+        {tagItems.length > 0 && (
+          <Select
+            value={selectedTagIds}
+            onValueChange={(v) => updateFilters({ tagIds: v, page: 1 })}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by tag" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Tags</SelectItem>
+              {tagItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
         <form
           className="flex gap-2"

@@ -2,7 +2,7 @@ import { promoCodeUsageColumns } from "@/components/admin/tables/promo-code-usag
 import { DataTable } from "@/components/admin/tables/data-table";
 import { ROUTES } from "@/constants/routes";
 import { getPromoCodeUsageHistory } from "@/lib/db/actions/promo-code.action";
-import { getPromoCodeById } from "@/lib/db/actions/promo-code.action";
+import { getPromoCodeWithTags } from "@/lib/db/actions/promo-code.action";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,7 +16,7 @@ export default async function AdminPromoCodeUsagePage({
 }: AdminPromoCodeUsagePageProps) {
   const { promoCodeId } = await params;
 
-  const promoCode = await getPromoCodeById(promoCodeId);
+  const promoCode = await getPromoCodeWithTags(promoCodeId);
   if (!promoCode) {
     notFound();
   }
@@ -34,6 +34,23 @@ export default async function AdminPromoCodeUsagePage({
           <p className="text-muted-foreground text-sm">
             {promoCode.code} - {promoCode.description || "No description"}
           </p>
+          {promoCode.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {promoCode.tags.map((tag) => (
+                <span
+                  key={tag.id}
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border"
+                  style={{
+                    backgroundColor: tag.color ? `${tag.color}1a` : undefined,
+                    borderColor: tag.color ? `${tag.color}40` : undefined,
+                    color: tag.color ?? undefined,
+                  }}
+                >
+                  {tag.name}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

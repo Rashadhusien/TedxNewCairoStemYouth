@@ -18,4 +18,5 @@ export interface SearchParams {
   status?: string;
   search?: string;
   type?: string;
+  tagIds?: string;
 }

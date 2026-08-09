@@ -56,6 +56,7 @@ export const ROUTES = {
       CREATE: "/admin/promo-codes/create",
       EDIT: (id: string) => `/admin/promo-codes/edit/${id}`,
       USAGE: (id: string) => `/admin/promo-codes/usage/${id}`,
+      TAGS: "/admin/promo-codes/tags",
     },
     ORDERS: {
       HOME: "/admin/orders",

@@ -26,6 +26,7 @@ import {
   timestamp,
   jsonb,
   unique,
+  uniqueIndex,
   index,
   primaryKey,
 } from "drizzle-orm/pg-core";
@@ -620,6 +621,62 @@ export const promoCodeUsages = pgTable(
     orderIdx: index("pcu_order_idx").on(t.orderId),
     // Prevent duplicate usage records for the same order
     uniqueOrderPromo: unique("unique_order_promo").on(t.orderId, t.promoCodeId),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// TAGS (organizational grouping for promo codes)
+// ─────────────────────────────────────────────
+
+export const tags = pgTable(
+  "tags",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    name: varchar("name", { length: 100 }).notNull(),
+    // Lowercase, URL-safe identifier used for case-insensitive uniqueness
+    slug: varchar("slug", { length: 120 }).notNull(),
+
+    // Optional color to style the tag badge in the Admin UI
+    color: varchar("color", { length: 20 }),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    slugIdx: unique("tags_slug_unique").on(t.slug),
+    // Case-insensitive uniqueness on the display name
+    lowerNameIdx: uniqueIndex("tags_lower_name_unique").on(sql`lower(${t.name})`),
+  }),
+);
+
+// ─────────────────────────────────────────────
+// PROMO CODE TAGS (many-to-many join)
+// ─────────────────────────────────────────────
+
+export const promoCodeTags = pgTable(
+  "promo_code_tags",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    promoCodeId: uuid("promo_code_id")
+      .notNull()
+      .references(() => promoCodes.id, { onDelete: "cascade" }),
+
+    tagId: uuid("tag_id")
+      .notNull()
+      .references(() => tags.id, { onDelete: "cascade" }),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    promoCodeIdx: index("pct_promo_code_idx").on(t.promoCodeId),
+    tagIdx: index("pct_tag_idx").on(t.tagId),
+    // Prevent the same tag being assigned to the same promo code twice
+    uniquePromoCodeTag: unique("pct_promo_code_tag_unique").on(
+      t.promoCodeId,
+      t.tagId,
+    ),
   }),
 );
 
@@ -1328,6 +1385,7 @@ export const promoCodesRelations = relations(promoCodes, ({ one, many }) => ({
   }),
   usages: many(promoCodeUsages),
   orders: many(orders),
+  tags: many(promoCodeTags),
 }));
 
 export const promoCodeUsagesRelations = relations(
@@ -1343,6 +1401,21 @@ export const promoCodeUsagesRelations = relations(
     }),
   }),
 );
+
+export const tagsRelations = relations(tags, ({ many }) => ({
+  promoCodes: many(promoCodeTags),
+}));
+
+export const promoCodeTagsRelations = relations(promoCodeTags, ({ one }) => ({
+  promoCode: one(promoCodes, {
+    fields: [promoCodeTags.promoCodeId],
+    references: [promoCodes.id],
+  }),
+  tag: one(tags, {
+    fields: [promoCodeTags.tagId],
+    references: [tags.id],
+  }),
+}));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   user: one(users, {
@@ -1429,6 +1502,12 @@ export type NewPromoCode = typeof promoCodes.$inferInsert;
 
 export type PromoCodeUsage = typeof promoCodeUsages.$inferSelect;
 export type NewPromoCodeUsage = typeof promoCodeUsages.$inferInsert;
+
+export type Tag = typeof tags.$inferSelect;
+export type NewTag = typeof tags.$inferInsert;
+
+export type PromoCodeTag = typeof promoCodeTags.$inferSelect;
+export type NewPromoCodeTag = typeof promoCodeTags.$inferInsert;
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
