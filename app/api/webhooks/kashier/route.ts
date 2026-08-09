@@ -106,6 +106,36 @@ export async function GET(request: NextRequest) {
   }
 }
 
+function resolveAmountToPiastres(
+  amount: string | number,
+  expectedPiastres: number,
+): number | null {
+  if (typeof amount === "string") {
+    const trimmed = amount.trim();
+    if (trimmed.includes(".")) {
+      // EGP with decimals, e.g. "1350.00"
+      const parsed = parseFloat(trimmed);
+      return isNaN(parsed) ? null : Math.round(parsed * 100);
+    }
+    // Integer string: already in piasters, e.g. "135000"
+    const parsed = parseInt(trimmed, 10);
+    return isNaN(parsed) ? null : parsed;
+  }
+
+  if (typeof amount === "number") {
+    if (!isFinite(amount)) return null;
+    // Numeric amount is ambiguous: Kashier may send EGP (1350) or
+    // piasters (135000). Resolve against the expected amount.
+    const asPiastersDirect = Math.round(amount);
+    const asPiastersFromEgp = Math.round(amount * 100);
+    if (asPiastersFromEgp === expectedPiastres) return asPiastersFromEgp;
+    if (asPiastersDirect === expectedPiastres) return asPiastersDirect;
+    return asPiastersFromEgp;
+  }
+
+  return null;
+}
+
 async function handlePayment(
   payload: { data: Record<string, unknown> },
   receivedSignature: string,
@@ -198,26 +228,12 @@ async function handlePayment(
     const now = new Date();
 
     if (paymentStatus === "SUCCESS") {
-      let amountToCheck: number;
+      const amountToCheck = resolveAmountToPiastres(
+        amount as string | number,
+        ticket.pricePaid,
+      );
 
-      if (typeof amount === "string") {
-        if (amount.includes(".")) {
-          amountToCheck = Math.round(parseFloat(amount) * 100);
-        } else {
-          amountToCheck = parseInt(amount, 10);
-        }
-      } else if (typeof amount === "number") {
-        if (amount > 1000) {
-          amountToCheck = amount;
-        } else {
-          amountToCheck = Math.round(amount * 100);
-        }
-      } else {
-        console.error("[Kashier Webhook] Invalid amount type:", typeof amount);
-        return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-      }
-
-      if (isNaN(amountToCheck)) {
+      if (amountToCheck === null) {
         console.error("[Kashier Webhook] Invalid amount:", amount);
         return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
       }
@@ -330,26 +346,12 @@ async function handleOrderPayment(
   }
 
   if (paymentStatus === "SUCCESS") {
-    let amountToCheck: number;
+    const amountToCheck = resolveAmountToPiastres(
+      amount,
+      order.finalAmountPiastres,
+    );
 
-    if (typeof amount === "string") {
-      if (amount.includes(".")) {
-        amountToCheck = Math.round(parseFloat(amount) * 100);
-      } else {
-        amountToCheck = parseInt(amount, 10);
-      }
-    } else if (typeof amount === "number") {
-      if (amount > 1000) {
-        amountToCheck = amount;
-      } else {
-        amountToCheck = Math.round(amount * 100);
-      }
-    } else {
-      console.error("[Kashier Webhook] Invalid amount type:", typeof amount);
-      return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
-    }
-
-    if (isNaN(amountToCheck)) {
+    if (amountToCheck === null) {
       console.error("[Kashier Webhook] Invalid amount:", amount);
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
