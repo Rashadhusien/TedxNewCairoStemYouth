@@ -29,9 +29,14 @@ import {
 } from "@/lib/db/actions/promo-code.action";
 import { useRouter } from "next/navigation";
 import type { PromoCode } from "@/lib/db/schema";
+import TagMultiSelect from "./tag-multi-select";
+
+interface PromoCodeWithTags extends PromoCode {
+  tags?: { id: string; name: string; slug: string; color: string | null }[];
+}
 
 interface PromoCodeFormDialogProps {
-  promoCode?: PromoCode;
+  promoCode?: PromoCodeWithTags;
   trigger?: React.ReactNode;
 }
 
@@ -54,6 +59,7 @@ export default function PromoCodeFormDialog({
     validFrom: "",
     validUntil: "",
     isActive: true,
+    tagIds: [] as string[],
   });
 
   useEffect(() => {
@@ -72,6 +78,7 @@ export default function PromoCodeFormDialog({
           ? new Date(promoCode.validUntil).toISOString().split("T")[0]
           : "",
         isActive: promoCode.isActive ?? true,
+        tagIds: promoCode.tags ? promoCode.tags.map((t) => t.id) : [],
       });
     } else {
       setFormData({
@@ -84,6 +91,7 @@ export default function PromoCodeFormDialog({
         validFrom: "",
         validUntil: "",
         isActive: true,
+        tagIds: [],
       });
     }
   }, [promoCode, open]);
@@ -267,6 +275,13 @@ export default function PromoCodeFormDialog({
                 }
               />
               <Label htmlFor="isActive">Active</Label>
+            </div>
+            <div className="grid gap-2">
+              <Label>Tags</Label>
+              <TagMultiSelect
+                value={formData.tagIds}
+                onChange={(tagIds) => setFormData({ ...formData, tagIds })}
+              />
             </div>
           </div>
           <DialogFooter>

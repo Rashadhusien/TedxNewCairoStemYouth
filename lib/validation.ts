@@ -298,6 +298,25 @@ export const PackageListSchema = z.object({
   ...paginationSchema.shape,
 });
 
+export const TagCreateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Tag name is required")
+    .max(100, "Tag name cannot exceed 100 characters"),
+  color: z.string().trim().max(20).optional(),
+});
+
+export const TagUpdateSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Tag name is required")
+    .max(100, "Tag name cannot exceed 100 characters")
+    .optional(),
+  color: z.string().trim().max(20).optional(),
+});
+
 export const PromoCodeCreateSchema = z
   .object({
     code: z
@@ -314,6 +333,7 @@ export const PromoCodeCreateSchema = z
     validFrom: z.coerce.date().nullable().optional(),
     validUntil: z.coerce.date().nullable().optional(),
     isActive: z.boolean().default(true),
+    tagIds: z.array(z.string().uuid("Invalid tag ID")).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.type === "fixed_price" && data.valuePiastres <= 0) {
@@ -356,6 +376,7 @@ export const PromoCodeUpdateSchema = z
     validFrom: z.coerce.date().nullable().optional(),
     validUntil: z.coerce.date().nullable().optional(),
     isActive: z.boolean().optional(),
+    tagIds: z.array(z.string().uuid("Invalid tag ID")).optional(),
   })
   .superRefine((data, ctx) => {
     if (
@@ -392,6 +413,7 @@ export const PromoCodeUpdateSchema = z
 export const PromoCodeListSchema = z.object({
   status: z.enum(["all", "active", "inactive"]).default("all"),
   search: z.string().optional(),
+  tagIds: z.array(z.string().uuid("Invalid tag ID")).optional(),
   ...paginationSchema.shape,
 });
 
