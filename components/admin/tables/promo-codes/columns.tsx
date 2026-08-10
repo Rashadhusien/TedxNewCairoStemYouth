@@ -94,6 +94,20 @@ export const promoCodeColumns = [
     cell: ({ row }: any) => <div>{row.getValue("usedCount")}</div>,
   },
   {
+    accessorKey: "packageCount",
+    header: "Packages",
+    cell: ({ row }: any) => (
+      <div className="text-sm">{row.getValue("packageCount") ?? 0}</div>
+    ),
+  },
+  {
+    accessorKey: "ticketCount",
+    header: "Tickets",
+    cell: ({ row }: any) => (
+      <div className="text-sm">{row.getValue("ticketCount") ?? 0}</div>
+    ),
+  },
+  {
     accessorKey: "remaining",
     header: "Remaining",
     cell: ({ row }: any) => {
