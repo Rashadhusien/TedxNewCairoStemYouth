@@ -114,10 +114,10 @@ export const mainLinks = [
     route: ROUTES.HOME,
     label: "Home",
   },
-  // {
-  //   route: ROUTES.EVENT,
-  //   label: "Event 2026",
-  // },
+  {
+    route: ROUTES.EVENT,
+    label: "Event 2026",
+  },
   // {
   //   route: ROUTES.SPONSORS,
   //   label: "Sponsors",

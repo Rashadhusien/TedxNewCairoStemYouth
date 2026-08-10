@@ -32,6 +32,7 @@ interface Attendee {
 interface ValidatedPromo {
   type: "fixed_price" | "discount" | "free";
   valuePiastres: number;
+  willApplyDiscount: boolean;
 }
 
 export default function PackageCheckoutDialog({
@@ -92,7 +93,10 @@ export default function PackageCheckoutDialog({
       if (data.success && data.data.valid) {
         setPromoError(null);
         setPromoValid(true);
-        setValidatedPromo(data.data.promoCode);
+        setValidatedPromo({
+          ...data.data.promoCode,
+          willApplyDiscount: data.data.willApplyDiscount ?? true,
+        });
       } else {
         setPromoError(data.data.error || "Invalid promo code");
         setPromoValid(false);
@@ -196,7 +200,7 @@ export default function PackageCheckoutDialog({
     ? pkg.totalPricePiastres - baseTotalPrice
     : 0;
 
-  if (validatedPromo) {
+  if (validatedPromo && validatedPromo.willApplyDiscount) {
     if (validatedPromo.type === "fixed_price") {
       finalAmountPiastres = validatedPromo.valuePiastres;
       discountPiastres = pkg.totalPricePiastres - finalAmountPiastres;
@@ -295,7 +299,11 @@ export default function PackageCheckoutDialog({
             </div>
             {promoError && <p className="text-sm text-red-500">{promoError}</p>}
             {promoValid && (
-              <p className="text-sm text-green-500">Promo code applied!</p>
+              <p className="text-sm text-green-500">
+                {validatedPromo?.willApplyDiscount
+                  ? "Promo code applied! Discount included."
+                  : "Promo code validated but discount not applicable for this package."}
+              </p>
             )}
           </div>
 

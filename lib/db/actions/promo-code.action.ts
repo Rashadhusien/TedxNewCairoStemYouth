@@ -172,7 +172,12 @@ async function attachTagsToPromoCodes(
     .innerJoin(tags, eq(promoCodeTags.tagId, tags.id))
     .where(inArray(promoCodeTags.promoCodeId, ids));
 
-  type PromoTag = { id: string; name: string; slug: string; color: string | null };
+  type PromoTag = {
+    id: string;
+    name: string;
+    slug: string;
+    color: string | null;
+  };
   const tagsByPromo = new Map<string, PromoTag[]>();
   for (const row of tagRows) {
     const list = tagsByPromo.get(row.promoCodeId) ?? [];
@@ -196,6 +201,7 @@ export async function validatePromoCode(
 ): Promise<
   | ActionResponse<{
       valid: boolean;
+      willApplyDiscount?: boolean;
       promoCode?: {
         id: string;
         code: string;
@@ -254,17 +260,13 @@ export async function validatePromoCode(
     }
 
     // Check if promo applies to the package (if packageId provided)
+    let willApplyDiscount = true;
     if (params.packageId) {
       const { getPackageById } = await import("./package.action");
       const pkg = await getPackageById(params.packageId);
       if (pkg && !pkg.isPromoApplicable) {
-        return {
-          success: true,
-          data: {
-            valid: false,
-            error: "Promo code does not apply to this package",
-          },
-        };
+        // Promo code is valid but won't apply discount for this package
+        willApplyDiscount = false;
       }
     }
 
@@ -273,6 +275,7 @@ export async function validatePromoCode(
       success: true,
       data: {
         valid: true,
+        willApplyDiscount,
         promoCode: {
           id: promoCode.id,
           code: promoCode.code,
@@ -324,7 +327,9 @@ async function replacePromoCodeTags(promoCodeId: string, tagIds?: string[]) {
   }
 
   await db.transaction(async (tx) => {
-    await tx.delete(promoCodeTags).where(eq(promoCodeTags.promoCodeId, promoCodeId));
+    await tx
+      .delete(promoCodeTags)
+      .where(eq(promoCodeTags.promoCodeId, promoCodeId));
 
     const uniqueIds = [...new Set(existingTags.map((t) => t.id))];
     if (uniqueIds.length > 0) {
