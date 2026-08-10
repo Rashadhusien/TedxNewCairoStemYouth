@@ -20,6 +20,7 @@ async function seedPackages() {
       pricePerTicketPiastres: 38000,
       totalPricePiastres: 38000,
       requiresAccessCode: false,
+      isPromoApplicable: true,
       displayOrder: 1,
       isActive: true,
     },
@@ -30,6 +31,7 @@ async function seedPackages() {
       pricePerTicketPiastres: 30000,
       totalPricePiastres: 90000,
       requiresAccessCode: true,
+      isPromoApplicable: false,
       displayOrder: 2,
       isActive: true,
     },
@@ -40,6 +42,7 @@ async function seedPackages() {
       pricePerTicketPiastres: 27000,
       totalPricePiastres: 135000,
       requiresAccessCode: true,
+      isPromoApplicable: false,
       displayOrder: 3,
       isActive: true,
     },
@@ -48,8 +51,8 @@ async function seedPackages() {
   for (const pkg of packagesToSeed) {
     try {
       await sql`
-        INSERT INTO packages (name, description, ticket_count, price_per_ticket_piastres, total_price_piastres, requires_access_code, display_order, is_active, created_by)
-        VALUES (${pkg.name}, ${pkg.description}, ${pkg.ticketCount}, ${pkg.pricePerTicketPiastres}, ${pkg.totalPricePiastres}, ${pkg.requiresAccessCode}, ${pkg.displayOrder}, ${pkg.isActive}, NULL)
+        INSERT INTO packages (name, description, ticket_count, price_per_ticket_piastres, total_price_piastres, requires_access_code, is_promo_applicable, display_order, is_active, created_by)
+        VALUES (${pkg.name}, ${pkg.description}, ${pkg.ticketCount}, ${pkg.pricePerTicketPiastres}, ${pkg.totalPricePiastres}, ${pkg.requiresAccessCode}, ${pkg.isPromoApplicable}, ${pkg.displayOrder}, ${pkg.isActive}, NULL)
       `;
       console.log(`✓ Inserted package: ${pkg.name}`);
     } catch (e: unknown) {
