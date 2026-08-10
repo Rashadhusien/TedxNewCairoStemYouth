@@ -142,16 +142,53 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
     // Attach tags to each row (batched, DB-level lookup)
     const rowsWithTags = await attachTagsToPromoCodes(promoCodeList);
 
+    // Attach usage stats (orders + total tickets) to each row
+    const rowsWithUsageStats = await attachUsageStatsToPromoCodes(rowsWithTags);
+
     return {
       success: true,
       data: {
-        promoCodes: rowsWithTags,
+        promoCodes: rowsWithUsageStats,
         total,
       },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
   }
+}
+
+async function attachUsageStatsToPromoCodes(
+  promoCodeList: (typeof promoCodes.$inferSelect)[],
+) {
+  if (promoCodeList.length === 0) return promoCodeList;
+
+  const ids = promoCodeList.map((p) => p.id);
+
+  const usageRows = await db
+    .select({
+      promoCodeId: promoCodeUsages.promoCodeId,
+      packageCount: sql<number>`count(DISTINCT ${promoCodeUsages.orderId})`,
+      ticketCount: sql<number>`coalesce(sum(${orders.packageTicketCount}), 0)`,
+    })
+    .from(promoCodeUsages)
+    .innerJoin(orders, eq(promoCodeUsages.orderId, orders.id))
+    .where(inArray(promoCodeUsages.promoCodeId, ids))
+    .groupBy(promoCodeUsages.promoCodeId);
+
+  type UsageStats = { packageCount: number; ticketCount: number };
+  const statsByPromo = new Map<string, UsageStats>();
+  for (const row of usageRows) {
+    statsByPromo.set(row.promoCodeId, {
+      packageCount: Number(row.packageCount) || 0,
+      ticketCount: Number(row.ticketCount) || 0,
+    });
+  }
+
+  return promoCodeList.map((promoCode) => ({
+    ...promoCode,
+    packageCount: statsByPromo.get(promoCode.id)?.packageCount ?? 0,
+    ticketCount: statsByPromo.get(promoCode.id)?.ticketCount ?? 0,
+  }));
 }
 
 async function attachTagsToPromoCodes(
