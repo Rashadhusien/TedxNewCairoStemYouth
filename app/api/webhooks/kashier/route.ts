@@ -382,8 +382,9 @@ async function handleOrderPayment(
     const pendingInThisOrder = existingOrderTickets.length - thisOrderConfirmed;
 
     if (alreadyConfirmed + pendingInThisOrder > capacity.maxTotalTickets) {
-      // Sold out: mark the order failed and release any promo reservation so the
-      // purchaser can be handled/refunded by admins. Ack to stop Kashier retries.
+      // Sold out: mark the order failed so the purchaser can be handled/refunded
+      // by admins. Ack to stop Kashier retries. The promo code is NOT marked as
+      // used here since the tickets were never confirmed.
       await db.transaction(async (tx) => {
         await tx
           .update(orders)
@@ -395,16 +396,6 @@ async function handleOrderPayment(
             updatedAt: now,
           })
           .where(and(eq(orders.id, order.id), eq(orders.status, "pending_payment")));
-
-        if (order.promoCodeId) {
-          await tx
-            .update(promoCodes)
-            .set({
-              usedCount: sql`GREATEST(${promoCodes.usedCount} - 1, 0)`,
-              updatedAt: now,
-            })
-            .where(eq(promoCodes.id, order.promoCodeId));
-        }
       });
 
       console.error(
@@ -489,7 +480,9 @@ async function handleOrderPayment(
           pricePaid: tickets.pricePaid,
         });
 
-      // Create promo usage record if applicable (ON CONFLICT for idempotency)
+      // Mark the promo code as used only once the tickets are confirmed.
+      // Runs inside the same transaction that flips the order to paid, and the
+      // order-status transition guard guarantees this block executes once.
       if (order.promoCodeId) {
         await tx
           .insert(promoCodeUsages)
@@ -502,6 +495,14 @@ async function handleOrderPayment(
             usedAt: now,
           })
           .onConflictDoNothing(); // unique_order_promo constraint handles this
+
+        await tx
+          .update(promoCodes)
+          .set({
+            usedCount: sql`${promoCodes.usedCount} + 1`,
+            updatedAt: now,
+          })
+          .where(eq(promoCodes.id, order.promoCodeId));
       }
 
       return { alreadyPaid: false, tickets: updatedTickets };

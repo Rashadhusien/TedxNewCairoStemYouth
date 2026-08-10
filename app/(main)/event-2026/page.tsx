@@ -12,15 +12,15 @@ export const metadata = {
     "Explore TEDxNewCairoSTEMYouth 2026, featuring inspiring speakers, innovative ideas, and the Luminous Darkness experience.",
 };
 const Event = async () => {
-  // const result = await getAllSponsors({ type: "sponsor" });
+  const result = await getAllSponsors({ type: "sponsor" });
 
-  // const sponsors = result.success ? result.data?.items : [];
+  const sponsors = result.success ? result.data?.items : [];
   return (
     <div className=" pt-24">
-      {/* <SectionTitle
+      <SectionTitle
         eyebrow="Event"
         title="Event 2026"
-        subTitle="Ain Shams University Grand Conference Hall"
+        subTitle="The Art Theater Galal El Sharkawy - downtown cairo"
       />
 
       <MissionVissionSection />
@@ -31,8 +31,8 @@ const Event = async () => {
 
       <SpeakersSection hideExploreLink={true} />
 
-      <SponsorsSection sponsors={sponsors || []} />
-      <SponsorsSponsorsSection sponsors={sponsors || []} /> */}
+      {/* <SponsorsSection sponsors={sponsors || []} /> */}
+      <SponsorsSponsorsSection sponsors={sponsors || []} />
     </div>
   );
 };

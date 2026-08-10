@@ -12,22 +12,15 @@ import type { z } from "zod";
 import { notifyTicketConfirmed } from "@/lib/email/send-ticket-emails";
 
 import { db } from "..";
-import { orders, tickets, users, promoCodeUsages } from "../schema";
+import { orders, tickets, users, promoCodeUsages, promoCodes } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
-import {
-  getPromoCodeByCode,
-  incrementPromoCodeUsage,
-  decrementPromoCodeUsage,
-} from "./promo-code.action";
+import { getPromoCodeByCode, decrementPromoCodeUsage } from "./promo-code.action";
 import { getPackageById } from "./package.action";
 import { getTicketLimitSetting } from "./setting.action";
 import { serverAnalytics } from "@/lib/analytics/server";
 
 type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 type OrderListInput = z.infer<typeof OrderListSchema>;
-
-// Promo reservation expiration window (15 minutes)
-const PROMO_RESERVATION_MINUTES = 15;
 
 export async function getOrderById(id: string) {
   const validationResult = await action({ authorize: true });
@@ -344,7 +337,6 @@ export async function createOrder(
         : pkg.pricePerTicketPiastres;
 
     let finalAmountPiastres = basePricePiastres;
-    let promoReservationExpiresAt: Date | null = null;
 
     if (data.promoCode && data.promoCode.trim()) {
       promoCode = await getPromoCodeByCode(data.promoCode.trim());
@@ -407,21 +399,9 @@ export async function createOrder(
       }
     }
 
-    // Reserve promo capacity if applicable (atomic check-then-act)
-    if (promoCode) {
-      try {
-        await incrementPromoCodeUsage(promoCode.id);
-        promoReservationExpiresAt = new Date(
-          Date.now() + PROMO_RESERVATION_MINUTES * 60 * 1000,
-        );
-      } catch {
-        return handleError(
-          new ValidationError({
-            promoCode: ["Promo code has reached maximum usage limit"],
-          }),
-        ) as ErrorResponse;
-      }
-    }
+    // The promo code is NOT marked as used here. It is only marked as used once
+    // the tickets are confirmed (see the Kashier webhook SUCCESS path and the
+    // free-promo flow below).
 
     // Handle free promo - skip Kashier and mark as paid immediately
     if (finalAmountPiastres === 0) {
@@ -445,7 +425,6 @@ export async function createOrder(
             packagePricePerTicketPiastres: pricePerTicketPiastres,
             promoCodeId: promoCode?.id,
             promoCode: data.promoCode?.trim() || null,
-            promoReservationExpiresAt: null, // No reservation needed for free orders
             accessCode: data.accessCode?.trim() || null,
             createdAt: now,
             updatedAt: now,
@@ -487,7 +466,8 @@ export async function createOrder(
           });
         }
 
-        // Create promo usage record if promo was used
+        // Free-promo tickets are confirmed immediately, so mark the promo code
+        // as used within the same transaction (atomic check-then-increment).
         if (promoCode) {
           await tx.insert(promoCodeUsages).values({
             promoCodeId: promoCode.id,
@@ -497,6 +477,26 @@ export async function createOrder(
             finalAmountPiastres,
             usedAt: now,
           });
+
+          const [incremented] = await tx
+            .update(promoCodes)
+            .set({
+              usedCount: sql`${promoCodes.usedCount} + 1`,
+              updatedAt: now,
+            })
+            .where(
+              and(
+                eq(promoCodes.id, promoCode.id),
+                sql`(${promoCodes.maxUses} IS NULL OR ${promoCodes.usedCount} < ${promoCodes.maxUses})`,
+              ),
+            )
+            .returning({ usedCount: promoCodes.usedCount });
+
+          if (!incremented) {
+            throw new ValidationError({
+              promoCode: ["Promo code has reached maximum usage limit"],
+            });
+          }
         }
 
         return { orderId, ticketIds };
@@ -538,7 +538,6 @@ export async function createOrder(
           packagePricePerTicketPiastres: pricePerTicketPiastres,
           promoCodeId: promoCode?.id,
           promoCode: data.promoCode?.trim() || null,
-          promoReservationExpiresAt,
           accessCode: data.accessCode?.trim() || null,
           createdAt: now,
           updatedAt: now,
