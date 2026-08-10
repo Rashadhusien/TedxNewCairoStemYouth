@@ -141,7 +141,7 @@ const Hero = ({ session }: { session: Session | null }) => {
                 variant="outline"
                 asChild
               >
-                <Link href={ROUTES.SPONSORS}>Partner With Us</Link>
+                <Link href={ROUTES.EVENT}>Event 2026</Link>
               </Button>
             ) : (
               <Button

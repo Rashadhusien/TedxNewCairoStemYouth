@@ -25,7 +25,7 @@ export default function TheaterParallax() {
       <motion.div
         style={{ y, scale }}
         className="absolute inset-x-0 top-[-15%] bottom-[-15%]
-        bg-[url('/images/th-ainshams.jpeg')]
+        bg-[url('/images/theater.jpeg')]
         bg-cover bg-center grayscale-[30%]"
       />
 
@@ -143,7 +143,7 @@ export default function TheaterParallax() {
               text-white/75 
             "
             >
-              22 Ramses Street, Downtown Cairo, Egypt
+              Gamal Abdel Nasser Metro, Downtown Cairo, Egypt
             </Link>
           </motion.div>
         </motion.div>
