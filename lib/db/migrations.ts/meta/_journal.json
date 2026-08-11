@@ -71,6 +71,13 @@
       "when": 1728000000000,
       "tag": "0009_add_promo_applicable",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1786107000000,
+      "tag": "0010_add_kashier_session_url",
+      "breakpoints": true
     }
   ]
 }

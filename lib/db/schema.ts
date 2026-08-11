@@ -726,6 +726,7 @@ export const orders = pgTable(
     // Kashier payment session
     kashierSessionId: varchar("kashier_session_id", { length: 255 }),
     kashierOrderId: varchar("kashier_order_id", { length: 255 }),
+    kashierSessionUrl: varchar("kashier_session_url", { length: 512 }),
 
     // Payment confirmation
     paidAt: timestamp("paid_at"),

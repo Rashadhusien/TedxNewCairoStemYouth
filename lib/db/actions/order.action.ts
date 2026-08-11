@@ -589,12 +589,13 @@ export async function createOrder(
       },
     });
 
-    // Update order with Kashier session ID
+    // Update order with Kashier session ID and hosted checkout URL
     await db
       .update(orders)
       .set({
         kashierSessionId: kashierSession.sessionId,
         kashierOrderId: kashierSession.sessionId,
+        kashierSessionUrl: kashierSession.sessionUrl,
         updatedAt: now,
       })
       .where(eq(orders.id, orderId));
