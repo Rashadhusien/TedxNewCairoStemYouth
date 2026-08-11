@@ -10,6 +10,7 @@ import { ROUTES } from "@/constants/routes";
 import { ProfileForm } from "./profile-form";
 import Image from "next/image";
 import MyTicketClient from "@/components/tickets/my-ticket-client";
+import { ContinuePaymentButton } from "@/components/continue-payment-button";
 
 export const metadata = {
   title: "My Profile — TEDxNewCairoSTEMYouth",
@@ -173,12 +174,7 @@ export default async function ProfilePage() {
 
                 {/* Order actions */}
                 {order.status === "pending_payment" && (
-                  <a
-                    href={`/tickets?orderId=${order.id}`}
-                    className="mt-3 inline-block rounded-md bg-[#e62b1e] px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-[#c42419]"
-                  >
-                    Complete Payment
-                  </a>
+                  <ContinuePaymentButton orderId={order.id} />
                 )}
               </div>
             ))}

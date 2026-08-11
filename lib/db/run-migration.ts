@@ -30,6 +30,7 @@ CREATE TABLE "orders" (
 	"access_code" varchar(100),
 	"kashier_session_id" varchar(255),
 	"kashier_order_id" varchar(255),
+	"kashier_session_url" varchar(512),
 	"paid_at" timestamp,
 	"payment_reference" varchar(255),
 	"failed_at" timestamp,
