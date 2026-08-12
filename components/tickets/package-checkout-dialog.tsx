@@ -164,19 +164,44 @@ export default function PackageCheckoutDialog({
             ? result.error
             : result.error?.message || "Failed to create order";
 
-        // Check if the error is about missing accounts
+        // Provide user-friendly error messages
         if (errorMessage.includes("don't have registered accounts")) {
           setError(
-            errorMessage +
-              " Please ask all attendees to create accounts first.",
+            "Some attendees don't have registered accounts. Please ask all attendees to create accounts first.",
           );
+        } else if (
+          errorMessage.includes("database") ||
+          errorMessage.includes("Unable to process")
+        ) {
+          setError(
+            "We're experiencing technical difficulties. Please try again or contact support if the issue persists.",
+          );
+        } else if (
+          errorMessage.includes("rate limit") ||
+          errorMessage.includes("Too many")
+        ) {
+          setError(
+            "You've made too many attempts. Please wait a moment before trying again.",
+          );
+        } else if (errorMessage.includes("promo code")) {
+          setError(errorMessage); // Show promo-specific errors as they're actionable
+        } else if (errorMessage.includes("access code")) {
+          setError(errorMessage); // Show access code errors as they're actionable
+        } else if (errorMessage.includes("package")) {
+          setError(errorMessage); // Show package-related errors
         } else {
-          setError(errorMessage);
+          // Generic error for other cases
+          setError(
+            "Unable to complete your order. Please check your information and try again.",
+          );
         }
       }
     } catch (err: unknown) {
+      // Log unexpected errors for debugging
+      console.error("Unexpected checkout error:", err);
+
       setError(
-        err instanceof Error ? err.message : "An unexpected error occurred",
+        "An unexpected error occurred. Please try again or contact support if the problem continues.",
       );
     } finally {
       setIsSubmitting(false);
