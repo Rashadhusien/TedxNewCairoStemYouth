@@ -14,6 +14,7 @@ import { ROUTES } from "@/constants/routes";
 import { db } from "..";
 import { users } from "../schema";
 import { requireAdminSession } from "./auth-guards";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type UserListInput = z.infer<typeof UserListSchema>;
 type UpdateUserActiveInput = z.infer<typeof UpdateUserActiveSchema>;
@@ -129,7 +130,7 @@ export async function updateUserActiveStatus(
   }
 
   try {
-    const { user: currentUser } = await requireAdminSession();
+    const { session, user: currentUser } = await requireAdminSession();
     const { userId, isActive } =
       validationResult.params as UpdateUserActiveInput;
 
@@ -193,6 +194,16 @@ export async function updateUserActiveStatus(
     }
 
     revalidatePath(ROUTES.ADMIN.USERS);
+
+    void createAuditLog({
+      category: "admin",
+      action: isActive ? "user.activate" : "user.deactivate",
+      ...actorFromSession(session),
+      entityType: "user",
+      entityId: updatedUser.id,
+      summary: `${isActive ? "Activated" : "Deactivated"} user ${targetUser.role} ${targetUser.id}`,
+      metadata: { targetRole: targetUser.role, isActive },
+    });
 
     return {
       success: true,

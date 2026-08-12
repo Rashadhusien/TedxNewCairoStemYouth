@@ -27,6 +27,7 @@ import { db } from "..";
 import { offers } from "../schema";
 import type { Offer } from "../schema";
 import { requireAdminSession } from "./auth-guards";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 import type { z } from "zod";
 
 type OfferInput = z.infer<typeof OfferSchema>;
@@ -95,6 +96,16 @@ export async function createOffer(
       })
       .returning({ id: offers.id });
 
+    void createAuditLog({
+      category: "admin",
+      action: "offer.create",
+      ...actorFromSession(session),
+      entityType: "offer",
+      entityId: created.id,
+      summary: `Created offer "${data.title}"`,
+      metadata: { type: data.type, isActive: data.isActive },
+    });
+
     return { success: true, data: { id: created.id } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -115,7 +126,7 @@ export async function updateOffer(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
     const data = validationResult.params as OfferInput;
 
     const [updated] = await db
@@ -127,6 +138,16 @@ export async function updateOffer(
     if (!updated) {
       return handleError(new NotFoundError("Offer")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "offer.update",
+      ...actorFromSession(session),
+      entityType: "offer",
+      entityId: updated.id,
+      summary: `Updated offer "${data.title}"`,
+      metadata: { type: data.type, isActive: data.isActive },
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {
@@ -225,7 +246,7 @@ export async function deleteOffer(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const [updated] = await db
       .update(offers)
@@ -236,6 +257,15 @@ export async function deleteOffer(
     if (!updated) {
       return handleError(new NotFoundError("Offer")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "offer.delete",
+      ...actorFromSession(session),
+      entityType: "offer",
+      entityId: updated.id,
+      summary: `Deactivated offer ${id}`,
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {

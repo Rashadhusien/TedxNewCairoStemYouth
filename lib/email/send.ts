@@ -2,6 +2,7 @@
 // same idempotency handling for every transactional email.
 
 import logger from "@/lib/logger";
+import { createAuditLog } from "@/lib/db/audit";
 
 import { getResendClient } from "./resend";
 
@@ -28,6 +29,15 @@ export async function sendTransactionalEmail(
         { to, subject: params.subject },
         "[dev] Email not sent — set RESEND_API_KEY and EMAIL_FROM to send for real",
       );
+      void createAuditLog({
+        category: "email",
+        action: "email.skipped",
+        status: "info",
+        entityType: "email",
+        entityId: params.idempotencyKey,
+        summary: `Email skipped in dev (not configured): ${params.subject}`,
+        metadata: { to, subject: params.subject },
+      });
       return;
     }
     throw new Error(
@@ -52,8 +62,25 @@ export async function sendTransactionalEmail(
       { err: error, to, subject: params.subject },
       "Failed to send email",
     );
+    void createAuditLog({
+      category: "email",
+      action: "email.failed",
+      status: "failure",
+      entityType: "email",
+      entityId: params.idempotencyKey,
+      summary: `Email failed: ${params.subject}`,
+      metadata: { to, subject: params.subject, error: error.message },
+    });
     throw new Error(error.message);
   }
 
   logger.info({ emailId: data?.id, to, subject: params.subject }, "Email sent");
+  void createAuditLog({
+    category: "email",
+    action: "email.send",
+    entityType: "email",
+    entityId: params.idempotencyKey,
+    summary: `Email sent: ${params.subject}`,
+    metadata: { to, subject: params.subject, emailId: data?.id ?? null },
+  });
 }

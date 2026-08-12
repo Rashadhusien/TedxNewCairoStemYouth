@@ -13,6 +13,7 @@ import { db } from "..";
 import { tags, promoCodeTags } from "../schema";
 import { requireAdminSession } from "./auth-guards";
 import { ROUTES } from "@/constants/routes";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type TagCreateInput = z.infer<typeof TagCreateSchema>;
 type TagUpdateInput = z.infer<typeof TagUpdateSchema>;
@@ -92,7 +93,7 @@ export async function createTag(
   const data = validationResult.params as TagCreateInput;
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const nameError = await assertTagNameAvailable(data.name);
     if (nameError) {
@@ -110,6 +111,16 @@ export async function createTag(
       .returning({ id: tags.id });
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.TAGS);
+
+    void createAuditLog({
+      category: "admin",
+      action: "tag.create",
+      ...actorFromSession(session),
+      entityType: "tag",
+      entityId: created.id,
+      summary: `Created tag "${data.name.trim()}"`,
+      metadata: { color: data.color ?? null },
+    });
 
     return {
       success: true,
@@ -137,7 +148,7 @@ export async function updateTag(
   const data = validationResult.params as TagUpdateInput;
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getTagById(id);
     if (!existing) {
@@ -165,6 +176,16 @@ export async function updateTag(
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.TAGS);
 
+    void createAuditLog({
+      category: "admin",
+      action: "tag.update",
+      ...actorFromSession(session),
+      entityType: "tag",
+      entityId: updated.id,
+      summary: `Updated tag "${data.name?.trim() ?? existing.name}"`,
+      metadata: { color: data.color !== undefined ? data.color ?? null : existing.color },
+    });
+
     return {
       success: true,
       data: { tagId: updated.id },
@@ -178,7 +199,7 @@ export async function deleteTag(
   id: string,
 ): Promise<ActionResponse<{ tagId: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getTagById(id);
     if (!existing) {
@@ -189,6 +210,15 @@ export async function deleteTag(
     await db.delete(tags).where(eq(tags.id, id));
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.TAGS);
+
+    void createAuditLog({
+      category: "admin",
+      action: "tag.delete",
+      ...actorFromSession(session),
+      entityType: "tag",
+      entityId: id,
+      summary: `Deleted tag "${existing.name}"`,
+    });
 
     return {
       success: true,

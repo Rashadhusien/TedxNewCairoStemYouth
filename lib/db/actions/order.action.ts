@@ -22,6 +22,7 @@ import {
 import { getPackageById } from "./package.action";
 import { getTicketLimitSetting } from "./setting.action";
 import { serverAnalytics } from "@/lib/analytics/server";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type CreateOrderInput = z.infer<typeof CreateOrderSchema>;
 type OrderListInput = z.infer<typeof OrderListSchema>;
@@ -521,6 +522,38 @@ export async function createOrder(
         });
       }
 
+      void createAuditLog({
+        category: "order",
+        action: "order.create",
+        status: "info",
+        ...actorFromSession(session),
+        entityType: "order",
+        entityId: result.orderId,
+        summary: `Created order for package "${pkg.name}" (paid via free promo)`,
+        metadata: {
+          packageName: pkg.name,
+          finalAmountPiastres,
+          promoCode: data.promoCode?.trim() ?? null,
+        },
+      });
+
+      if (promoCode) {
+        void createAuditLog({
+          category: "promo_code",
+          action: "promo_code.used",
+          status: "info",
+          ...actorFromSession(session),
+          entityType: "promo_code",
+          entityId: promoCode.id,
+          summary: `Promo code "${promoCode.code}" used on order ${result.orderId}`,
+          metadata: {
+            orderId: result.orderId,
+            discountPiastres,
+            finalAmountPiastres,
+          },
+        });
+      }
+
       return {
         success: true,
         data: { orderId: result.orderId },
@@ -612,6 +645,25 @@ export async function createOrder(
       price_piastres: finalAmountPiastres,
     });
 
+    void createAuditLog({
+      category: "order",
+      action: "order.create",
+      status: "info",
+      ...actorFromSession(session),
+      entityType: "order",
+      entityId: orderId,
+      summary: `Created order for package "${pkg.name}"`,
+      metadata: {
+        packageName: pkg.name,
+        packageTicketCount: pkg.ticketCount,
+        originalAmountPiastres: basePricePiastres,
+        discountPiastres,
+        finalAmountPiastres,
+        promoCodeId: promoCode?.id ?? null,
+        promoCode: data.promoCode?.trim() ?? null,
+      },
+    });
+
     return {
       success: true,
       data: {
@@ -673,7 +725,7 @@ export async function cancelOrder(
   reason?: string,
 ): Promise<ActionResponse<{ orderId: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const order = await getOrderById(id);
     if (!order) {
@@ -707,6 +759,19 @@ export async function cancelOrder(
         updatedAt: new Date(),
       })
       .where(eq(orders.id, id));
+
+    void createAuditLog({
+      category: "order",
+      action: "order.cancel",
+      ...actorFromSession(session),
+      entityType: "order",
+      entityId: id,
+      summary: `Cancelled order ${id}`,
+      metadata: {
+        packageName: order.packageName,
+        reason: reason ?? null,
+      },
+    });
 
     return {
       success: true,

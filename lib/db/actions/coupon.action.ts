@@ -31,6 +31,7 @@ import { db } from "..";
 import { coupons, offers, tickets } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
 import { serverAnalytics } from "@/lib/analytics/server";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 export async function validateCoupon(params: {
   code: string;
@@ -180,6 +181,21 @@ export async function createCoupon(
       admin_id: session.user.id,
     });
 
+    void createAuditLog({
+      category: "admin",
+      action: "coupon.create",
+      ...actorFromSession(session),
+      entityType: "coupon",
+      entityId: created.id,
+      summary: `Created coupon ${data.code.trim().toUpperCase()}`,
+      metadata: {
+        type: data.type,
+        discountAmount: data.discountAmount,
+        percentageOff: data.percentageOff,
+        isActive: data.isActive,
+      },
+    });
+
     return { success: true, data: { id: created.id } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -200,7 +216,7 @@ export async function updateCoupon(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
     const data = validationResult.params as CouponInput;
 
     const [updated] = await db
@@ -216,6 +232,21 @@ export async function updateCoupon(
     if (!updated) {
       return handleError(new NotFoundError("Coupon")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "coupon.update",
+      ...actorFromSession(session),
+      entityType: "coupon",
+      entityId: updated.id,
+      summary: `Updated coupon ${data.code.trim().toUpperCase()}`,
+      metadata: {
+        type: data.type,
+        discountAmount: data.discountAmount,
+        percentageOff: data.percentageOff,
+        isActive: data.isActive,
+      },
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {
@@ -290,7 +321,7 @@ export async function deleteCoupon(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const [updated] = await db
       .update(coupons)
@@ -301,6 +332,15 @@ export async function deleteCoupon(
     if (!updated) {
       return handleError(new NotFoundError("Coupon")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "coupon.delete",
+      ...actorFromSession(session),
+      entityType: "coupon",
+      entityId: updated.id,
+      summary: `Deactivated coupon ${id}`,
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {

@@ -718,3 +718,14 @@ export const UpdateUserActiveSchema = z.object({
   userId: z.string().uuid("Invalid user id"),
   isActive: z.boolean(),
 });
+
+export const AuditLogListSchema = z.object({
+  category: z
+    .enum(["all", "admin", "order", "payment", "ticket", "promo_code", "email", "auth"])
+    .default("all"),
+  status: z.enum(["all", "success", "failure", "info"]).default("all"),
+  search: z.string().optional(),
+  from: z.string().optional(),
+  to: z.string().optional(),
+  ...paginationSchema.shape,
+});

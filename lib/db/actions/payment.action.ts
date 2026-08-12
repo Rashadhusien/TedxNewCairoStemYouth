@@ -19,6 +19,7 @@ import type { z } from "zod";
 
 import { db } from "..";
 import { coupons, offers, tickets, users } from "../schema";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type KashierCheckoutInput = z.infer<typeof KashierCheckoutSchema>;
 
@@ -240,6 +241,21 @@ export async function createKashierCheckoutSession(
         updatedAt: now,
       })
       .where(eq(tickets.id, resultTicketId));
+
+    void createAuditLog({
+      category: "payment",
+      action: "payment.initiated",
+      status: "info",
+      ...actorFromSession(session),
+      entityType: "ticket",
+      entityId: resultTicketId,
+      summary: `Initiated Kashier checkout for ticket ${resultTicketId}`,
+      metadata: {
+        ticketType: data.ticketType,
+        amountPiastres: breakdown.finalPrice,
+        couponId: breakdown.couponId ?? null,
+      },
+    });
 
     return {
       success: true,

@@ -25,6 +25,7 @@ import {
 import { requireAdminSession } from "./auth-guards";
 import { getTagsByIds, getPromoCodeTags } from "./tag.action";
 import { ROUTES } from "@/constants/routes";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type PromoCodeCreateInput = z.infer<typeof PromoCodeCreateSchema>;
 type PromoCodeUpdateInput = z.infer<typeof PromoCodeUpdateSchema>;
@@ -432,6 +433,21 @@ export async function createPromoCode(
       return row;
     });
 
+    void createAuditLog({
+      category: "promo_code",
+      action: "promo_code.create",
+      ...actorFromSession(session),
+      entityType: "promo_code",
+      entityId: created.id,
+      summary: `Created promo code "${data.code}"`,
+      metadata: {
+        type: data.type,
+        valuePiastres: data.valuePiastres,
+        maxUses: data.maxUses,
+        isActive: data.isActive,
+      },
+    });
+
     return {
       success: true,
       data: { promoCodeId: created.id },
@@ -458,7 +474,7 @@ export async function updatePromoCode(
   const data = validationResult.params as PromoCodeUpdateInput;
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPromoCodeById(id);
     if (!existing) {
@@ -501,6 +517,16 @@ export async function updatePromoCode(
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.HOME);
 
+    void createAuditLog({
+      category: "promo_code",
+      action: "promo_code.update",
+      ...actorFromSession(session),
+      entityType: "promo_code",
+      entityId: updated.id,
+      summary: `Updated promo code "${data.code}"`,
+      metadata: { type: data.type, isActive: data.isActive },
+    });
+
     return {
       success: true,
       data: { promoCodeId: updated.id },
@@ -516,7 +542,7 @@ export async function togglePromoCodeActive(
   ActionResponse<{ promoCodeId: string; isActive: boolean }> | ErrorResponse
 > {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPromoCodeById(id);
     if (!existing) {
@@ -534,6 +560,16 @@ export async function togglePromoCodeActive(
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.HOME);
 
+    void createAuditLog({
+      category: "promo_code",
+      action: "promo_code.toggle_active",
+      ...actorFromSession(session),
+      entityType: "promo_code",
+      entityId: updated.id,
+      summary: `Set promo code "${existing.code}" ${updated.isActive ? "active" : "inactive"}`,
+      metadata: { isActive: updated.isActive },
+    });
+
     return {
       success: true,
       data: { promoCodeId: updated.id, isActive: updated.isActive },
@@ -547,7 +583,7 @@ export async function softDeletePromoCode(
   id: string,
 ): Promise<ActionResponse<{ promoCodeId: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPromoCodeById(id);
     if (!existing) {
@@ -564,6 +600,15 @@ export async function softDeletePromoCode(
       .where(eq(promoCodes.id, id));
 
     revalidatePath(ROUTES.ADMIN.PROMO_CODES.HOME);
+
+    void createAuditLog({
+      category: "promo_code",
+      action: "promo_code.delete",
+      ...actorFromSession(session),
+      entityType: "promo_code",
+      entityId: id,
+      summary: `Deleted promo code "${existing.code}"`,
+    });
 
     return {
       success: true,
@@ -658,6 +703,21 @@ export async function createPromoCodeUsageRecord(params: {
       usedAt: new Date(),
     })
     .returning({ id: promoCodeUsages.id });
+
+  void createAuditLog({
+    category: "promo_code",
+    action: "promo_code.used",
+    status: "info",
+    entityType: "promo_code",
+    entityId: params.promoCodeId,
+    summary: `Promo code used on order ${params.orderId}`,
+    metadata: {
+      orderId: params.orderId,
+      originalAmountPiastres: params.originalAmountPiastres,
+      discountPiastres: params.discountPiastres,
+      finalAmountPiastres: params.finalAmountPiastres,
+    },
+  });
 
   return created?.id;
 }

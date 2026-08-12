@@ -12,6 +12,7 @@ import { db } from "..";
 import { appSettings, tickets } from "../schema";
 import { requireAdminSession } from "./auth-guards";
 import { ROUTES } from "@/constants/routes";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type TicketLimitSettingInput = z.infer<typeof TicketLimitSettingSchema>;
 
@@ -59,11 +60,10 @@ export async function updateTicketLimitSetting(
     return handleError(validationResult) as ErrorResponse;
   }
 
-  const session = validationResult.session!;
   const data = validationResult.params as TicketLimitSettingInput;
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     await db
       .insert(appSettings)
@@ -83,6 +83,16 @@ export async function updateTicketLimitSetting(
       });
 
     revalidatePath(ROUTES.ADMIN.SETTINGS.TICKET_LIMIT);
+
+    void createAuditLog({
+      category: "admin",
+      action: "setting.update_ticket_limit",
+      ...actorFromSession(session),
+      entityType: "app_setting",
+      entityId: MAX_TOTAL_TICKETS_KEY,
+      summary: `Updated max total tickets to ${data.maxTotalTickets}`,
+      metadata: { maxTotalTickets: data.maxTotalTickets },
+    });
 
     return {
       success: true,

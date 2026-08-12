@@ -13,6 +13,7 @@ import { speakers } from "../schema";
 import { revalidatePath } from "next/cache";
 import { ROUTES } from "@/constants/routes";
 import { requireAdminSession } from "./auth-guards";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type SpeakerInput = z.infer<typeof speakerFormSchema>;
 type SpeakerListInput = z.infer<typeof SpeakerListSchema>;
@@ -48,6 +49,16 @@ export async function createSpeaker(
 
     revalidatePath(ROUTES.HOME);
     revalidatePath("/admin/speakers");
+
+    void createAuditLog({
+      category: "admin",
+      action: "speaker.create",
+      ...actorFromSession(session),
+      entityType: "speaker",
+      entityId: created.id,
+      summary: `Created speaker "${data.name}"`,
+      metadata: { type: data.type },
+    });
 
     return { success: true, data: { id: created.id } };
   } catch (error) {
@@ -166,7 +177,7 @@ export async function updateSpeaker(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const data = validationResult.params as SpeakerInput;
 
@@ -183,6 +194,16 @@ export async function updateSpeaker(
     revalidatePath(ROUTES.HOME);
     revalidatePath("/admin/speakers");
 
+    void createAuditLog({
+      category: "admin",
+      action: "speaker.update",
+      ...actorFromSession(session),
+      entityType: "speaker",
+      entityId: update.id,
+      summary: `Updated speaker "${data.name}"`,
+      metadata: { type: data.type },
+    });
+
     return { success: true, data: { id: update.id } };
   } catch (error) {
     return handleError(error) as ErrorResponse;
@@ -193,7 +214,7 @@ export async function deleteSpeaker(
   id: string,
 ): Promise<ActionResponse<{ id: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const [updated] = await db
       .update(speakers)
@@ -207,6 +228,15 @@ export async function deleteSpeaker(
 
     revalidatePath(ROUTES.HOME);
     revalidatePath("/admin/speakers");
+
+    void createAuditLog({
+      category: "admin",
+      action: "speaker.delete",
+      ...actorFromSession(session),
+      entityType: "speaker",
+      entityId: updated.id,
+      summary: `Deleted speaker ${updated.id}`,
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {

@@ -50,6 +50,7 @@ import { coupons, offers, orders, tickets, users } from "../schema";
 import type { Ticket } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
 import { serverAnalytics } from "@/lib/analytics/server";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 async function resolveCoupon(code: string | undefined) {
   if (!code?.trim()) return null;
@@ -572,6 +573,19 @@ export async function reviewTicket(
           | "bank_transfer",
       });
 
+      void createAuditLog({
+        category: "admin",
+        action: "ticket.review.approve",
+        ...actorFromSession(session),
+        entityType: "ticket",
+        entityId: ticketId,
+        summary: `Approved ticket ${ticketId}`,
+        metadata: {
+          attendeeEmail: ticketRow.email,
+          pricePaid: ticket.pricePaid,
+        },
+      });
+
       return {
         success: true,
         data: { ticketId, status: "confirmed" },
@@ -614,6 +628,19 @@ export async function reviewTicket(
       ticket_id: ticketId,
       reason: rejectionReason ?? undefined,
       admin_id: session.user.id,
+    });
+
+    void createAuditLog({
+      category: "admin",
+      action: "ticket.review.reject",
+      ...actorFromSession(session),
+      entityType: "ticket",
+      entityId: ticketId,
+      summary: `Rejected ticket ${ticketId}`,
+      metadata: {
+        attendeeEmail: ticketRow.email,
+        rejectionReason: rejectionReason ?? null,
+      },
     });
 
     return {
@@ -671,6 +698,15 @@ export async function checkInTicket(params: CheckInInput): Promise<
         .where(eq(tickets.id, updated.id))
         .limit(1);
 
+      void createAuditLog({
+        category: "ticket",
+        action: "ticket.check_in",
+        ...actorFromSession(session),
+        entityType: "ticket",
+        entityId: updated.id,
+        summary: `Checked in ticket ${updated.id} (${row?.fullName ?? "attendee"})`,
+      });
+
       return {
         success: true,
         data: {
@@ -698,6 +734,16 @@ export async function checkInTicket(params: CheckInInput): Promise<
 
     // Handle already checked-in tickets
     if (row.ticket.status === "checked_in") {
+      void createAuditLog({
+        category: "ticket",
+        action: "ticket.check_in.duplicate",
+        status: "info",
+        ...actorFromSession(session),
+        entityType: "ticket",
+        entityId: row.ticket.id,
+        summary: `Attempted check-in of already checked-in ticket ${row.ticket.id}`,
+      });
+
       return {
         success: true,
         data: {
@@ -709,6 +755,17 @@ export async function checkInTicket(params: CheckInInput): Promise<
     }
 
     // Wrong status
+    void createAuditLog({
+      category: "ticket",
+      action: "ticket.check_in.rejected",
+      status: "failure",
+      ...actorFromSession(session),
+      entityType: "ticket",
+      entityId: row.ticket.id,
+      summary: `Check-in rejected for ticket ${row.ticket.id} (status ${row.ticket.status})`,
+      metadata: { currentStatus: row.ticket.status },
+    });
+
     return handleError(
       new ValidationError({
         status: [

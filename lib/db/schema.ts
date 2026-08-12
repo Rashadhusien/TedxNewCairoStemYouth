@@ -117,6 +117,22 @@ export const pointReasonEnum = pgEnum("point_reason", [
   "bonus",
 ]);
 
+export const auditCategoryEnum = pgEnum("audit_category", [
+  "admin", // Admin CRUD on content entities (coupons, offers, speakers, ...)
+  "order", // Order lifecycle events
+  "payment", // Payment gateway events (webhooks, resume, refunds)
+  "ticket", // Ticket lifecycle & check-in
+  "promo_code", // Promo code lifecycle & usage
+  "email", // Transactional email delivery
+  "auth", // Authentication & account lifecycle
+]);
+
+export const auditStatusEnum = pgEnum("audit_status", [
+  "success",
+  "failure",
+  "info",
+]);
+
 // ─────────────────────────────────────────────
 // TICKET PACKAGES & PROMO CODES
 // ─────────────────────────────────────────────
@@ -1230,6 +1246,50 @@ export const leaderboardView = pgView("leaderboard_view").as((qb) =>
 );
 
 // ─────────────────────────────────────────────
+// AUDIT LOGS
+// (Append-only ledger for admin-facing auditability)
+// ─────────────────────────────────────────────
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    // Who performed the action. null = system / payment webhook.
+    actorUserId: uuid("actor_user_id").references(() => users.id),
+    // Snapshot of the actor at write time — survives user deletion, no join on read
+    actorEmail: varchar("actor_email", { length: 255 }),
+    actorName: varchar("actor_name", { length: 255 }),
+
+    category: auditCategoryEnum("category").notNull(),
+    // e.g. "coupon.create", "order.cancel", "ticket.check_in", "email.send"
+    action: varchar("action", { length: 100 }).notNull(),
+
+    entityType: varchar("entity_type", { length: 50 }).notNull(),
+    entityId: varchar("entity_id", { length: 100 }),
+
+    // Human-readable description rendered in the admin table
+    summary: text("summary").notNull(),
+    // Flexible structured context (amounts, refs, before/after, attempts)
+    metadata: jsonb("metadata"),
+
+    status: auditStatusEnum("status").notNull().default("success"),
+
+    ipAddress: varchar("ip_address", { length: 45 }),
+
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => ({
+    createdAtIdx: index("audit_logs_created_at_idx").on(t.createdAt),
+    categoryCreatedAtIdx: index("audit_logs_category_created_at_idx").on(
+      t.category,
+      t.createdAt,
+    ),
+    actorIdx: index("audit_logs_actor_idx").on(t.actorUserId),
+  }),
+);
+
+// ─────────────────────────────────────────────
 // RELATIONS (for Drizzle query API)
 // ─────────────────────────────────────────────
 
@@ -1246,6 +1306,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   session: many(sessions),
   accounts: many(accounts),
   orders: many(orders),
+  auditLogs: many(auditLogs),
 }));
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -1533,3 +1594,6 @@ export type NewOrder = typeof orders.$inferInsert;
 
 export type AppSetting = typeof appSettings.$inferSelect;
 export type NewAppSetting = typeof appSettings.$inferInsert;
+
+export type AuditLog = typeof auditLogs.$inferSelect;
+export type NewAuditLog = typeof auditLogs.$inferInsert;

@@ -9,6 +9,7 @@ import {
   Ticket,
   Users,
   Users2,
+  History,
 } from "lucide-react";
 import { ROUTES } from "./routes";
 
@@ -136,6 +137,17 @@ export const sidebarItems: NavGroup[] = [
         title: "Speakers",
         url: ROUTES.ADMIN.SPEAKERS.HOME,
         icon: Users2,
+      },
+    ],
+  },
+  {
+    id: 6,
+    label: "System",
+    items: [
+      {
+        title: "Activity Logs",
+        url: ROUTES.ADMIN.ACTIVITY_LOGS,
+        icon: History,
       },
     ],
   },

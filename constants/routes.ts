@@ -69,6 +69,7 @@ export const ROUTES = {
     SURVEYS: "/admin/surveys",
     GAMES: "/admin/games",
     LEADERBOARD: "/admin/leaderboard",
+    ACTIVITY_LOGS: "/admin/activity-logs",
   },
   SPONSOR: {
     HOME: "/sponsor",

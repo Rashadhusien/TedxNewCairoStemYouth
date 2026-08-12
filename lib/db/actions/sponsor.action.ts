@@ -16,6 +16,7 @@ import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ROUTES } from "@/constants/routes";
 import { requireAdminSession } from "./auth-guards";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type SponsorInput = z.infer<typeof sponsorFormSchema>;
 type SponsorListInput = z.infer<typeof SponsorListSchema>;
@@ -50,6 +51,16 @@ export async function createSponsor(
 
     revalidatePath(ROUTES.HOME);
     revalidatePath(ROUTES.ADMIN.SPONSORS.HOME);
+
+    void createAuditLog({
+      category: "admin",
+      action: "sponsor.create",
+      ...actorFromSession(session),
+      entityType: "sponsor",
+      entityId: created.id,
+      summary: `Created sponsor "${data.name}"`,
+      metadata: { tier: data.tier, type: data.type },
+    });
 
     return { success: true, data: { id: created.id } };
   } catch (error) {
@@ -158,7 +169,7 @@ export async function updateSponsor(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const data = validationResult.params as SponsorInput;
 
@@ -171,6 +182,16 @@ export async function updateSponsor(
     if (!update) {
       return handleError(new NotFoundError("Sponsor")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "sponsor.update",
+      ...actorFromSession(session),
+      entityType: "sponsor",
+      entityId: update.id,
+      summary: `Updated sponsor "${data.name}"`,
+      metadata: { tier: data.tier, type: data.type },
+    });
 
     return { success: true, data: { id: update.id } };
   } catch (error) {

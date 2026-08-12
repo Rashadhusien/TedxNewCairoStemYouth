@@ -21,6 +21,7 @@ import {
   cleanupExpiredPromoReservations,
 } from "@/lib/db/actions/order.action";
 import { getTicketLimitSetting } from "@/lib/db/actions/setting.action";
+import { createAuditLog } from "@/lib/db/audit";
 
 export async function POST(request: NextRequest) {
   try {
@@ -269,6 +270,18 @@ async function handlePayment(
         merchantOrderId,
       );
 
+      void createAuditLog({
+        category: "payment",
+        action: "payment.success",
+        entityType: "ticket",
+        entityId: merchantOrderId,
+        summary: `Payment succeeded for ticket ${merchantOrderId}`,
+        metadata: {
+          gatewayRef: String(data.transactionId || data.orderId || ""),
+          amountPiastres: amountToCheck,
+        },
+      });
+
       notifyTicketConfirmed({
         ticketId: merchantOrderId as string,
         attendeeName: ticketRow.fullName ?? ticketRow.email,
@@ -292,6 +305,16 @@ async function handlePayment(
         "[Kashier Webhook] Ticket rejected (payment failed):",
         merchantOrderId,
       );
+
+      void createAuditLog({
+        category: "payment",
+        action: "payment.failed",
+        status: "failure",
+        entityType: "ticket",
+        entityId: merchantOrderId,
+        summary: `Payment failed for ticket ${merchantOrderId}`,
+        metadata: { paymentStatus },
+      });
 
       notifyTicketRejected({
         ticketId: merchantOrderId as string,
@@ -411,6 +434,19 @@ async function handleOrderPayment(
         "[Kashier Webhook] Sold out - global ticket limit reached:",
         order.id,
       );
+
+      void createAuditLog({
+        category: "payment",
+        action: "payment.failed",
+        status: "failure",
+        entityType: "order",
+        entityId: order.id,
+        summary: `Payment failed for order ${order.id} — global ticket limit reached`,
+        metadata: {
+          packageName: order.packageName,
+          failureReason: "Tickets sold out - global ticket limit reached",
+        },
+      });
 
       return NextResponse.json({ received: true });
     }
@@ -543,6 +579,40 @@ async function handleOrderPayment(
       result.tickets.length,
     );
 
+    void createAuditLog({
+      category: "payment",
+      action: "payment.success",
+      status: result.alreadyPaid ? "info" : "success",
+      entityType: "order",
+      entityId: order.id,
+      summary: `Payment succeeded for order ${order.id}`,
+      metadata: {
+        packageName: order.packageName,
+        amountPiastres: order.finalAmountPiastres,
+        paymentReference: String(data.transactionId || data.orderId || ""),
+        alreadyPaid: result.alreadyPaid,
+        ticketsConfirmed: result.tickets.length,
+        promoCodeId: order.promoCodeId ?? null,
+      },
+    });
+
+    if (order.promoCodeId) {
+      void createAuditLog({
+        category: "promo_code",
+        action: "promo_code.used",
+        status: "info",
+        entityType: "promo_code",
+        entityId: order.promoCodeId,
+        summary: `Promo code "${order.promoCode ?? order.promoCodeId}" used on order ${order.id}`,
+        metadata: {
+          orderId: order.id,
+          originalAmountPiastres: order.originalAmountPiastres,
+          discountPiastres: order.discountPiastres,
+          finalAmountPiastres: order.finalAmountPiastres,
+        },
+      });
+    }
+
     return NextResponse.json({ received: true });
   } else {
     // Payment failed - transactional handling
@@ -595,6 +665,20 @@ async function handleOrderPayment(
     });
 
     console.log("[Kashier Webhook] Order marked as failed:", order.id);
+
+    void createAuditLog({
+      category: "payment",
+      action: "payment.failed",
+      status: "failure",
+      entityType: "order",
+      entityId: order.id,
+      summary: `Payment failed for order ${order.id}`,
+      metadata: {
+        packageName: order.packageName,
+        paymentStatus,
+      },
+    });
+
     return NextResponse.json({ received: true });
   }
 }

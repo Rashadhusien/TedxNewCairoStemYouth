@@ -19,4 +19,7 @@ export interface SearchParams {
   search?: string;
   type?: string;
   tagIds?: string;
+  category?: string;
+  from?: string;
+  to?: string;
 }

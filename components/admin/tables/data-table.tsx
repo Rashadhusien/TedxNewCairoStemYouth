@@ -43,6 +43,11 @@ interface DataTableProps<TData, TValue> {
     value: string;
     label: string;
   }[];
+  category?: string;
+  categoryItems?: {
+    value: string;
+    label: string;
+  }[];
   tagItems?: {
     value: string;
     label: string;
@@ -60,6 +65,8 @@ export function DataTable<TData, TValue>({
   page = 1,
   status = "all",
   selectItems = [],
+  category = "all",
+  categoryItems = [],
   tagItems = [],
   selectedTagIds = "",
   route,
@@ -74,12 +81,16 @@ export function DataTable<TData, TValue>({
 
   const updateFilters = (next: {
     status?: string;
+    category?: string;
     search?: string;
     page?: number;
     tagIds?: string;
   }) => {
     const params = new URLSearchParams();
     params.set("status", next.status ?? status);
+    if (categoryItems.length > 0) {
+      params.set("category", next.category ?? category);
+    }
     if (
       (next.search ?? search) !== undefined &&
       (next.search ?? search) !== ""
@@ -102,6 +113,24 @@ export function DataTable<TData, TValue>({
   return (
     <div>
       <div className="flex flex-wrap gap-3 py-4">
+        {categoryItems.length > 0 && (
+          <Select
+            value={category}
+            onValueChange={(v) => updateFilters({ category: v, page: 1 })}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryItems.map((item) => (
+                <SelectItem key={item.value} value={item.value}>
+                  {item.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
         <Select
           value={status}
           onValueChange={(v) => updateFilters({ status: v, page: 1 })}

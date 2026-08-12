@@ -239,3 +239,57 @@ export const OFFER_TYPES = [
     label: "Bundle",
   },
 ];
+
+export const AUDIT_CATEGORY_FILTERS = [
+  {
+    value: "all",
+    label: "All Categories",
+  },
+  {
+    value: "admin",
+    label: "Admin Actions",
+  },
+  {
+    value: "order",
+    label: "Orders",
+  },
+  {
+    value: "payment",
+    label: "Payments",
+  },
+  {
+    value: "ticket",
+    label: "Tickets",
+  },
+  {
+    value: "promo_code",
+    label: "Promo Codes",
+  },
+  {
+    value: "email",
+    label: "Emails",
+  },
+  {
+    value: "auth",
+    label: "Auth",
+  },
+];
+
+export const AUDIT_STATUS_FILTERS = [
+  {
+    value: "all",
+    label: "All Statuses",
+  },
+  {
+    value: "success",
+    label: "Success",
+  },
+  {
+    value: "failure",
+    label: "Failure",
+  },
+  {
+    value: "info",
+    label: "Info",
+  },
+];

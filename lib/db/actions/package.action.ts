@@ -17,6 +17,7 @@ import { db } from "..";
 import { packages } from "../schema";
 import { requireAdminSession } from "./auth-guards";
 import { ROUTES } from "@/constants/routes";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type PackageCreateInput = z.infer<typeof PackageCreateSchema>;
 type PackageUpdateInput = z.infer<typeof PackageUpdateSchema>;
@@ -136,6 +137,20 @@ export async function createPackage(
       })
       .returning({ id: packages.id });
 
+    void createAuditLog({
+      category: "admin",
+      action: "package.create",
+      ...actorFromSession(session),
+      entityType: "package",
+      entityId: created.id,
+      summary: `Created package "${data.name}"`,
+      metadata: {
+        ticketCount: data.ticketCount,
+        pricePerTicketPiastres: data.pricePerTicketPiastres,
+        isActive: data.isActive,
+      },
+    });
+
     return {
       success: true,
       data: { packageId: created.id },
@@ -162,7 +177,7 @@ export async function updatePackage(
   const data = validationResult.params as PackageUpdateInput;
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPackageById(id);
     if (!existing) {
@@ -194,6 +209,16 @@ export async function updatePackage(
 
     revalidatePath(ROUTES.ADMIN.PACKAGES.HOME);
 
+    void createAuditLog({
+      category: "admin",
+      action: "package.update",
+      ...actorFromSession(session),
+      entityType: "package",
+      entityId: updated.id,
+      summary: `Updated package "${data.name}"`,
+      metadata: { isActive: data.isActive },
+    });
+
     return {
       success: true,
       data: { packageId: updated.id },
@@ -209,7 +234,7 @@ export async function togglePackageActive(
   ActionResponse<{ packageId: string; isActive: boolean }> | ErrorResponse
 > {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPackageById(id);
     if (!existing) {
@@ -227,6 +252,16 @@ export async function togglePackageActive(
 
     revalidatePath(ROUTES.ADMIN.PACKAGES.HOME);
 
+    void createAuditLog({
+      category: "admin",
+      action: "package.toggle_active",
+      ...actorFromSession(session),
+      entityType: "package",
+      entityId: updated.id,
+      summary: `Set package ${updated.id} ${updated.isActive ? "active" : "inactive"}`,
+      metadata: { isActive: updated.isActive },
+    });
+
     return {
       success: true,
       data: { packageId: updated.id, isActive: updated.isActive },
@@ -240,7 +275,7 @@ export async function deletePackage(
   id: string,
 ): Promise<ActionResponse<{ packageId: string }> | ErrorResponse> {
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const existing = await getPackageById(id);
     if (!existing) {
@@ -250,6 +285,15 @@ export async function deletePackage(
     await db.delete(packages).where(eq(packages.id, id));
 
     revalidatePath(ROUTES.ADMIN.PACKAGES.HOME);
+
+    void createAuditLog({
+      category: "admin",
+      action: "package.delete",
+      ...actorFromSession(session),
+      entityType: "package",
+      entityId: id,
+      summary: `Deleted package "${existing.name}"`,
+    });
 
     return {
       success: true,

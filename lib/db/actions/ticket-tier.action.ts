@@ -12,6 +12,7 @@ import { and, eq, ilike, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { ROUTES } from "@/constants/routes";
 import { requireAdminSession } from "./auth-guards";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 type TicketTierInput = z.infer<typeof ticketTierFormSchema>;
 type TicketTierListInput = z.infer<typeof TicketTierListSchema>;
@@ -29,7 +30,7 @@ export async function createTicketTier(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
     const data = validationResult.params;
 
     if (!data) {
@@ -46,6 +47,16 @@ export async function createTicketTier(
 
     revalidatePath(ROUTES.HOME);
     revalidatePath(ROUTES.ADMIN.TICKET_TIERS.HOME);
+
+    void createAuditLog({
+      category: "admin",
+      action: "ticket_tier.create",
+      ...actorFromSession(session),
+      entityType: "ticket_tier",
+      entityId: created.id,
+      summary: `Created ticket tier "${data.label}"`,
+      metadata: { type: data.type, pricePiastres: data.pricePiastres },
+    });
 
     return { success: true, data: { id: created.id } };
   } catch (error) {
@@ -154,7 +165,7 @@ export async function updateTicketTier(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
 
     const data = validationResult.params as TicketTierInput;
 
@@ -167,6 +178,16 @@ export async function updateTicketTier(
     if (!update) {
       return handleError(new NotFoundError("Ticket Tier")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "ticket_tier.update",
+      ...actorFromSession(session),
+      entityType: "ticket_tier",
+      entityId: update.id,
+      summary: `Updated ticket tier "${data.label}"`,
+      metadata: { type: data.type, pricePiastres: data.pricePiastres },
+    });
 
     return { success: true, data: { id: update.id } };
   } catch (error) {

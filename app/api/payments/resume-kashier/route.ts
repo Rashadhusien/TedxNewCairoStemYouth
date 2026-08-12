@@ -4,6 +4,7 @@ import { eq, and } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { orders } from "@/lib/db/schema";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 // Fallback base host used only for orders created before the exact session URL
 // was persisted. Matches the hosted checkout URL Kashier's API returns.
@@ -80,6 +81,16 @@ export async function POST(request: NextRequest) {
       const modeParam = mode === "test" ? "?mode=test" : "";
       sessionUrl = `${KASHIER_CHECKOUT_BASE}/session/${order.kashierSessionId}${modeParam}`;
     }
+
+    void createAuditLog({
+      category: "payment",
+      action: "payment.resume",
+      status: "info",
+      ...actorFromSession(session),
+      entityType: "order",
+      entityId: orderId,
+      summary: `Resumed Kashier checkout for order ${orderId}`,
+    });
 
     return NextResponse.json({
       success: true,

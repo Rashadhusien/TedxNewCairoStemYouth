@@ -7,6 +7,7 @@ import { requireAdminSession } from "./auth-guards";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
+import { actorFromSession, createAuditLog } from "@/lib/db/audit";
 
 /**
  * Seed/update offers with featured status and pricing
@@ -81,6 +82,15 @@ export async function seedOffers(): Promise<
 
     const count = (earlyBird ? 1 : 0) + (flashSale ? 1 : 0) + updated.length;
 
+    void createAuditLog({
+      category: "admin",
+      action: "offer.seed",
+      ...actorFromSession(session),
+      entityType: "offer",
+      summary: `Seeded featured offers (${count} upserted)`,
+      metadata: { count },
+    });
+
     return {
       success: true,
       data: { count },
@@ -108,7 +118,7 @@ export async function updateOfferFeatured(
   }
 
   try {
-    await requireAdminSession();
+    const { session } = await requireAdminSession();
     const data = validationResult.params as typeof params;
 
     const [updated] = await db
@@ -123,6 +133,20 @@ export async function updateOfferFeatured(
     if (!updated) {
       return handleError(new Error("Offer not found")) as ErrorResponse;
     }
+
+    void createAuditLog({
+      category: "admin",
+      action: "offer.update_featured",
+      ...actorFromSession(session),
+      entityType: "offer",
+      entityId: updated.id,
+      summary: `Set featured ${data.isFeatured} for offer ${updated.id}`,
+      metadata: {
+        isFeatured: data.isFeatured,
+        discountedPrice: data.discountedPrice ?? null,
+        originalPrice: data.originalPrice ?? null,
+      },
+    });
 
     return { success: true, data: { id: updated.id } };
   } catch (error) {
