@@ -4,7 +4,7 @@ export class RequestError extends Error {
   constructor(
     statusCode: number,
     message: string,
-    errors?: Record<string, string[]>
+    errors?: Record<string, string[]>,
   ) {
     super(message);
     this.statusCode = statusCode;
@@ -30,7 +30,7 @@ export class ValidationError extends RequestError {
         } else {
           return messages.join(" and ");
         }
-      }
+      },
     );
     return formattedMessages.join(", ");
   }
@@ -54,5 +54,12 @@ export class UnauthorizedError extends RequestError {
   constructor(message: string = "Unauthorized") {
     super(401, message);
     this.name = "UnauthorizedError";
+  }
+}
+
+export class DatabaseError extends RequestError {
+  constructor(message: string = "A database error occurred") {
+    super(500, message);
+    this.name = "DatabaseError";
   }
 }

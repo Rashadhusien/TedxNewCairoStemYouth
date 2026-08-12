@@ -10,11 +10,15 @@ import { CreateOrderSchema, OrderListSchema } from "@/lib/validation";
 import type { ActionResponse, ErrorResponse } from "@/types/actions";
 import type { z } from "zod";
 import { notifyTicketConfirmed } from "@/lib/email/send-ticket-emails";
+import logger from "@/lib/logger";
 
 import { db } from "..";
 import { orders, tickets, users, promoCodeUsages, promoCodes } from "../schema";
 import { assertUserIsActive, requireAdminSession } from "./auth-guards";
-import { getPromoCodeByCode, decrementPromoCodeUsage } from "./promo-code.action";
+import {
+  getPromoCodeByCode,
+  decrementPromoCodeUsage,
+} from "./promo-code.action";
 import { getPackageById } from "./package.action";
 import { getTicketLimitSetting } from "./setting.action";
 import { serverAnalytics } from "@/lib/analytics/server";
@@ -236,7 +240,10 @@ export async function createOrder(
 
     // Enforce the global total ticket limit (confirmed + checked-in only)
     const capacity = await getTicketLimitSetting();
-    if (capacity.totalTicketsSold + pkg.ticketCount > capacity.maxTotalTickets) {
+    if (
+      capacity.totalTicketsSold + pkg.ticketCount >
+      capacity.maxTotalTickets
+    ) {
       return handleError(
         new ValidationError({
           tickets: [
@@ -613,7 +620,19 @@ export async function createOrder(
       },
     };
   } catch (error) {
-    console.error("[Order] Creation failed:", error);
+    // Enhanced error logging with context
+    logger.error(
+      {
+        err: error,
+        userId: session.user.id,
+        packageId: data.packageId,
+        promoCode: data.promoCode,
+        attendeeCount: data.attendees.length,
+        timestamp: new Date().toISOString(),
+      },
+      "[Order] Creation failed",
+    );
+
     return handleError(error) as ErrorResponse;
   }
 }
