@@ -32,6 +32,17 @@ type PromoCodeUpdateInput = z.infer<typeof PromoCodeUpdateSchema>;
 type PromoCodeListInput = z.infer<typeof PromoCodeListSchema>;
 type ValidatePromoCodeInput = z.infer<typeof ValidatePromoCodeSchema>;
 
+type PromoCodeWithStats = typeof promoCodes.$inferSelect & {
+  tags?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    color: string | null;
+  }>;
+  ticketCount?: number;
+  packageCount?: number;
+};
+
 export async function getActivePromoCodes() {
   const now = new Date();
   const activeCodes = await db
@@ -83,7 +94,7 @@ export async function getPromoCodeByCode(code: string) {
 
 export async function listPromoCodes(params: PromoCodeListInput): Promise<
   | ActionResponse<{
-      promoCodes: (typeof promoCodes.$inferSelect)[];
+      promoCodes: PromoCodeWithStats[];
       total: number;
     }>
   | ErrorResponse
@@ -143,9 +154,9 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
     const sortedPromoCodes = [...rowsWithUsageStats].sort((a, b) => {
       if (sortBy === "most_used") {
         // Sort by ticket count descending, then by package count descending
-        const ticketDiff = (b.ticketCount || 0) - (a.ticketCount || 0);
+        const ticketDiff = (b.ticketCount ?? 0) - (a.ticketCount ?? 0);
         if (ticketDiff !== 0) return ticketDiff;
-        return (b.packageCount || 0) - (a.packageCount || 0);
+        return (b.packageCount ?? 0) - (a.packageCount ?? 0);
       } else {
         // Sort by creation date descending (recent)
         return (
@@ -174,8 +185,8 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
 }
 
 async function attachUsageStatsToPromoCodes(
-  promoCodeList: (typeof promoCodes.$inferSelect)[],
-) {
+  promoCodeList: PromoCodeWithStats[],
+): Promise<PromoCodeWithStats[]> {
   if (promoCodeList.length === 0) return promoCodeList;
 
   const ids = promoCodeList.map((p) => p.id);
@@ -209,7 +220,7 @@ async function attachUsageStatsToPromoCodes(
 
 async function attachTagsToPromoCodes(
   promoCodeList: (typeof promoCodes.$inferSelect)[],
-) {
+): Promise<PromoCodeWithStats[]> {
   if (promoCodeList.length === 0) return promoCodeList;
 
   const ids = promoCodeList.map((p) => p.id);
