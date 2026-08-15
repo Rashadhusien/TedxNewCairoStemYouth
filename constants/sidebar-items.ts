@@ -1,15 +1,19 @@
 import {
+  BadgePercent,
   Camera,
-  LayersMinusIcon,
+  Handshake,
+  History,
   LayoutDashboard,
-  type LucideIcon,
-  Percent,
+  Megaphone,
+  Package,
   ReceiptText,
+  Settings,
+  ShoppingCart,
   Tag,
   Ticket,
+  type LucideIcon,
   Users,
   Users2,
-  History,
 } from "lucide-react";
 import { ROUTES } from "./routes";
 
@@ -72,12 +76,12 @@ export const sidebarItems: NavGroup[] = [
       {
         title: "Coupons",
         url: ROUTES.ADMIN.COUPONS.HOME,
-        icon: Percent,
+        icon: BadgePercent,
       },
       {
         title: "Offers",
         url: ROUTES.ADMIN.OFFERS.HOME,
-        icon: Tag,
+        icon: Megaphone,
       },
       {
         title: "Promo Codes",
@@ -92,17 +96,17 @@ export const sidebarItems: NavGroup[] = [
       {
         title: "Packages",
         url: ROUTES.ADMIN.PACKAGES.HOME,
-        icon: Tag,
+        icon: Package,
       },
       {
         title: "Orders",
         url: ROUTES.ADMIN.ORDERS.HOME,
-        icon: Tag,
+        icon: ShoppingCart,
       },
       {
         title: "Ticket Limit",
         url: ROUTES.ADMIN.SETTINGS.TICKET_LIMIT,
-        icon: Ticket,
+        icon: Settings,
       },
     ],
   },
@@ -120,12 +124,12 @@ export const sidebarItems: NavGroup[] = [
 
   {
     id: 4,
-    label: "Sponsors & Boothes",
+    label: "Sponsors & Booths",
     items: [
       {
         title: "Sponsors",
         url: ROUTES.ADMIN.SPONSORS.HOME,
-        icon: LayersMinusIcon,
+        icon: Handshake,
       },
     ],
   },
@@ -142,7 +146,7 @@ export const sidebarItems: NavGroup[] = [
   },
   {
     id: 6,
-    label: "System",
+    label: "System & Settings",
     items: [
       {
         title: "Activity Logs",

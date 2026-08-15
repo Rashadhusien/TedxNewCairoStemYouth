@@ -16,6 +16,7 @@ export interface SearchParams {
   page?: string;
   pageSize?: string;
   status?: string;
+  sortBy?: string;
   search?: string;
   type?: string;
   tagIds?: string;

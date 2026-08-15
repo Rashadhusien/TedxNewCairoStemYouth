@@ -5,7 +5,6 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 
-import { confirmedSponsorsList } from "@/constants/sponsors-page";
 import { SponsorsSectionHeader } from "./sponsors-section-header";
 import { SponsorsWithRelations } from "@/types/sponsor";
 import { getInitials } from "@/lib/utils";
@@ -47,11 +46,11 @@ export default function SponsorsSponsorsSection({
   );
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative border-b border-border/80 bg-muted/15 py-16 sm:py-20 md:py-24"
-    >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+    <section ref={sectionRef} className="relative py-20 px-6 lg:px-10 bg-black">
+      <div className="absolute inset-0 bg-linear-to-b from-[#050505] via-black to-[#050000] pointer-events-none" />
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[60%] h-[30%] bg-red-950/15 rounded-full blur-[160px] pointer-events-none" />
+
+      <div className="relative z-10 max-w-6xl mx-auto">
         <SponsorsSectionHeader
           eyebrow="Confirmed sponsors"
           title={
@@ -64,45 +63,50 @@ export default function SponsorsSponsorsSection({
 
         <div
           ref={gridRef}
-          className="mx-auto grid max-w-5xl grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6"
+          className="mx-auto grid max-w-6xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
         >
           {sponsors &&
             sponsors.map((sponsor) => (
               <article
                 key={sponsor.id}
-                className="group relative flex flex-col items-center rounded-xl border border-border bg-card/80 px-8 py-10 text-center transition-all duration-300 hover:border-primary/35 hover:bg-card hover:shadow-[0_0_40px_color-mix(in_oklch,var(--primary)_12%,transparent)] sm:px-10 sm:py-12"
+                className="group relative flex flex-col items-center rounded-xl border border-white/10 bg-white/2 px-6 py-8 text-center transition-all duration-300 hover:border-primary/40 hover:bg-white/4 sm:px-8 sm:py-10"
               >
                 <div
                   className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-transparent via-primary to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                   aria-hidden
                 />
-                <span className="mb-2 text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80">
+                <span className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-primary/80">
                   {sponsor.tier}
                 </span>
-                <div className="size-27.5 rounded-full overflow-hidden border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-2.5 transition-all duration-300">
+                <div className="size-24 rounded-full overflow-hidden border border-primary/20 bg-primary/8 group-hover:bg-primary/15 group-hover:border-primary/55 flex items-center justify-center mx-auto mb-4 transition-all duration-300">
                   {sponsor.logoUrl ? (
                     <Image
                       src={sponsor.logoUrl}
                       alt={sponsor.name}
-                      width={144}
-                      height={144}
-                      className="object-cover rounded-full  "
+                      width={96}
+                      height={96}
+                      className="object-cover rounded-full"
                     />
                   ) : (
-                    <span className="text-4xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
+                    <span className="text-3xl font-bold text-primary/60 group-hover:text-primary transition-colors duration-300">
                       {getInitials(sponsor.name)}
                     </span>
                   )}
                 </div>
-                <h3 className="text-2xl font-bold uppercase tracking-tight text-foreground sm:text-3xl">
+                <h3 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
                   {sponsor.name}
                 </h3>
-                <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/60">
                   {sponsor.description}
                 </p>
               </article>
             ))}
         </div>
+
+        <p className="mx-auto mt-10 max-w-2xl text-center text-sm text-white/40">
+          Additional sponsorship slots across Strategic Partner, Gold, Silver,
+          and Custom Package tiers are open for the 2026 edition.
+        </p>
       </div>
     </section>
   );

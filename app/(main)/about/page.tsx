@@ -5,9 +5,9 @@ import AboutTeamSection from "../components/about/about-team-section";
 import AboutTedxSection from "../components/about/about-tedx-section";
 
 export const metadata = {
-  title: "About Us",
+  title: "About Us | TEDxNewCairoSTEMYouth",
   description:
-    "Learn more about TEDxNewCairoSTEMYouth, our mission, vision, and commitment to empowering Egypt's future leaders.",
+    "Learn more about TEDxNewCairoSTEMYouth, our mission, vision, and commitment to empowering Egypt's future leaders. Discover the team behind Luminous Darkness 2026.",
 };
 
 export default function AboutPage() {

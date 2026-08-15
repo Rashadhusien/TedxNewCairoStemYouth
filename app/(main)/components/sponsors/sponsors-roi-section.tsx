@@ -81,7 +81,7 @@ export default function SponsorsRoiSection() {
                   Measurable reach & <span className="text-primary">ROI</span>
                 </>
               }
-              description="Hosted at the Hilton Nile Maadi, our venue is equipped with 6 auxiliary screens, main LED stage, and premium exhibition halls. Partners leave with a comprehensive digital report of pre-qualified leads, fully compliant with Egypt Data Law 151/2020."
+              description="Hosted at Galal El Sharkawy - down town cairo, our venue is equipped with 6 auxiliary screens, main LED stage, and premium exhibition halls. Partners leave with a comprehensive digital report of pre-qualified leads, fully compliant with Egypt Data Law 151/2020."
               className="mb-0"
             />
             <ul className="mt-8 space-y-4">

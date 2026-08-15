@@ -89,15 +89,9 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
   | ErrorResponse
 > {
   try {
-    const { status, search, page, pageSize, tagIds } = params;
+    const { sortBy, search, page, pageSize, tagIds } = params;
 
     const conditions = [sql`${promoCodes.deletedAt} IS NULL`];
-
-    if (status === "active") {
-      conditions.push(eq(promoCodes.isActive, true));
-    } else if (status === "inactive") {
-      conditions.push(eq(promoCodes.isActive, false));
-    }
 
     if (search) {
       const searchConditions = or(
@@ -132,24 +126,45 @@ export async function listPromoCodes(params: PromoCodeListInput): Promise<
 
     const total = countResult?.count || 0;
 
-    const promoCodeList = await db
+    // Get all promo codes matching filters (without pagination for sorting)
+    const allPromoCodes = await db
       .select()
       .from(promoCodes)
       .where(whereClause ?? sql`1=1`)
-      .orderBy(desc(promoCodes.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize);
+      .orderBy(desc(promoCodes.createdAt));
 
     // Attach tags to each row (batched, DB-level lookup)
-    const rowsWithTags = await attachTagsToPromoCodes(promoCodeList);
+    const rowsWithTags = await attachTagsToPromoCodes(allPromoCodes);
 
     // Attach usage stats (orders + total tickets) to each row
     const rowsWithUsageStats = await attachUsageStatsToPromoCodes(rowsWithTags);
 
+    // Sort based on sortBy parameter
+    const sortedPromoCodes = [...rowsWithUsageStats].sort((a, b) => {
+      if (sortBy === "most_used") {
+        // Sort by ticket count descending, then by package count descending
+        const ticketDiff = (b.ticketCount || 0) - (a.ticketCount || 0);
+        if (ticketDiff !== 0) return ticketDiff;
+        return (b.packageCount || 0) - (a.packageCount || 0);
+      } else {
+        // Sort by creation date descending (recent)
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+    });
+
+    // Apply pagination after sorting
+    const startIndex = (page - 1) * pageSize;
+    const paginatedPromoCodes = sortedPromoCodes.slice(
+      startIndex,
+      startIndex + pageSize,
+    );
+
     return {
       success: true,
       data: {
-        promoCodes: rowsWithUsageStats,
+        promoCodes: paginatedPromoCodes,
         total,
       },
     };

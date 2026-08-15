@@ -25,10 +25,30 @@ function GridTexture() {
 }
 
 const SPONSOR_TIERS = [
-  { id: "t1", name: "Strategic Partner", icon: Shield, description: "Main stage + Mega Booth" },
-  { id: "t2", name: "Gold Sponsor", icon: Award, description: "Quest Zone + 4-screen presence" },
-  { id: "t3", name: "Silver Sponsor", icon: Zap, description: "Exhibition area + digital presence" },
-  { id: "t4", name: "Custom Package", icon: Flame, description: "Tailor-made partnership" },
+  {
+    id: "t1",
+    name: "Strategic Partner",
+    icon: Shield,
+    description: "Main stage + Mega Booth",
+  },
+  {
+    id: "t2",
+    name: "Gold Sponsor",
+    icon: Award,
+    description: "Quest Zone + 4-screen presence",
+  },
+  {
+    id: "t3",
+    name: "Silver Sponsor",
+    icon: Zap,
+    description: "Exhibition area + digital presence",
+  },
+  {
+    id: "t4",
+    name: "Custom Package",
+    icon: Flame,
+    description: "Tailor-made partnership",
+  },
 ];
 
 export default function SponsorsCTA() {
@@ -58,7 +78,7 @@ export default function SponsorsCTA() {
             start: "top 80%",
             toggleActions: "play none none none",
           },
-        }
+        },
       );
 
       // Right Slots Grid staggers
@@ -77,10 +97,10 @@ export default function SponsorsCTA() {
             start: "top 82%",
             toggleActions: "play none none none",
           },
-        }
+        },
       );
     },
-    { scope: containerRef }
+    { scope: containerRef },
   );
 
   // Invitation card mousemove cursor tracking glow
@@ -136,7 +156,7 @@ export default function SponsorsCTA() {
   const onMouseEnterSlot = (e: React.MouseEvent<HTMLDivElement>) => {
     const slot = e.currentTarget;
     const icon = slot.querySelector(".slot-icon") as HTMLElement;
-    
+
     gsap.to(slot, {
       borderColor: "rgba(230, 0, 0, 0.4)", // Neon red border
       backgroundColor: "rgba(10, 0, 0, 0.5)",
@@ -192,7 +212,6 @@ export default function SponsorsCTA() {
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          
           {/* Left Invitation Card */}
           <div className="lg:col-span-6">
             <div
@@ -211,7 +230,8 @@ export default function SponsorsCTA() {
               <div
                 className="card-glow pointer-events-none absolute left-0 top-0 opacity-0 z-3 w-[450px] h-[450px] rounded-full blur-3xl"
                 style={{
-                  background: "radial-gradient(circle, rgba(230, 0, 0, 0.15) 0%, transparent 70%)",
+                  background:
+                    "radial-gradient(circle, rgba(230, 0, 0, 0.15) 0%, transparent 70%)",
                 }}
               />
 
@@ -233,12 +253,18 @@ export default function SponsorsCTA() {
                   id="sponsors-heading"
                   className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-none mb-6"
                 >
-                  Join the <span className="text-glow-white text-white">Ignition.</span><br />
+                  Join the{" "}
+                  <span className="text-glow-white text-white">Ignition.</span>
+                  <br />
                   Fuel the Future.
                 </h2>
 
                 <p className="text-white/45 text-sm sm:text-base leading-relaxed mb-8 max-w-[480px]">
-                  Connect your brand with over 1,000 elite STEM youth, future leaders, and technical visionaries at the Hilton Nile Maadi. Partnering with TEDxNewCairoSTEMYouth gives your brand high-impact physical and digital activation, direct recruitment channels, and prime exposure.
+                  Connect your brand with over 1,000 elite STEM youth, future
+                  leaders, and technical visionaries at Galal El Sharkawy - down
+                  town cairo. Partnering with TEDxNewCairoSTEMYouth gives your
+                  brand high-impact physical and digital activation, direct
+                  recruitment channels, and prime exposure.
                 </p>
 
                 {/* CTAs */}
@@ -303,7 +329,6 @@ export default function SponsorsCTA() {
               })}
             </div>
           </div>
-
         </div>
       </div>
     </section>

@@ -318,10 +318,7 @@ export const TagUpdateSchema = z.object({
 });
 
 export const TicketLimitSettingSchema = z.object({
-  maxTotalTickets: z
-    .number()
-    .int()
-    .min(1, "Ticket limit must be at least 1"),
+  maxTotalTickets: z.number().int().min(1, "Ticket limit must be at least 1"),
 });
 
 export const PromoCodeCreateSchema = z
@@ -418,7 +415,7 @@ export const PromoCodeUpdateSchema = z
   });
 
 export const PromoCodeListSchema = z.object({
-  status: z.enum(["all", "active", "inactive"]).default("all"),
+  sortBy: z.enum(["most_used", "recent"]).default("recent"),
   search: z.string().optional(),
   tagIds: z.array(z.string().uuid("Invalid tag ID")).optional(),
   ...paginationSchema.shape,
@@ -721,7 +718,16 @@ export const UpdateUserActiveSchema = z.object({
 
 export const AuditLogListSchema = z.object({
   category: z
-    .enum(["all", "admin", "order", "payment", "ticket", "promo_code", "email", "auth"])
+    .enum([
+      "all",
+      "admin",
+      "order",
+      "payment",
+      "ticket",
+      "promo_code",
+      "email",
+      "auth",
+    ])
     .default("all"),
   status: z.enum(["all", "success", "failure", "info"]).default("all"),
   search: z.string().optional(),

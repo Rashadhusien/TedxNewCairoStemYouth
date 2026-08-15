@@ -1,12 +1,14 @@
 import SectionTitle from "@/components/layout/section-title";
 import ContactForm from "@/components/main/forms/contact-form";
 import { EMAIL, PHONE, socialLinks } from "@/constants";
-import { Mail, Phone } from "lucide-react";
+import { ROUTES } from "@/constants/routes";
+import { Mail, Phone, Ticket } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 export const metadata = {
-  title: "Contact Us",
+  title: "Contact Us | TEDxNewCairoSTEMYouth",
   description:
-    "Get in touch with the TEDxNewCairoSTEMYouth team for partnerships, sponsorships, media inquiries, and event information.",
+    "Get in touch with the TEDxNewCairoSTEMYouth team for partnerships, sponsorships, media inquiries, and event information for Luminous Darkness 2026.",
 };
 const Contact = () => {
   return (
@@ -98,6 +100,22 @@ const Contact = () => {
                 </div>
               </div>
             </div> */}
+
+            {/* Quick CTA */}
+            <div className="p-6 border border-primary/20 bg-primary/5 rounded-sm">
+              <h3 className="text-white font-bold text-sm tracking-wide mb-4">
+                Ready to Join?
+              </h3>
+              <p className="text-white/50 text-xs mb-4 leading-relaxed">
+                Secure your spot at Luminous Darkness 2026.
+              </p>
+              <Button size="sm" className="w-full" asChild>
+                <Link href={ROUTES.TICKETS}>
+                  <Ticket className="size-4 mr-2" />
+                  Get Tickets
+                </Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

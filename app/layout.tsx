@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "TEDxNewCairoSTEMYouth 2026. Discover inspiring ideas, visionary speakers, and Egypt's brightest STEM youth under the theme Luminous Darkness.",
+    "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover inspiring ideas from Egypt's brightest STEM youth.",
 
   keywords: [
     "TEDx",
@@ -51,6 +51,10 @@ export const metadata: Metadata = {
     },
   ],
 
+  alternates: {
+    canonical: "/",
+  },
+
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -58,14 +62,23 @@ export const metadata: Metadata = {
     siteName: "TEDxNewCairoSTEMYouth",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
     description:
-      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
+      "September 5, 2026 · Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover the light hidden within the darkness.",
+    images: [
+      {
+        url: "/images/hero-poster.jpeg",
+        width: 1200,
+        height: 630,
+        alt: "TEDxNewCairoSTEMYouth — Luminous Darkness",
+      },
+    ],
   },
 
   twitter: {
     card: "summary_large_image",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
     description:
-      "Join TEDxNewCairoSTEMYouth 2026 and discover the light hidden within the darkness.",
+      "September 5, 2026 · Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover the light hidden within the darkness.",
+    images: ["/images/hero-poster.jpeg"],
   },
 
   robots: {
@@ -117,6 +130,41 @@ export default function RootLayout({
       gtag('config', 'G-ZQHHHCSM3F');
     `}
         </Script>
+
+        {/* Event Structured Data */}
+        <Script
+          id="event-structured-data"
+          type="application/ld+json"
+          strategy="afterInteractive"
+        >
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Event",
+            name: "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness",
+            description:
+              "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover inspiring ideas from Egypt's brightest STEM youth.",
+            startDate: "2026-09-05T10:00:00",
+            eventStatus: "https://schema.org/EventScheduled",
+            eventAttendanceMode:
+              "https://schema.org/OfflineEventAttendanceMode",
+            location: {
+              "@type": "Place",
+              name: "Galal El Sharkawy - down town cairo",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Cairo",
+                addressCountry: "Egypt",
+              },
+            },
+            url: "https://www.tedxnewcairostemyouth.org",
+            organizer: {
+              "@type": "Organization",
+              name: "TEDxNewCairoSTEMYouth",
+              url: "https://www.tedxnewcairostemyouth.org",
+            },
+          })}
+        </Script>
+
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body className="min-h-full flex flex-col">

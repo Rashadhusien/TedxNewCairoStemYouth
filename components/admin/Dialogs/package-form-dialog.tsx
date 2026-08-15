@@ -40,7 +40,7 @@ export default function PackageFormDialog({
         name: pkg.name || "",
         description: pkg.description || "",
         ticketCount: pkg.ticketCount || 1,
-        pricePerTicketPiastres: pkg.pricePerTicketPiastres || 38000,
+        pricePerTicketPiastres: pkg.pricePerTicketPiastres || 35000,
         discountedPricePerTicketPiastres:
           pkg.discountedPricePerTicketPiastres ?? undefined,
         requiresAccessCode: pkg.requiresAccessCode || false,
@@ -53,7 +53,7 @@ export default function PackageFormDialog({
       name: "",
       description: "",
       ticketCount: 1,
-      pricePerTicketPiastres: 38000,
+      pricePerTicketPiastres: 35000,
       discountedPricePerTicketPiastres: undefined as number | undefined,
       requiresAccessCode: false,
       isPromoApplicable: false,

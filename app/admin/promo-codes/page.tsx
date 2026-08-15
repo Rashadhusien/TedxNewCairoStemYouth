@@ -16,13 +16,13 @@ export default async function AdminPromoCodesPage({
 }: AdminPromoCodesPageProps) {
   const params = await searchParams;
 
-  const status = (params.status ?? "all") as "all" | "active" | "inactive";
+  const sortBy = (params.sortBy ?? "recent") as "most_used" | "recent";
   const tagIds = params.tagIds ? params.tagIds.split(",") : undefined;
 
   const result = await listPromoCodes({
     page: Number(params.page) || 1,
     pageSize: Number(params.pageSize) || 10,
-    status,
+    sortBy,
     search: params.search,
     tagIds,
   });
@@ -51,7 +51,7 @@ export default async function AdminPromoCodesPage({
         total={data.total}
         pageSize={Number(params.pageSize) || 10}
         page={Number(params.page) || 1}
-        status={params.status ?? "all"}
+        sortBy={params.sortBy ?? "recent"}
         selectItems={PROMO_CODE_STATUS}
         tagItems={tags.map((tag) => ({ value: tag.id, label: tag.name }))}
         selectedTagIds={tagIds?.join(",") || ""}

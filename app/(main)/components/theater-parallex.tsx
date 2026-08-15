@@ -89,11 +89,11 @@ export default function TheaterParallax() {
               fontFamily: "'Bebas Neue', sans-serif",
             }}
           >
-            The Art Theater
+            Galal El Sharkawy
             <br />
           </h2>
           <span className="text-white text-lg sm:text-5xl font-bold mb-4 inline-block">
-            Galal El Sharkawy
+            down town cairo
           </span>
 
           <p
@@ -134,16 +134,16 @@ export default function TheaterParallax() {
             <MapPin className="size-4 text-primary" />
 
             <Link
-              href="https://www.google.com/maps/search/?api=1&query=The+Art+Theater+Galal+El+Sharkawy+Cairo"
+              href="https://www.google.com/maps/search/?api=1&query=Galal+El+Sharkawy+Cairo"
               target="_blank"
               className="
               text-xs
               font-medium
               tracking-wide
-              text-white/75 
+              text-white/75
             "
             >
-              Gamal Abdel Nasser Metro, Downtown Cairo, Egypt
+              Cairo, Egypt
             </Link>
           </motion.div>
         </motion.div>

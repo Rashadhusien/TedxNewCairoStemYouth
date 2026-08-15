@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Ticket } from "lucide-react";
+import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import Image from "next/image";
@@ -9,11 +9,10 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ROUTES } from "@/constants/routes";
 import { socialLinks } from "@/constants";
-import { Session } from "next-auth";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Hero = ({ session }: { session: Session | null }) => {
+const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -57,7 +56,7 @@ const Hero = ({ session }: { session: Session | null }) => {
       {/* Poster image shown until video can play */}
       <Image
         src="/images/hero-poster.jpeg"
-        alt="hero-poster"
+        alt="TEDxNewCairoSTEMYouth 2026 event poster featuring Galal El Sharkawy venue with dramatic lighting"
         fill
         priority
         className={`absolute -z-1 inset-0 object-cover aspect-auto will-change-[opacity,transform]  transition-opacity duration-700 ${
@@ -132,29 +131,42 @@ const Hero = ({ session }: { session: Session | null }) => {
             >
               <Link href={ROUTES.TICKETS}>
                 <Ticket className="size-5" />
-                Buy a Ticket
+                Get Your Ticket
               </Link>
             </Button>
-            {session ? (
-              <Button
-                className="py-6 sm:text-base transition-transform active:scale-95 "
-                variant="outline"
-                asChild
-              >
-                <Link href={ROUTES.EVENT}>Event 2026</Link>
-              </Button>
-            ) : (
-              <Button
-                className="py-6 sm:text-base transition-transform active:scale-95 "
-                variant="outline"
-                asChild
-              >
-                <Link href={ROUTES.REGISTER}>Create Account</Link>
-              </Button>
-            )}
+            <Button
+              className="py-6 sm:text-base transition-transform active:scale-95 "
+              variant="outline"
+              asChild
+            >
+              <Link href={ROUTES.EVENT}>Explore The Event</Link>
+            </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-5 mt-8 flex-wrap mx-auto ">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 max-sm:px-4 mt-6 sm:mt-8">
+            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+              <Calendar className="size-4 text-primary" aria-hidden />
+              Sep 5, 2026 · 10:00 AM
+            </span>
+            <span
+              className="hidden sm:block size-0.5 rounded-full bg-white/20"
+              aria-hidden
+            />
+            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+              <MapPin className="size-4 text-primary" aria-hidden />
+              Galal El Sharkawy · down town cairo
+            </span>
+            <span
+              className="hidden sm:block size-0.5 rounded-full bg-white/20"
+              aria-hidden
+            />
+            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+              <Ticket className="size-4 text-primary" aria-hidden />
+              From 350 EGP
+            </span>
+          </div>
+
+          <div className="flex items-center justify-center gap-5 mt-6 flex-wrap mx-auto ">
             {socialLinks.map((soc) => {
               const Icon = soc.icon;
               return (

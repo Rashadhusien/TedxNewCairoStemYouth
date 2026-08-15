@@ -1,6 +1,15 @@
 import SectionTitle from "@/components/layout/section-title";
 import TicketsPageClient from "@/components/tickets/tickets-page-client";
+import EventInfoSection from "../components/event-info-section";
+import HowToAttendSection from "../components/how-to-attend-section";
+import FaqSection from "../components/faq-section";
 import { getActivePackages } from "@/lib/db/actions/package.action";
+
+export const metadata = {
+  title: "Get Your Ticket",
+  description:
+    "Book your ticket for TEDxNewCairoSTEMYouth 2026 — September 5, 2026 at Galal El Sharkawy - down town cairo. Regular tickets from 350 EGP, plus 3 & 5 Friends packages.",
+};
 
 export default async function TicketsPage() {
   const packages = await getActivePackages();
@@ -20,6 +29,9 @@ export default async function TicketsPage() {
         </div>
       </section>
       <TicketsPageClient packages={packages} />
+      <EventInfoSection />
+      <HowToAttendSection />
+      <FaqSection />
     </div>
   );
 }

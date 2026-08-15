@@ -57,7 +57,7 @@ export function SponsorsSectionHeader({
   return (
     <div ref={ref} className={`mb-10 md:mb-14 ${alignClass} ${className}`}>
       <div
-        className={`mb-4 inline-flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-primary ${
+        className={`mb-4 inline-flex items-center gap-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-primary/80 ${
           align === "center" ? "justify-center w-full" : ""
         }`}
       >
@@ -65,11 +65,11 @@ export function SponsorsSectionHeader({
         {eyebrow}
         <span className="block h-px w-8 shrink-0 bg-primary/60" aria-hidden />
       </div>
-      <h2 className="  text-2xl font-extrabold  leading-[0.95] tracking-tight text-foreground sm:text-4xl md:text-5xl lg:text-[3.25rem]">
+      <h2 className="  text-2xl font-extrabold  leading-[0.95] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.25rem]">
         {title}
       </h2>
       {description ? (
-        <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base">
+        <p className="mt-4 text-sm leading-relaxed text-white/60 sm:text-base">
           {description}
         </p>
       ) : null}

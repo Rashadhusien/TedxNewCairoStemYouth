@@ -102,16 +102,12 @@ export const PACKAGE_STATUS = [
 
 export const PROMO_CODE_STATUS = [
   {
-    value: "all",
-    label: "All",
+    value: "most_used",
+    label: "Most Used",
   },
   {
-    value: "active",
-    label: "Active",
-  },
-  {
-    value: "inactive",
-    label: "Inactive",
+    value: "recent",
+    label: "Recent",
   },
 ];
 

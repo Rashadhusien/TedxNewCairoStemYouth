@@ -4,8 +4,6 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  ColumnFiltersState,
-  getFilteredRowModel,
   getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
@@ -22,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
-import { TicketWithRelations } from "@/types/ticket";
 import {
   Select,
   SelectContent,
@@ -39,6 +36,7 @@ interface DataTableProps<TData, TValue> {
   pageSize?: number;
   page?: number;
   status?: string;
+  sortBy?: string;
   selectItems?: {
     value: string;
     label: string;
@@ -64,6 +62,7 @@ export function DataTable<TData, TValue>({
   pageSize = 10,
   page = 1,
   status = "all",
+  sortBy = "recent",
   selectItems = [],
   category = "all",
   categoryItems = [],
@@ -81,13 +80,21 @@ export function DataTable<TData, TValue>({
 
   const updateFilters = (next: {
     status?: string;
+    sortBy?: string;
     category?: string;
     search?: string;
     page?: number;
     tagIds?: string;
   }) => {
     const params = new URLSearchParams();
-    params.set("status", next.status ?? status);
+
+    // Use sortBy if provided, otherwise use status
+    if (sortBy !== undefined) {
+      params.set("sortBy", next.sortBy ?? sortBy);
+    } else if (status !== undefined) {
+      params.set("status", next.status ?? status);
+    }
+
     if (categoryItems.length > 0) {
       params.set("category", next.category ?? category);
     }
@@ -132,11 +139,21 @@ export function DataTable<TData, TValue>({
         )}
 
         <Select
-          value={status}
-          onValueChange={(v) => updateFilters({ status: v, page: 1 })}
+          value={sortBy || status}
+          onValueChange={(v) => {
+            if (sortBy !== undefined) {
+              updateFilters({ sortBy: v, page: 1 });
+            } else {
+              updateFilters({ status: v, page: 1 });
+            }
+          }}
         >
           <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by status" />
+            <SelectValue
+              placeholder={
+                sortBy !== undefined ? "Sort by" : "Filter by status"
+              }
+            />
           </SelectTrigger>
           <SelectContent>
             {selectItems.map((item) => (
