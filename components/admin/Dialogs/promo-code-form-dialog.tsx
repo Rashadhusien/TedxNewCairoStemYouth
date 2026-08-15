@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, AlertCircle } from "lucide-react";
 import {
   createPromoCode,
   updatePromoCode,
@@ -46,6 +46,7 @@ export default function PromoCodeFormDialog({
 }: PromoCodeFormDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const isEdit = !!promoCode;
 
@@ -99,6 +100,7 @@ export default function PromoCodeFormDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
     try {
       let result;
@@ -117,9 +119,28 @@ export default function PromoCodeFormDialog({
       if (result.success) {
         setOpen(false);
         router.refresh();
+      } else {
+        // Handle validation errors
+        if (result.error) {
+          const errorObj = result.error;
+          if (typeof errorObj === "string") {
+            setError(errorObj);
+          } else if ("details" in errorObj && errorObj.details) {
+            // Extract field-specific errors
+            const fieldErrors = Object.values(errorObj.details).flat();
+            setError(fieldErrors.join(", "));
+          } else if ("message" in errorObj && errorObj.message) {
+            setError(errorObj.message);
+          } else {
+            setError("Failed to save promo code");
+          }
+        } else {
+          setError("Failed to save promo code");
+        }
       }
     } catch (error) {
       console.error("Failed to save promo code:", error);
+      setError("An unexpected error occurred");
     } finally {
       setLoading(false);
     }
@@ -133,7 +154,13 @@ export default function PromoCodeFormDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        setOpen(newOpen);
+        if (newOpen) setError(null);
+      }}
+    >
       <DialogTrigger asChild>{trigger || defaultTrigger}</DialogTrigger>
       <DialogContent className="sm:max-w-125">
         <DialogHeader>
@@ -146,6 +173,14 @@ export default function PromoCodeFormDialog({
               : "Add a new promotional code for ticket discounts."}
           </DialogDescription>
         </DialogHeader>
+
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-md flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <p className="text-sm">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">

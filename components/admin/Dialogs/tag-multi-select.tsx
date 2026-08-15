@@ -14,7 +14,9 @@ export default function TagMultiSelect({
   value,
   onChange,
 }: TagMultiSelectProps) {
-  const [tags, setTags] = useState<{ id: string; name: string; color: string | null }[]>([]);
+  const [tags, setTags] = useState<
+    { id: string; name: string; color: string | null }[]
+  >([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -41,8 +43,10 @@ export default function TagMultiSelect({
   };
 
   return (
-    <div className="space-y-2">
-      {loading && <p className="text-sm text-muted-foreground">Loading tags...</p>}
+    <div className="flex flex-col max-h-20 overflow-y-auto gap-2">
+      {loading && (
+        <p className="text-sm text-muted-foreground">Loading tags...</p>
+      )}
       {!loading && tags.length === 0 && (
         <p className="text-sm text-muted-foreground">No tags yet.</p>
       )}
