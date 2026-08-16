@@ -1,16 +1,21 @@
 import TicketLimitForm from "@/components/admin/ticket-limit-form";
-import { getTicketLimitSetting } from "@/lib/db/actions/setting.action";
+import {
+  getTicketLimitSetting,
+  getTicketStatistics,
+} from "@/lib/db/actions/setting.action";
+import TicketStatisticsChart from "./ticket-statistics-chart";
 
 export default async function AdminTicketLimitPage() {
   const limit = await getTicketLimitSetting();
+  const stats = await getTicketStatistics();
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Ticket Limit</h1>
+        <h1 className="text-2xl font-bold">Ticket Limit & Statistics</h1>
         <p className="text-muted-foreground text-sm">
           Set the maximum total number of confirmed tickets that can be sold
-          across all packages.
+          across all packages and view detailed sales statistics.
         </p>
       </div>
 
@@ -19,6 +24,8 @@ export default async function AdminTicketLimitPage() {
         totalTicketsSold={limit.totalTicketsSold}
         remainingTickets={limit.remainingTickets}
       />
+
+      <TicketStatisticsChart stats={stats} />
     </div>
   );
 }

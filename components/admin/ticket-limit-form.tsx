@@ -56,7 +56,7 @@ export default function TicketLimitForm({
   };
 
   return (
-    <Card className="max-w-md">
+    <Card className="w-full">
       <CardHeader>
         <CardTitle>Total Ticket Capacity</CardTitle>
       </CardHeader>
