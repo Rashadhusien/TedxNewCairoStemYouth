@@ -78,6 +78,13 @@
       "when": 1786107000000,
       "tag": "0010_add_kashier_session_url",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1786921544216,
+      "tag": "0011_sparkling_invaders",
+      "breakpoints": true
     }
   ]
 }

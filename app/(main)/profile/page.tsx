@@ -149,6 +149,11 @@ export default async function ProfilePage() {
                           </p>
                         </div>
                         <div className="text-right">
+                          {ticket.type === "vip" && (
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-amber-400">
+                              VIP
+                            </p>
+                          )}
                           <p
                             className={`text-xs font-medium ${
                               ticket.status === "confirmed" ||

@@ -548,6 +548,7 @@ export async function reviewTicket(
         packageName,
         pricePaid: ticket.pricePaid,
         qrCode: ticket.qrCode,
+        ticketType: ticket.type,
       });
 
       serverAnalytics.capture("payment_approved", ticket.userId, {
@@ -656,6 +657,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
   | ActionResponse<{
       ticketId: string;
       attendeeName: string | null;
+      ticketType: string;
       alreadyCheckedIn?: boolean;
     }>
   | ErrorResponse
@@ -692,6 +694,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
       const [row] = await db
         .select({
           fullName: users.fullName,
+          type: tickets.type,
         })
         .from(tickets)
         .innerJoin(users, eq(tickets.userId, users.id))
@@ -712,6 +715,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
         data: {
           ticketId: updated.id,
           attendeeName: row?.fullName ?? null,
+          ticketType: row?.type ?? "general",
           alreadyCheckedIn: false,
         },
       };
@@ -749,6 +753,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
         data: {
           ticketId: row.ticket.id,
           attendeeName: row.fullName,
+          ticketType: row.ticket.type,
           alreadyCheckedIn: true,
         },
       };

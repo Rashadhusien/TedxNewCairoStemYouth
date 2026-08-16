@@ -37,6 +37,7 @@ export default function TicketCard({
   discountPiastres,
 }: TicketCardProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isVip = ticket.type === "vip";
 
   // Use package name if available, otherwise fall back to ticket tier
   const displayLabel = packageName
@@ -64,8 +65,18 @@ export default function TicketCard({
   };
 
   return (
-    <Card className="max-w-md mx-auto border-primary/30 bg-linear-to-b from-primary/5 to-black overflow-hidden">
-      <div className="h-1 bg-linear-to-r from-primary via-red-600 to-primary" />
+    <Card
+      className={`max-w-md mx-auto overflow-hidden border-primary/30 bg-linear-to-b from-primary/5 to-black ${
+        isVip ? "border-amber-400/50" : ""
+      }`}
+    >
+      <div
+        className={`h-1 ${
+          isVip
+            ? "bg-linear-to-r from-amber-400 via-yellow-400 to-amber-400"
+            : "bg-linear-to-r from-primary via-red-600 to-primary"
+        }`}
+      />
       <CardHeader className="text-center space-y-2">
         <p className="text-xs uppercase tracking-[0.3em] text-primary">
           TEDxNewCairoSTEMYouth
@@ -73,7 +84,12 @@ export default function TicketCard({
         <CardTitle className="text-2xl font-extrabold">
           Luminous Darkness 2026
         </CardTitle>
-        <div>
+        <div className="flex flex-col items-center gap-2">
+          {isVip && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-amber-300">
+              VIP
+            </span>
+          )}
           <TicketStatusBadge status={ticket.status as Ticket["status"]} />
         </div>
       </CardHeader>
@@ -85,7 +101,14 @@ export default function TicketCard({
 
         <div className="space-y-1">
           <p className="text-sm text-muted-foreground">Package</p>
-          <p className="text-xl font-semibold text-primary">{displayLabel}</p>
+          {isVip ? (
+            <>
+              <p className="text-xl font-semibold text-amber-300">VIP Access</p>
+              <p className="text-xs text-muted-foreground">{displayLabel}</p>
+            </>
+          ) : (
+            <p className="text-xl font-semibold text-primary">{displayLabel}</p>
+          )}
           {originalAmountPiastres &&
           discountPiastres &&
           discountPiastres > 0 ? (
@@ -120,9 +143,16 @@ export default function TicketCard({
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground">
-          Present this QR code at the venue entrance on event day.
-        </p>
+        {isVip ? (
+          <p className="text-xs text-amber-300/90">
+            VIP ticket — present this QR code at the VIP entrance for front
+            seating.
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            Present this QR code at the venue entrance on event day.
+          </p>
+        )}
       </CardContent>
     </Card>
   );

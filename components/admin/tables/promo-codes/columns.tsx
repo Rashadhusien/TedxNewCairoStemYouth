@@ -37,6 +37,7 @@ export const promoCodeColumns = [
         fixed_price: "Fixed Price",
         discount: "Discount",
         free: "Free",
+        free_vip: "Free VIP",
       };
       return <div>{typeLabels[type as keyof typeof typeLabels]}</div>;
     },
@@ -48,7 +49,7 @@ export const promoCodeColumns = [
       const type = row.getValue("type");
       const value = row.getValue("valuePiastres");
 
-      if (type === "free") return <div>Free</div>;
+      if (type === "free" || type === "free_vip") return <div>Free</div>;
       if (type === "fixed_price") return <div>{formatPiastres(value)}</div>;
       if (type === "discount") return <div>{formatPiastres(value)} off</div>;
       return <div>—</div>;

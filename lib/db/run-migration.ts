@@ -12,7 +12,7 @@ const sql = neon(process.env.DATABASE_URL!);
 async function runMigration() {
   const migration = `
 CREATE TYPE "public"."order_status" AS ENUM('pending_payment', 'paid', 'failed', 'cancelled');
-CREATE TYPE "public"."promo_code_type" AS ENUM('fixed_price', 'discount', 'free');
+CREATE TYPE "public"."promo_code_type" AS ENUM('fixed_price', 'discount', 'free', 'free_vip');
 CREATE TABLE "orders" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,

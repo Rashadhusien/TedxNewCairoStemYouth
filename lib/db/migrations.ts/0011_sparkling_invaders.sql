@@ -1,0 +1,1 @@
+ALTER TYPE "public"."promo_code_type" ADD VALUE 'free_vip';--> statement-breakpoint

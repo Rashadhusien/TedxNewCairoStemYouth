@@ -30,6 +30,7 @@ export default function AdminCheckInPage() {
     success: boolean;
     attendeeName: string | null;
     message: string;
+    ticketType?: string;
     alreadyCheckedIn?: boolean;
   } | null>(null);
   const [useCamera, setUseCamera] = useState(true);
@@ -118,6 +119,7 @@ export default function AdminCheckInPage() {
       success: true,
       attendeeName: result.data?.attendeeName ?? null,
       message,
+      ticketType: result.data?.ticketType,
       alreadyCheckedIn,
     });
     // toast.success(message);
@@ -255,6 +257,16 @@ export default function AdminCheckInPage() {
                 <XCircle className="w-5 h-5 text-red-500 mt-0.5" />
               )}
               <div className="flex-1">
+                {lastResult.success && lastResult.ticketType === "vip" && (
+                  <div className="mb-2 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+                    <p className="text-sm font-bold uppercase tracking-widest text-amber-400">
+                      VIP Ticket — Front Seating
+                    </p>
+                    <p className="text-xs text-amber-300/90">
+                      Escort attendee to the front section.
+                    </p>
+                  </div>
+                )}
                 {lastResult.success && lastResult.attendeeName && (
                   <div className="flex items-center gap-2 mb-1">
                     <User

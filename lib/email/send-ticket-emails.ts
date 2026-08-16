@@ -17,6 +17,7 @@ type TicketEmailContext = {
   packageName: string;
   pricePaid: number;
   qrCode?: string;
+  ticketType?: string;
   paymentMethod?: string | null;
   rejectionReason?: string | null;
 };
@@ -88,6 +89,7 @@ export async function sendTicketConfirmedAttendeeEmail(
   const appUrl = getAppUrl();
   const myTicketUrl = `${appUrl}${ROUTES.PROFILE}`;
   const name = escapeHtml(ctx.attendeeName);
+  const isVip = ctx.ticketType === "vip";
   const qrBuffer = await QRCode.toBuffer(ctx.qrCode, {
     width: 280,
     margin: 2,
@@ -102,12 +104,20 @@ export async function sendTicketConfirmedAttendeeEmail(
     </p>
     <table style="width:100%;border-collapse:collapse;margin:0 0 24px;">
       ${detailsRow("Package", `<strong style="color:#fff;">${escapeHtml(ctx.packageName)}</strong>`)}
+      ${isVip ? detailsRow("Ticket type", '<strong style="color:#fff;">VIP</strong>') : ""}
       ${detailsRow("Amount paid", escapeHtml(formatPiastres(ctx.pricePaid)))}
       ${detailsRow("Ticket ID", escapeHtml(ctx.qrCode))}
     </table>
     <p style="margin:0 0 24px;color:#aaaaaa;font-size:15px;line-height:1.6;">
       Your QR code is attached to this email. Present it at the venue entrance on event day.
     </p>
+    ${
+      isVip
+        ? `<p style="margin:0 0 24px;color:#d4af37;font-size:15px;line-height:1.6;">
+      <strong>VIP ticket:</strong> you have reserved front seating. Please arrive early and present your QR code at the VIP entrance.
+    </p>`
+        : ""
+    }
   `;
 
   const html = renderEmailShell({

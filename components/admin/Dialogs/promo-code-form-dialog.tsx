@@ -54,7 +54,7 @@ export default function PromoCodeFormDialog({
     code: "",
     owner: "",
     description: "",
-    type: "discount" as "fixed_price" | "discount" | "free",
+    type: "discount" as "fixed_price" | "discount" | "free" | "free_vip",
     valuePiastres: 0,
     maxUses: null as number | null,
     validFrom: "",
@@ -236,10 +236,11 @@ export default function PromoCodeFormDialog({
                   <SelectItem value="fixed_price">Fixed Price</SelectItem>
                   <SelectItem value="discount">Discount</SelectItem>
                   <SelectItem value="free">Free</SelectItem>
+                  <SelectItem value="free_vip">Free VIP</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {formData.type !== "free" && (
+            {formData.type !== "free" && formData.type !== "free_vip" && (
               <div className="grid gap-2">
                 <Label htmlFor="valuePiastres">
                   {formData.type === "fixed_price"

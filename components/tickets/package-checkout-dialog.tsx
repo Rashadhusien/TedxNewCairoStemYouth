@@ -30,7 +30,7 @@ interface Attendee {
 }
 
 interface ValidatedPromo {
-  type: "fixed_price" | "discount" | "free";
+  type: "fixed_price" | "discount" | "free" | "free_vip";
   valuePiastres: number;
   willApplyDiscount: boolean;
 }
@@ -235,7 +235,10 @@ export default function PackageCheckoutDialog({
         0,
         pkg.totalPricePiastres - discountPiastres,
       );
-    } else if (validatedPromo.type === "free") {
+    } else if (
+      validatedPromo.type === "free" ||
+      validatedPromo.type === "free_vip"
+    ) {
       discountPiastres = pkg.totalPricePiastres;
       finalAmountPiastres = 0;
     }
@@ -414,6 +417,8 @@ export default function PackageCheckoutDialog({
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Processing...
                 </>
+              ) : finalAmountPiastres === 0 ? (
+                "Get Free Ticket"
               ) : (
                 `Pay ${finalPrice}`
               )}

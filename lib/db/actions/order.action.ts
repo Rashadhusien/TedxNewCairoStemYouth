@@ -400,7 +400,10 @@ export async function createOrder(
             0,
             pkg.totalPricePiastres - discountPiastres,
           );
-        } else if (promoCode.type === "free") {
+        } else if (
+          promoCode.type === "free" ||
+          promoCode.type === "free_vip"
+        ) {
           discountPiastres = pkg.totalPricePiastres;
           finalAmountPiastres = 0;
         }
@@ -443,6 +446,7 @@ export async function createOrder(
 
         // Create confirmed tickets
         const ticketIds = [];
+        const ticketType = promoCode?.type === "free_vip" ? "vip" : "general";
         for (const attendee of data.attendees) {
           const attendeeUserId =
             emailToUserIdMap[attendee.email.toLowerCase().trim()];
@@ -452,7 +456,7 @@ export async function createOrder(
             .values({
               userId: attendeeUserId, // Use the attendee's actual user ID
               orderId: orderId,
-              type: "general",
+              type: ticketType,
               status: "confirmed",
               pricePaid: 0,
               currency: "EGP",
@@ -469,6 +473,7 @@ export async function createOrder(
           ticketIds.push({
             id: ticket.id,
             qrCode: ticket.qrCode,
+            type: ticketType,
             attendeeName: attendee.name,
             attendeeEmail: attendee.email,
           });
@@ -519,6 +524,7 @@ export async function createOrder(
           packageName: pkg.name,
           pricePaid: 0,
           qrCode: ticket.qrCode,
+          ticketType: ticket.type,
         });
       }
 

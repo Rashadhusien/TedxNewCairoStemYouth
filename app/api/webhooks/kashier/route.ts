@@ -523,6 +523,7 @@ async function handleOrderPayment(
           attendeeName: tickets.attendeeName,
           attendeeEmail: tickets.attendeeEmail,
           pricePaid: tickets.pricePaid,
+          type: tickets.type,
         });
 
       // Mark the promo code as used only once the tickets are confirmed.
@@ -561,9 +562,10 @@ async function handleOrderPayment(
           attendeeName: ticket.attendeeName || "Attendee",
           attendeeEmail:
             ticket.attendeeEmail || user?.email || "support@example.com",
-          packageName: "Regular Package",
+          packageName: order.packageName,
           pricePaid: ticket.pricePaid,
           qrCode: ticket.qrCode,
+          ticketType: ticket.type,
         });
       } catch (err) {
         console.error("Failed to send confirmation email:", err);

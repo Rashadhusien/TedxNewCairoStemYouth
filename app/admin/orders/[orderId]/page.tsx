@@ -133,6 +133,11 @@ export default async function AdminOrderDetailsPage({
                     <div className="text-sm text-muted-foreground">
                       {ticket.attendeePhone || "—"}
                     </div>
+                    {ticket.type === "vip" && (
+                      <div className="mt-1 inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-amber-500">
+                        VIP
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center gap-4">
                     <TicketStatusBadge status={ticket.status} />

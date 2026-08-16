@@ -148,6 +148,7 @@ export const promoCodeTypeEnum = pgEnum("promo_code_type", [
   "fixed_price", // Specific price in piastres (e.g., 20000 = 200 EGP)
   "discount", // Discount amount in piastres (e.g., 5000 = 50 EGP off)
   "free", // Free ticket
+  "free_vip", // Free ticket with VIP seating
 ]);
 
 // ─────────────────────────────────────────────
