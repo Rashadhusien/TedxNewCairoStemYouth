@@ -15,7 +15,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "How much are tickets?",
     answer:
-      "Regular admission is 350 EGP per ticket. We also offer 3 Friends and 5 Friends packages so you can book as a group. Exact prices are shown on the package cards above.",
+      "We offer Regular tickets and 3 Friends and 5 Friends packages so you can book as a group. Exact prices are shown on the package cards above.",
   },
   {
     question: "How do I buy a ticket?",

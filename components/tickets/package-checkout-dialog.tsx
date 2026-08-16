@@ -324,11 +324,7 @@ export default function PackageCheckoutDialog({
             </div>
             {promoError && <p className="text-sm text-red-500">{promoError}</p>}
             {promoValid && (
-              <p className="text-sm text-green-500">
-                {validatedPromo?.willApplyDiscount
-                  ? "Promo code applied! Discount included."
-                  : "Promo code validated but discount not applicable for this package."}
-              </p>
+              <p className="text-sm text-green-500">Promo code applied</p>
             )}
           </div>
 

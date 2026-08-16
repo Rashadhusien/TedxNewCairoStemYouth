@@ -50,7 +50,7 @@ export default function FinalCTASection() {
         </div>
 
         <p className="text-white/30 text-xs mt-6 font-medium">
-          From 350 EGP • Regular, 3 Friends, and 5 Friends packages available
+          Regular, 3 Friends, and 5 Friends packages available
         </p>
       </div>
     </section>

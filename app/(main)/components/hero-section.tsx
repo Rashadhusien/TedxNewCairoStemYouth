@@ -9,10 +9,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ROUTES } from "@/constants/routes";
 import { socialLinks } from "@/constants";
+import { Session } from "next-auth";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Hero = () => {
+const Hero = ({ session }: { session: Session | null }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const badgeRef = useRef<HTMLDivElement>(null);
@@ -134,13 +135,23 @@ const Hero = () => {
                 Get Your Ticket
               </Link>
             </Button>
-            <Button
-              className="py-6 sm:text-base transition-transform active:scale-95 "
-              variant="outline"
-              asChild
-            >
-              <Link href={ROUTES.EVENT}>Explore The Event</Link>
-            </Button>
+            {session ? (
+              <Button
+                className="py-6 sm:text-base transition-transform active:scale-95 "
+                variant="outline"
+                asChild
+              >
+                <Link href={ROUTES.EVENT}>Explore The Event</Link>
+              </Button>
+            ) : (
+              <Button
+                className="py-6 sm:text-base transition-transform active:scale-95 "
+                variant="outline"
+                asChild
+              >
+                <Link href={ROUTES.REGISTER}>Create Account</Link>
+              </Button>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 max-sm:px-4 mt-6 sm:mt-8">
@@ -154,7 +165,7 @@ const Hero = () => {
             />
             <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
               <MapPin className="size-4 text-primary" aria-hidden />
-              Galal El Sharkawy · down town cairo
+              Galal El Sharkawy · Downtown
             </span>
             <span
               className="hidden sm:block size-0.5 rounded-full bg-white/20"
@@ -162,7 +173,7 @@ const Hero = () => {
             />
             <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
               <Ticket className="size-4 text-primary" aria-hidden />
-              From 350 EGP
+              Limited Spots Available
             </span>
           </div>
 

@@ -31,7 +31,7 @@ INSERT INTO offers (
 ) VALUES (
   gen_random_uuid(),
   'Early Bird Special',
-  'Get your ticket at a special early bird price before the event!',
+  'Get your ticket at a special early bird price before the event! Limited time offer.',
   'early_bird',
   30000,  -- 300.00 EGP
   35000,  -- 350.00 EGP (original price)

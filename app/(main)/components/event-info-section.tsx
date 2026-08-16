@@ -22,7 +22,7 @@ const FACTS = [
   {
     icon: Ticket,
     label: "Tickets",
-    value: "From 350 EGP",
+    value: "Limited Availability",
   },
 ];
 
@@ -34,7 +34,7 @@ export default function EventInfoSection() {
       className="relative overflow-hidden border-y border-white/5 bg-black py-14 sm:py-16"
     >
       <div className="absolute inset-0 bg-linear-to-b from-[#0a0000] via-black to-[#0a0000] pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] h-[220px] rounded-full bg-primary/[0.07] blur-[80px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-105 h-55 rounded-full bg-primary/7 blur-[80px] pointer-events-none" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-10">
         <h2 id="event-info-heading" className="sr-only">
@@ -45,7 +45,7 @@ export default function EventInfoSection() {
           {FACTS.map(({ icon: Icon, label, value }) => (
             <div
               key={label}
-              className="group relative border border-white/10 bg-white/[0.02] p-5 transition-colors hover:border-primary/40"
+              className="group relative border border-white/10 bg-white/2 p-5 transition-colors hover:border-primary/40"
             >
               <div
                 className="absolute top-0 left-0 h-2 w-px bg-primary/60"

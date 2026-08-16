@@ -18,7 +18,7 @@ const STEPS: Step[] = [
     icon: Package,
     title: "Choose your package",
     description:
-      "Pick a Regular ticket or a 3 / 5 Friends package above. Prices are shown per ticket and as a total.",
+      "Pick a Regular ticket or a 3 / 5 Friends package above. Package details and availability are shown on each card.",
   },
   {
     icon: CreditCard,
@@ -46,7 +46,7 @@ export default function HowToAttendSection() {
         {STEPS.map((step, index) => (
           <div
             key={step.title}
-            className="relative rounded-xl border border-white/10 bg-white/[0.03] p-6"
+            className="relative rounded-xl border border-white/10 bg-white/3 p-6"
           >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/15 border border-primary/25">

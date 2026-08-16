@@ -161,9 +161,9 @@ export default function CheckoutDialog({
                   Secure Payment
                 </p>
                 <p>
-                  You will be redirected to Kashier's secure payment page to
-                  complete your purchase. We accept all major cards and digital
-                  wallets.
+                  You will be redirected to Kashier&apos;s secure payment page
+                  to complete your purchase. We accept all major cards and
+                  digital wallets.
                 </p>
               </div>
             </Field>

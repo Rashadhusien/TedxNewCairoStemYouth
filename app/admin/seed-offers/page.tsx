@@ -46,8 +46,8 @@ export default async function SeedOffersPage() {
               <div className="rounded-lg bg-black/50 p-4 text-sm text-white/40">
                 <p className="font-medium text-white/60 mb-2">What was done:</p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>Created Early Bird offer (300 EGP, was 350 EGP)</li>
-                  <li>Created Flash Sale offer (280 EGP, was 350 EGP)</li>
+                  <li>Created Early Bird offer with special pricing</li>
+                  <li>Created Flash Sale offer with special pricing</li>
                   <li>Updated existing offers to be featured with pricing</li>
                 </ul>
               </div>

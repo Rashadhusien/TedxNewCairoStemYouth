@@ -25,7 +25,7 @@ export async function seedOffers(): Promise<
       .values({
         title: "Early Bird Special",
         description:
-          "Get your ticket at a special early bird price before the event!",
+          "Get your ticket at a special early bird price before the event! Limited time offer.",
         type: "early_bird",
         discountedPrice: 30000, // 300.00 EGP
         originalPrice: 35000, // 350.00 EGP

@@ -8,7 +8,7 @@ import { getActivePackages } from "@/lib/db/actions/package.action";
 export const metadata = {
   title: "Get Your Ticket",
   description:
-    "Book your ticket for TEDxNewCairoSTEMYouth 2026 — September 5, 2026 at Galal El Sharkawy - down town cairo. Regular tickets from 350 EGP, plus 3 & 5 Friends packages.",
+    "Book your ticket for TEDxNewCairoSTEMYouth 2026 — September 5, 2026 at Galal El Sharkawy - down town cairo. Regular tickets and 3 & 5 Friends packages available.",
 };
 
 export default async function TicketsPage() {

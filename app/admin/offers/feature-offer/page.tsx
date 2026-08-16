@@ -82,8 +82,8 @@ export default async function FeatureOfferPage({
   // Feature the specific offer
   const result = await updateOfferFeatured(offerId, {
     isFeatured: true,
-    discountedPrice: 30000, // 300 EGP
-    originalPrice: 35000, // 350 EGP
+    discountedPrice: 30000,
+    originalPrice: 35000,
   });
 
   return (

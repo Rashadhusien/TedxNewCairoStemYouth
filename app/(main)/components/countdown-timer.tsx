@@ -2,6 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { ArrowRight, Ticket } from "lucide-react";
+import { ROUTES } from "@/constants/routes";
 
 const TARGET_DATE = new Date("2026-09-05T10:00:00");
 
@@ -135,6 +139,41 @@ export default function CountdownTimer() {
           <Colon />
           <TimeUnit value={seconds} label="Seconds" />
         </motion.div>
+      </div>
+      <div className="relative z-10 max-w-4xl mx-auto text-center mt-8 px-8">
+        <p className="text-white/60 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
+          Join us on September 5, 2026 at Galal El Sharkawy - down town cairo.
+          Limited tickets available — secure your spot today and be part of an
+          unforgettable experience.
+        </p>
+
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Button
+            size="lg"
+            className="w-full sm:w-auto py-5 px-6 text-base"
+            asChild
+          >
+            <Link href={ROUTES.TICKETS}>
+              <Ticket className="size-5 mr-2" />
+              Get Your Ticket
+            </Link>
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="w-full sm:w-auto py-5 px-6 text-base"
+            asChild
+          >
+            <Link href={ROUTES.EVENT}>
+              Explore The Event
+              <ArrowRight className="size-4 ml-2" />
+            </Link>
+          </Button>
+        </div>
+
+        <p className="text-white/30 text-xs mt-6 font-medium">
+          Regular, 3 Friends, and 5 Friends packages available
+        </p>
       </div>
     </section>
   );

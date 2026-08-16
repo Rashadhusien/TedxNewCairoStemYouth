@@ -88,11 +88,19 @@ export default function PackageCard({
         </div>
 
         <div className="space-y-2 text-sm">
-          {isGroup && (
+          <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-xs text-primary">
+            One payment covers all {pkg.ticketCount} tickets.
+          </div>
+
+          {/* {isGroup && (
             <div className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-2 text-xs text-primary">
               One payment covers all {pkg.ticketCount} tickets.
             </div>
-          )}
+          )} */}
+
+          <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 px-3 py-2 text-xs text-blue-400">
+            Account required to purchase tickets
+          </div>
 
           <div className="flex justify-between text-gray-300">
             <span>Tickets included:</span>

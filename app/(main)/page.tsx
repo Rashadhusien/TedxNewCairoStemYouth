@@ -14,26 +14,30 @@ import FloatingOfferBanner from "./components/floating-offer-banner";
 // import OfferBanner from "@/components/offer-banner";
 
 import TheaterParallax from "./components/theater-parallex";
+import { auth } from "@/auth";
 
 const Home = async () => {
+  const session = await auth();
   const [sponsorsResult, partnersResult] = await Promise.all([
     getAllSponsors({ type: "sponsor" }),
     getAllSponsors({ type: "partner" }),
   ]);
+
+  console.log(session);
 
   const sponsors = sponsorsResult.success ? sponsorsResult.data?.items : [];
   const partners = partnersResult.success ? partnersResult.data?.items : [];
 
   return (
     <div className="relative">
-      <Hero />
+      <Hero session={session} />
 
       <EventInfoSection />
 
       <TheaterParallax />
       <WhyAttendSection />
 
-      <AboutSection />
+      {/* <AboutSection /> */}
 
       <SpeakersSection hideKeyholders />
 
@@ -49,7 +53,7 @@ const Home = async () => {
       {/* <CTA /> */}
       <CountdownTimer />
 
-      <FinalCTASection />
+      {/* <FinalCTASection /> */}
 
       <FloatingOfferBanner />
       {/* <OfferBanner /> */}

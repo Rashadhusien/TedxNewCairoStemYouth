@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover inspiring ideas from Egypt's brightest STEM youth.",
+    "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Secure your spot and discover inspiring ideas from Egypt's brightest STEM youth.",
 
   keywords: [
     "TEDx",
@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     siteName: "TEDxNewCairoSTEMYouth",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
     description:
-      "September 5, 2026 · Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover the light hidden within the darkness.",
+      "September 5, 2026 · Galal El Sharkawy - down town cairo. Secure your spot and discover the light hidden within the darkness.",
     images: [
       {
         url: "/images/hero-poster.jpeg",
@@ -77,7 +77,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "TEDxNewCairoSTEMYouth — Luminous Darkness",
     description:
-      "September 5, 2026 · Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover the light hidden within the darkness.",
+      "September 5, 2026 · Galal El Sharkawy - down town cairo. Secure your spot and discover the light hidden within the darkness.",
     images: ["/images/hero-poster.jpeg"],
   },
 
@@ -142,7 +142,7 @@ export default function RootLayout({
             "@type": "Event",
             name: "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness",
             description:
-              "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Get your ticket from 350 EGP and discover inspiring ideas from Egypt's brightest STEM youth.",
+              "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Secure your spot and discover inspiring ideas from Egypt's brightest STEM youth.",
             startDate: "2026-09-05T10:00:00",
             eventStatus: "https://schema.org/EventScheduled",
             eventAttendanceMode:
