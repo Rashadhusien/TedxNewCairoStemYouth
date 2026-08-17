@@ -17,8 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import {
   Select,
@@ -52,6 +53,8 @@ interface DataTableProps<TData, TValue> {
   }[];
   selectedTagIds?: string;
   route: string;
+  enableRowSelection?: boolean;
+  onSelectionChange?: (rows: TData[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -69,10 +72,13 @@ export function DataTable<TData, TValue>({
   tagItems = [],
   selectedTagIds = "",
   route,
+  enableRowSelection = false,
+  onSelectionChange,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
 
   const [searchInput, setSearchInput] = useState(search);
+  const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({});
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -110,12 +116,51 @@ export function DataTable<TData, TValue>({
     params.set("page", String(next.page ?? page));
     router.push(`${route}?${params.toString()}`);
   };
+  const selectColumn: ColumnDef<TData, TValue> = {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all rows on this page"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+  };
+
+  const tableColumns = enableRowSelection
+    ? [selectColumn, ...columns]
+    : columns;
+
   const table = useReactTable({
     data,
-    columns,
+    columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    enableRowSelection,
+    getRowId: enableRowSelection
+      ? (row) => (row as { id: string }).id
+      : undefined,
+    state: enableRowSelection ? { rowSelection } : undefined,
+    onRowSelectionChange: enableRowSelection
+      ? (updater) => setRowSelection(updater)
+      : undefined,
   });
+
+  useEffect(() => {
+    if (!enableRowSelection) return;
+    const selected = data.filter((row) => rowSelection[(row as { id: string }).id]);
+    onSelectionChange?.(selected);
+  }, [enableRowSelection, data, rowSelection, onSelectionChange]);
 
   return (
     <div>

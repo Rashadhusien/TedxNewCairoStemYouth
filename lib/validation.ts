@@ -414,6 +414,19 @@ export const PromoCodeUpdateSchema = z
     }
   });
 
+export const PromoCodeBulkFixedPriceUpdateSchema = z.object({
+  ids: z
+    .array(z.string().uuid("Invalid promo code ID"))
+    .min(1, "At least one promo code is required")
+    .max(500, "Up to 500 promo codes can be updated at once")
+    .transform((ids) => [...new Set(ids)]),
+  valuePiastres: z
+    .number()
+    .int("Fixed price must be a whole number of piastres")
+    .positive("Fixed price must be greater than 0")
+    .safe("Fixed price is too large"),
+});
+
 export const PromoCodeListSchema = z.object({
   sortBy: z.enum(["most_used", "recent"]).default("recent"),
   search: z.string().optional(),

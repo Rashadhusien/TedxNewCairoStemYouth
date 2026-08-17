@@ -1,8 +1,5 @@
 import PromoCodeFormDialog from "@/components/admin/Dialogs/promo-code-form-dialog";
-import { promoCodeColumns } from "@/components/admin/tables/promo-codes/columns";
-import { DataTable } from "@/components/admin/tables/data-table";
-import { PROMO_CODE_STATUS } from "@/constants/select";
-import { ROUTES } from "@/constants/routes";
+import PromoCodeManager from "@/components/admin/promo-code-manager";
 import { listPromoCodes } from "@/lib/db/actions/promo-code.action";
 import { listTags } from "@/lib/db/actions/tag.action";
 import { SearchParams } from "@/types";
@@ -44,18 +41,15 @@ export default async function AdminPromoCodesPage({
         <PromoCodeFormDialog />
       </div>
 
-      <DataTable
-        columns={promoCodeColumns}
-        data={data.promoCodes}
-        search={params.search || ""}
+      <PromoCodeManager
+        promoCodes={data.promoCodes}
         total={data.total}
-        pageSize={Number(params.pageSize) || 10}
         page={Number(params.page) || 1}
+        pageSize={Number(params.pageSize) || 10}
+        search={params.search || ""}
         sortBy={params.sortBy ?? "recent"}
-        selectItems={PROMO_CODE_STATUS}
-        tagItems={tags.map((tag) => ({ value: tag.id, label: tag.name }))}
-        selectedTagIds={tagIds?.join(",") || ""}
-        route={ROUTES.ADMIN.PROMO_CODES.HOME}
+        tagIds={tagIds?.join(",") || ""}
+        tags={tags}
       />
     </div>
   );

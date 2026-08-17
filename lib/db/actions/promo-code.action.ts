@@ -4,8 +4,13 @@ import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import action from "@/lib/handlers/action";
 import handleError from "@/lib/handlers/error";
-import { NotFoundError, ValidationError } from "@/lib/http-errors";
 import {
+  DatabaseError,
+  NotFoundError,
+  ValidationError,
+} from "@/lib/http-errors";
+import {
+  PromoCodeBulkFixedPriceUpdateSchema,
   PromoCodeCreateSchema,
   PromoCodeUpdateSchema,
   PromoCodeListSchema,
@@ -556,6 +561,92 @@ export async function updatePromoCode(
     return {
       success: true,
       data: { promoCodeId: updated.id },
+    };
+  } catch (error) {
+    return handleError(error) as ErrorResponse;
+  }
+}
+
+export async function bulkUpdatePromoCodePrice(params: {
+  ids: string[];
+  valuePiastres: number;
+}): Promise<ActionResponse<{ updatedCount: number }> | ErrorResponse> {
+  const validationResult = await action<{
+    ids: string[];
+    valuePiastres: number;
+  }>({
+    params,
+    schema: PromoCodeBulkFixedPriceUpdateSchema,
+    authorize: true,
+  });
+
+  if (validationResult instanceof Error) {
+    return handleError(validationResult) as ErrorResponse;
+  }
+
+  try {
+    const { session } = await requireAdminSession();
+    const { ids, valuePiastres } = validationResult.params as {
+      ids: string[];
+      valuePiastres: number;
+    };
+
+    const rows = await db
+      .select({ id: promoCodes.id, type: promoCodes.type })
+      .from(promoCodes)
+      .where(
+        and(inArray(promoCodes.id, ids), sql`${promoCodes.deletedAt} IS NULL`),
+      );
+
+    if (rows.length !== ids.length) {
+      return handleError(
+        new ValidationError({
+          ids: ["One or more promo codes do not exist or were deleted"],
+        }),
+      ) as ErrorResponse;
+    }
+
+    const nonFixedPrice = rows.filter((row) => row.type !== "fixed_price");
+    if (nonFixedPrice.length > 0) {
+      return handleError(
+        new ValidationError({
+          ids: ["Bulk price update only applies to fixed-price promo codes"],
+        }),
+      ) as ErrorResponse;
+    }
+
+    const result = await db
+      .update(promoCodes)
+      .set({
+        valuePiastres,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(inArray(promoCodes.id, ids), sql`${promoCodes.deletedAt} IS NULL`),
+      );
+
+    if ((result.rowCount ?? 0) !== ids.length) {
+      return handleError(
+        new DatabaseError(
+          "Some promo codes could not be updated. Please try again.",
+        ),
+      ) as ErrorResponse;
+    }
+
+    revalidatePath(ROUTES.ADMIN.PROMO_CODES.HOME);
+
+    void createAuditLog({
+      category: "promo_code",
+      action: "promo_code.bulk_update_price",
+      ...actorFromSession(session),
+      entityType: "promo_code",
+      summary: `Updated fixed price to ${valuePiastres} piastres for ${ids.length} promo code(s)`,
+      metadata: { promoCodeIds: ids, valuePiastres, updatedCount: ids.length },
+    });
+
+    return {
+      success: true,
+      data: { updatedCount: ids.length },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;
