@@ -7,7 +7,7 @@ import Link from "next/link";
 import { ArrowRight, Ticket } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
 
-const TARGET_DATE = new Date("2026-09-05T10:00:00");
+const TARGET_DATE = new Date("2026-09-05T13:00:00");
 
 function useCountdown() {
   const [timeLeft, setTimeLeft] = useState({

@@ -10,7 +10,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "When and where is the event?",
     answer:
-      "TEDxNewCairoSTEMYouth 2026 takes place on September 5, 2026 at 10:00 AM. The venue is Galal El Sharkawy - down town cairo, Egypt.",
+      "TEDxNewCairoSTEMYouth 2026 takes place on September 5, 2026 at 1:00 PM. The venue is Galal El Sharkawy - down town cairo, Egypt.",
   },
   {
     question: "How much are tickets?",

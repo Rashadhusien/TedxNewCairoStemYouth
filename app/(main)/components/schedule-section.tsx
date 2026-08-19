@@ -23,13 +23,13 @@ export default function ScheduleSection() {
               Schedule Announcement
             </h3>
             <p className="text-white/60 max-w-md leading-relaxed">
-              We're finalizing an incredible lineup of speakers, performers, and
-              experiences. The complete schedule will be published closer to the
-              event date.
+              We&apos;re finalizing an incredible lineup of speakers,
+              performers, and experiences. The complete schedule will be
+              published closer to the event date.
             </p>
             <div className="flex items-center gap-2 text-sm text-white/40 mt-4">
               <Calendar className="size-4" />
-              <span>September 5, 2026 · 10:00 AM</span>
+              <span>September 5, 2026 · 1:00 PM</span>
             </div>
           </div>
         </div>

@@ -10,18 +10,7 @@ export default function FinalCTASection() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[200px] rounded-full bg-primary/[0.08] blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 mb-6">
-          <div className="h-px w-8 bg-primary/35" />
-          <span className="text-primary/60 text-[10px] font-bold tracking-[0.3em] uppercase">
-            Secure Your Spot
-          </span>
-          <div className="h-px w-8 bg-primary/35" />
-        </div>
-
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-          Ready to Experience{" "}
-          <span className="text-primary">Luminous Darkness</span>?
-        </h2>
+     
 
         <p className="text-white/60 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
           Join us on September 5, 2026 at Galal El Sharkawy - down town cairo.

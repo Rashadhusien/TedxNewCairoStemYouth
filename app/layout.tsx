@@ -143,7 +143,7 @@ export default function RootLayout({
             name: "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness",
             description:
               "TEDxNewCairoSTEMYouth 2026 — Luminous Darkness. September 5, 2026 at Galal El Sharkawy - down town cairo. Secure your spot and discover inspiring ideas from Egypt's brightest STEM youth.",
-            startDate: "2026-09-05T10:00:00",
+            startDate: "2026-09-05T13:00:00",
             eventStatus: "https://schema.org/EventScheduled",
             eventAttendanceMode:
               "https://schema.org/OfflineEventAttendanceMode",

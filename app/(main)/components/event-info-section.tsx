@@ -7,7 +7,7 @@ const FACTS = [
   {
     icon: Calendar,
     label: "Date & Time",
-    value: "September 5, 2026 · 10:00 AM",
+    value: "September 5, 2026 · 1:00 PM",
   },
   {
     icon: MapPin,

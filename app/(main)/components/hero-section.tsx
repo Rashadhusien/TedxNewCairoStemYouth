@@ -157,7 +157,7 @@ const Hero = ({ session }: { session: Session | null }) => {
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-3 max-sm:px-4 mt-6 sm:mt-8">
             <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
               <Calendar className="size-4 text-primary" aria-hidden />
-              Sep 5, 2026 · 10:00 AM
+              Sep 5, 2026 · 1:00 PM
             </span>
             <span
               className="hidden sm:block size-0.5 rounded-full bg-white/20"
