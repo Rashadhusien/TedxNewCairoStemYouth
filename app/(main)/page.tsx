@@ -1,10 +1,10 @@
-import AboutSection from "./components/about-section";
+// import AboutSection from "./components/about-section";
 import Hero from "./components/hero-section";
 import EventInfoSection from "./components/event-info-section";
 import WhyAttendSection from "./components/why-attend-section";
-import ThemeExplanationSection from "./components/theme-explanation-section";
-import ScheduleSection from "./components/schedule-section";
-import FinalCTASection from "./components/final-cta-section";
+// import ThemeExplanationSection from "./components/theme-explanation-section";
+// import ScheduleSection from "./components/schedule-section";
+// import FinalCTASection from "./components/final-cta-section";
 import SpeakersSection from "./components/speakers-section";
 import CountdownTimer from "./components/countdown-timer";
 import { getAllSponsors } from "@/lib/db/actions/sponsor.action";
