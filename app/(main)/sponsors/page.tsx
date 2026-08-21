@@ -27,8 +27,9 @@ export default async function SponsorsPage() {
   // const sponsors = sponsorsResult.success ? sponsorsResult.data?.items : [];
   // const partners = partnersResult.success ? partnersResult.data?.items : [];
 
+  // pt-24
   return (
-    <div className="pt-24">
+    <div>
       {/* <SponsorsHero />
       <SponsorsRoiSection />
       <SponsorsQuestSection />
