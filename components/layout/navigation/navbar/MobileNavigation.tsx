@@ -94,13 +94,6 @@ const MobileNavigation = async ({ session }: { session: Session | null }) => {
               </SheetClose>
             </>
           )}
-          <SheetClose asChild>
-            <Link href={ROUTES.SPONSORS} className="w-full">
-              <Button className="w-full rounded-lg h-9 text-sm">
-                Partner With Us
-              </Button>
-            </Link>
-          </SheetClose>
         </div>
       </SheetContent>
     </Sheet>
