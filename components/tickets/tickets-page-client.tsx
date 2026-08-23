@@ -8,13 +8,17 @@ import type { Package } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useSession } from "next-auth/react";
+import { WHATSAPP_GROUP_LINK } from "@/constants";
+import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 interface TicketsPageClientProps {
   packages: Package[];
+  hasTicket?: boolean;
 }
 
 export default function TicketsPageClient({
   packages,
+  hasTicket = false,
 }: TicketsPageClientProps) {
   const { status: authStatus } = useSession();
   const router = useRouter();
@@ -52,6 +56,20 @@ export default function TicketsPageClient({
           />
         ))}
       </div>
+
+      {/* WhatsApp Group Link - only show if user has a confirmed ticket */}
+      {hasTicket && (
+        <a
+          href={WHATSAPP_GROUP_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400 transition hover:bg-green-500/20 hover:border-green-500/50"
+        >
+          <IconBrandWhatsappFilled className="h-5 w-5" />
+          Join WhatsApp Group
+        </a>
+      )}
+
       {selectedPackage && (
         <PackageCheckoutDialog
           pkg={selectedPackage}

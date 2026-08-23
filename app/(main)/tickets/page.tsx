@@ -4,6 +4,8 @@ import EventInfoSection from "../components/event-info-section";
 import HowToAttendSection from "../components/how-to-attend-section";
 import FaqSection from "../components/faq-section";
 import { getActivePackages } from "@/lib/db/actions/package.action";
+import { getMyTicket } from "@/lib/db/actions/ticket.action";
+import { auth } from "@/auth";
 
 export const metadata = {
   title: "Get Your Ticket",
@@ -13,6 +15,17 @@ export const metadata = {
 
 export default async function TicketsPage() {
   const packages = await getActivePackages();
+  const session = await auth();
+
+  let hasTicket = false;
+  if (session?.user) {
+    const ticketResult = await getMyTicket();
+    if (ticketResult.success && ticketResult.data) {
+      const { ticket } = ticketResult.data;
+      hasTicket =
+        ticket.status === "confirmed" || ticket.status === "checked_in";
+    }
+  }
 
   return (
     <div className="bg-black min-h-screen">
@@ -28,7 +41,7 @@ export default async function TicketsPage() {
           />
         </div>
       </section>
-      <TicketsPageClient packages={packages} />
+      <TicketsPageClient packages={packages} hasTicket={hasTicket} />
       <EventInfoSection />
       <HowToAttendSection />
       <FaqSection />

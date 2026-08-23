@@ -11,6 +11,8 @@ import { ProfileForm } from "./profile-form";
 import Image from "next/image";
 import MyTicketClient from "@/components/tickets/my-ticket-client";
 import { ContinuePaymentButton } from "@/components/continue-payment-button";
+import { WHATSAPP_GROUP_LINK } from "@/constants";
+import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 export const metadata = {
   title: "My Profile — TEDxNewCairoSTEMYouth",
@@ -45,6 +47,12 @@ export default async function ProfilePage() {
 
   const offers =
     offersResult.success && offersResult.data ? offersResult.data : [];
+
+  // Check if user has a confirmed or checked-in ticket
+  const hasTicket =
+    ticketData?.ticket &&
+    (ticketData.ticket.status === "confirmed" ||
+      ticketData.ticket.status === "checked_in");
 
   // Derive initials for avatar fallback
   const initials = (profile.fullName ?? profile.email)
@@ -211,6 +219,19 @@ export default async function ProfilePage() {
             discountPiastres={ticketData?.order?.discountPiastres}
           />
         </div>
+
+        {/* ── WhatsApp Group Link - only show if user has a confirmed ticket ───────────── */}
+        {hasTicket && (
+          <a
+            href={WHATSAPP_GROUP_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-6 flex items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400 transition hover:bg-green-500/20 hover:border-green-500/50"
+          >
+            <IconBrandWhatsappFilled className="h-5 w-5" />
+            Join WhatsApp Group
+          </a>
+        )}
 
         {/* ── Section divider ───────────────────────────────────────────── */}
         <div className="mb-6 flex items-center gap-3">

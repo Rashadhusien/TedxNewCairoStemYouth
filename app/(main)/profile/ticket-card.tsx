@@ -2,6 +2,8 @@
 "use client";
 
 import type { ProfileData } from "@/lib/db/actions/profile.action";
+import { WHATSAPP_GROUP_LINK } from "@/constants";
+import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 type TicketCardProps = {
   ticket: NonNullable<ProfileData["ticket"]>;
@@ -106,7 +108,7 @@ export function TicketCard({ ticket }: TicketCardProps) {
 
       {/* Divider — perforated ticket style */}
       <div className="my-4 flex items-center gap-1">
-        <div className="h-[1px] flex-1 border-t border-dashed border-white/10" />
+        <div className="h-px flex-1 border-t border-dashed border-white/10" />
       </div>
 
       {/* Footer meta */}
@@ -135,6 +137,19 @@ export function TicketCard({ ticket }: TicketCardProps) {
             Your QR code will be available here closer to the event date.
           </p>
         </div>
+      )}
+
+      {/* WhatsApp Group Link */}
+      {(ticket.status === "confirmed" || ticket.status === "checked_in") && (
+        <a
+          href={WHATSAPP_GROUP_LINK}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 flex items-center justify-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm font-medium text-green-400 transition hover:bg-green-500/20 hover:border-green-500/50"
+        >
+          <IconBrandWhatsappFilled className="h-5 w-5" />
+          Join WhatsApp Group
+        </a>
       )}
     </div>
   );

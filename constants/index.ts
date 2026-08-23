@@ -270,6 +270,8 @@ export const faculties = [
 ];
 export const EMAIL = "tedxnewcairostemyouth@gmail.com";
 export const PHONE = "+201041250042";
+export const WHATSAPP_GROUP_LINK =
+  "https://chat.whatsapp.com/HlL1IjormHnEuWHmkW3hJc?s=cl&p=a&ilr=1";
 export const socialLinks = [
   {
     icon: FacebookIcon,
