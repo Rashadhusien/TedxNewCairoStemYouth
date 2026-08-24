@@ -6,7 +6,7 @@ import {
   LinkIcon,
 } from "@animateicons/react/lucide";
 import { ROUTES } from "./routes";
-import { Flame, Clock, Users } from "lucide-react";
+import { Flame, Clock, Users, PhoneIcon } from "lucide-react";
 import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB in bytes
@@ -295,9 +295,14 @@ export const socialLinks = [
   //   href: "https://www.tiktok.com/@tedxnewcairostemyouth",
   // },
   {
-    icon: IconBrandWhatsappFilled,
+    icon: PhoneIcon,
     label: "WhatsApp",
     href: "https://wa.me/+201041250042",
+  },
+  {
+    icon: IconBrandWhatsappFilled,
+    label: "WhatsApp Group",
+    href: "https://whatsapp.com/channel/0029Vb6s6nD5Ui2SSUiqAS3a",
   },
   {
     icon: LinkIcon,
