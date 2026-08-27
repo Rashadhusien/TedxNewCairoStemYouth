@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
+import { Bus, Calendar, ExternalLink, MapPin, Ticket } from "lucide-react";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import Image from "next/image";
@@ -89,7 +89,7 @@ const Hero = ({ session }: { session: Session | null }) => {
       />
 
       <div className="container mx-auto flex justify-center h-full">
-        <div className="flex flex-col gap-4 mt-[140px] sm:mt-[160px] items-center">
+        <div className="flex flex-col gap-4 mt-24 sm:mt-40 items-center">
           <div ref={badgeRef} className="">
             <div className="inline-flex items-center gap-1.5 text-[12px] tracking-[0.06em] text-white/55 border border-white/10 rounded-full px-4 py-1.5 backdrop-blur-sm">
               Visit Our —{" "}
@@ -171,10 +171,25 @@ const Hero = ({ session }: { session: Session | null }) => {
               className="hidden sm:block size-0.5 rounded-full bg-white/20"
               aria-hidden
             />
-            <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
+            {/* <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-white/90 bg-white/5 border border-white/10 rounded-full px-4 py-2">
               <Ticket className="size-4 text-primary" aria-hidden />
               Limited Spots Available
-            </span>
+            </span> */}
+
+            <Button
+              variant="secondary"
+              size="lg"
+              className="px-6 py-5 w-full sm:w-auto cursor-pointer"
+            >
+              <Link
+                href="https://chat.whatsapp.com/JQEpXf9YoBpAM7LI5wXZ6m?s=cl&p=a&ilr=1"
+                target="_blank"
+                className="flex items-center gap-1"
+              >
+                {" "}
+                <Bus className="size-4" /> For Buses
+              </Link>
+            </Button>
           </div>
 
           <div className="flex items-center justify-center gap-5 mt-6 flex-wrap mx-auto ">
