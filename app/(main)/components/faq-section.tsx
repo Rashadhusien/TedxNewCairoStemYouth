@@ -50,7 +50,7 @@ const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Who can attend?",
     answer:
-      "TEDxNewCairoSTEMYouth is open to everyone who is interested in ideas worth spreading. There are no specific age restrictions, but attendees under 16 should be accompanied by an adult. (Team confirmation required for age policy)",
+      "TEDxNewCairoSTEMYouth is open to everyone who is interested in ideas worth spreading. There are no specific age restrictions.",
   },
   {
     question: "Is there a refund policy?",

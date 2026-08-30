@@ -39,8 +39,7 @@ export const UserRegisterFormSchema = z.object({
     .number({ error: "Graduation year is required" })
     .int("Graduation year must be a whole number")
     .positive("Graduation year is required")
-    .min(currentYear, `Graduation year must be ${currentYear} or later`)
-    .max(currentYear + 10, "Please enter a valid graduation year"),
+    .min(currentYear, `Graduation year must be ${currentYear} or later`),
   skills: z
     .array(z.enum(skillLabels))
     .min(3, "Select at least 3 skills")
