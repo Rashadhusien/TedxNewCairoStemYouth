@@ -282,8 +282,7 @@ function UserRegisterFrom() {
                   </FieldLabel>
                   <Input
                     type="number"
-                    min={new Date().getFullYear()}
-                    max={new Date().getFullYear() + 10}
+                    min={new Date().getFullYear() - 400}
                     id="form-rhf-demo-graduationYear"
                     name={field.name}
                     ref={field.ref}
