@@ -65,7 +65,7 @@ export function DataTable<TData, TValue>({
   pageSize = 10,
   page = 1,
   status = "all",
-  sortBy = "recent",
+  sortBy,
   selectItems = [],
   category = "all",
   categoryItems = [],
@@ -82,7 +82,9 @@ export function DataTable<TData, TValue>({
 
   const totalPages = Math.ceil(total / pageSize);
 
-  console.log(totalPages);
+  useEffect(() => {
+    setSearchInput(search);
+  }, [search]);
 
   const updateFilters = (next: {
     status?: string;
@@ -184,7 +186,7 @@ export function DataTable<TData, TValue>({
         )}
 
         <Select
-          value={sortBy || status}
+          value={sortBy ?? status}
           onValueChange={(v) => {
             if (sortBy !== undefined) {
               updateFilters({ sortBy: v, page: 1 });

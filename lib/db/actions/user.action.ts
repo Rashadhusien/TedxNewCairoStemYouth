@@ -75,7 +75,7 @@ export async function listUsers(params: UserListInput): Promise<
           ilike(users.name, term),
           ilike(users.email, term),
           ilike(users.phone, term),
-          ilike(users.role, term),
+          sql`${users.role}::text ILIKE ${term}`,
           ilike(users.university, term),
         ),
       );
