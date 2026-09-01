@@ -1,6 +1,7 @@
 import {
   BadgePercent,
   Camera,
+  CreditCard,
   Handshake,
   History,
   LayoutDashboard,
@@ -63,26 +64,26 @@ export const sidebarItems: NavGroup[] = [
         url: ROUTES.ADMIN.CHECK_IN,
         icon: Camera,
       },
-      {
-        title: "Ticket Tiers",
-        url: ROUTES.ADMIN.TICKET_TIERS.HOME,
-        icon: Ticket,
-      },
-      {
-        title: "Tickets",
-        url: ROUTES.ADMIN.TICKETS,
-        icon: ReceiptText,
-      },
-      {
-        title: "Coupons",
-        url: ROUTES.ADMIN.COUPONS.HOME,
-        icon: BadgePercent,
-      },
-      {
-        title: "Offers",
-        url: ROUTES.ADMIN.OFFERS.HOME,
-        icon: Megaphone,
-      },
+      // {
+      //   title: "Ticket Tiers",
+      //   url: ROUTES.ADMIN.TICKET_TIERS.HOME,
+      //   icon: Ticket,
+      // },
+      // {
+      //   title: "Tickets",
+      //   url: ROUTES.ADMIN.TICKETS,
+      //   icon: ReceiptText,
+      // },
+      // {
+      //   title: "Coupons",
+      //   url: ROUTES.ADMIN.COUPONS.HOME,
+      //   icon: BadgePercent,
+      // },
+      // {
+      //   title: "Offers",
+      //   url: ROUTES.ADMIN.OFFERS.HOME,
+      //   icon: Megaphone,
+      // },
       {
         title: "Promo Codes",
         url: ROUTES.ADMIN.PROMO_CODES.HOME,
@@ -102,6 +103,11 @@ export const sidebarItems: NavGroup[] = [
         title: "Orders",
         url: ROUTES.ADMIN.ORDERS.HOME,
         icon: ShoppingCart,
+      },
+      {
+        title: "Manual Sales",
+        url: ROUTES.ADMIN.MANUAL_SALES,
+        icon: CreditCard,
       },
       {
         title: "Ticket Limit",

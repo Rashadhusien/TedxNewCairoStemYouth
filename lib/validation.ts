@@ -745,3 +745,32 @@ export const AuditLogListSchema = z.object({
   to: z.string().optional(),
   ...paginationSchema.shape,
 });
+
+// ─────────────────────────────────────────────
+// ADMIN-ASSISTED ORDER VALIDATION
+// ─────────────────────────────────────────────
+
+export const SearchCustomersSchema = z.object({
+  search: z.string().trim().min(1, "Search term is required").max(255),
+});
+
+export const GetApplicablePromoCodesSchema = z.object({
+  packageId: z.string().uuid("Invalid package ID"),
+});
+
+export const CreateAdminOrderSchema = z.object({
+  customerUserId: z.string().uuid("Invalid customer user ID"),
+  packageId: z.string().uuid("Invalid package ID"),
+  promoCode: z.string().trim().max(50).optional(),
+  attendees: z
+    .array(
+      z.object({
+        name: z.string().trim().min(1, "Attendee name is required").max(255),
+        email: z.string().email("Invalid email address"),
+        phone: z.string().trim().min(1, "Phone number is required").max(20),
+      }),
+    )
+    .min(1, "At least one attendee is required"),
+  paymentReference: z.string().trim().max(255).optional(),
+  operationId: z.string().uuid("Invalid operation ID").optional(),
+});

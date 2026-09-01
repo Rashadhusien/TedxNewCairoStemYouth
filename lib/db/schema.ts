@@ -51,7 +51,13 @@ export const ticketTypeEnum = pgEnum("ticket_type", [
   "np", // Non-Profit / Partner
 ]);
 
-export const ticketTierTypeEnum = pgEnum("ticket_tier_type", ["general"]);
+export const ticketTierTypeEnum = pgEnum("ticket_tier_type", [
+  "general",
+  "vip",
+  "organizer",
+  "ip",
+  "np",
+]);
 
 export const ticketStatusEnum = pgEnum("ticket_status", [
   "pending_payment", // registered, no screenshot yet
@@ -663,7 +669,9 @@ export const tags = pgTable(
   (t) => ({
     slugIdx: unique("tags_slug_unique").on(t.slug),
     // Case-insensitive uniqueness on the display name
-    lowerNameIdx: uniqueIndex("tags_lower_name_unique").on(sql`lower(${t.name})`),
+    lowerNameIdx: uniqueIndex("tags_lower_name_unique").on(
+      sql`lower(${t.name})`,
+    ),
   }),
 );
 
@@ -710,6 +718,9 @@ export const orders = pgTable(
     userId: uuid("user_id")
       .notNull()
       .references(() => users.id),
+
+    // The admin who created this order (for admin-assisted purchases)
+    adminUserId: uuid("admin_user_id").references(() => users.id),
 
     // The package purchased
     packageId: uuid("package_id")
@@ -762,6 +773,7 @@ export const orders = pgTable(
   },
   (t) => ({
     userIdx: index("orders_user_idx").on(t.userId),
+    adminUserIdx: index("orders_admin_user_idx").on(t.adminUserId),
     packageIdx: index("orders_package_idx").on(t.packageId),
     statusIdx: index("orders_status_idx").on(t.status),
     promoCodeIdx: index("orders_promo_code_idx").on(t.promoCodeId),

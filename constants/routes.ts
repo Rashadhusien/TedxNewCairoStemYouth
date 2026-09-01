@@ -62,6 +62,7 @@ export const ROUTES = {
       HOME: "/admin/orders",
       DETAILS: (id: string) => `/admin/orders/${id}`,
     },
+    MANUAL_SALES: "/admin/manual-sales",
     SETTINGS: {
       HOME: "/admin/settings",
       TICKET_LIMIT: "/admin/settings/ticket-limit",

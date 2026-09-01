@@ -1,0 +1,1 @@
+ALTER TYPE "public"."ticket_tier_type" ADD VALUE 'vip';

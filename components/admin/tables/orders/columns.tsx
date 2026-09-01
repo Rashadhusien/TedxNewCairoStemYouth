@@ -115,6 +115,40 @@ export const orderColumns = [
     ),
   },
   {
+    accessorKey: "adminUserId",
+    header: "Admin",
+    cell: ({ row }: any) => {
+      const adminUserId = row.getValue("adminUserId");
+      return (
+        <div className="text-sm font-mono">
+          {adminUserId ? adminUserId.slice(0, 8) + "..." : "—"}
+        </div>
+      );
+    },
+  },
+  {
+    id: "source",
+    header: "Source",
+    cell: ({ row }: any) => {
+      const adminUserId = row.getValue("adminUserId");
+      const source = adminUserId ? "Manual" : "Kashier";
+      const sourceStyles = {
+        Manual: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100",
+        Kashier:
+          "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100",
+      };
+      return (
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-medium ${
+            sourceStyles[source as keyof typeof sourceStyles]
+          }`}
+        >
+          {source}
+        </span>
+      );
+    },
+  },
+  {
     accessorKey: "createdAt",
     header: "Created",
     cell: ({ row }: any) => (
