@@ -63,7 +63,7 @@ export default function SponsorsPartnersSection({
 
         <div
           ref={gridRef}
-          className="mx-auto grid max-w-6xl grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6"
+          className="mx-auto grid max-w-6xl grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6"
         >
           {partners &&
             partners.length > 0 &&
@@ -91,7 +91,7 @@ export default function SponsorsPartnersSection({
                     </span>
                   )}
                 </div>
-                <h3 className="text-xl font-bold uppercase tracking-tight text-white sm:text-2xl">
+                <h3 className="text-md sm:text-xl font-bold sm:uppercase tracking-tight text-white md:text-2xl">
                   {partner.name}
                 </h3>
                 <p className="mt-3 max-w-sm text-sm leading-relaxed text-white/60">
