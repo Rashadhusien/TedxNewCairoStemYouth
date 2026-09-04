@@ -43,7 +43,7 @@ export interface MyTicketData {
 }
 
 export type TicketWithRelations = Ticket & {
-  user?: { fullName: string | null; email: string; phone: string | null };
+  user?: { fullName: string | null; email: string; phone: string | null } | null;
   coupon?: Coupon | null;
   offer?: Offer | null;
 };

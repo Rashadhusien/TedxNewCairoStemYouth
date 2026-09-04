@@ -345,11 +345,15 @@ async function handleOrderPayment(
   const now = new Date();
 
   // Get user email for fallback
-  const [user] = await db
-    .select({ email: users.email })
-    .from(users)
-    .where(eq(users.id, order.userId))
-    .limit(1);
+  let user: { email: string } | undefined;
+  if (order.userId) {
+    const [found] = await db
+      .select({ email: users.email })
+      .from(users)
+      .where(eq(users.id, order.userId))
+      .limit(1);
+    user = found;
+  }
 
   // Check if order is already in terminal state (but allow failed→success retry)
   if (order.status === "paid" || order.status === "cancelled") {

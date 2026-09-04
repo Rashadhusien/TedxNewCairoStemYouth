@@ -438,7 +438,7 @@ export async function listTickets(params: TicketListInput): Promise<
 
     const items: TicketWithRelations[] = rows.map((row) => ({
       ...row.ticket,
-      user: row.user,
+      user: row.user ?? null,
     }));
 
     return {
@@ -541,38 +541,48 @@ export async function reviewTicket(
           ? "Regular Package"
           : `${ticket.type.toUpperCase()} Package`);
 
-      notifyTicketConfirmed({
-        ticketId,
-        attendeeName: ticketRow.fullName ?? ticketRow.email,
-        attendeeEmail: ticketRow.email,
-        packageName,
-        pricePaid: ticket.pricePaid,
-        qrCode: ticket.qrCode,
-        ticketType: ticket.type,
-      });
+      const attendeeEmailForConfirm = ticketRow.email ?? ticket.attendeeEmail ?? "";
+      const attendeeNameForConfirm =
+        ticketRow.fullName ?? ticketRow.email ?? ticket.attendeeName ?? "Attendee";
 
-      serverAnalytics.capture("payment_approved", ticket.userId, {
-        ticket_id: ticketId,
-        ticket_type: ticket.type,
-        amount_piastres: ticket.pricePaid,
-      });
+      if (attendeeEmailForConfirm) {
+        notifyTicketConfirmed({
+          ticketId,
+          attendeeName: attendeeNameForConfirm,
+          attendeeEmail: attendeeEmailForConfirm,
+          packageName,
+          pricePaid: ticket.pricePaid,
+          qrCode: ticket.qrCode,
+          ticketType: ticket.type,
+        });
+      }
+
+      if (ticket.userId) {
+        serverAnalytics.capture("payment_approved", ticket.userId, {
+          ticket_id: ticketId,
+          ticket_type: ticket.type,
+          amount_piastres: ticket.pricePaid,
+        });
+      }
       serverAnalytics.capture("admin_payment_approved", session.user.id, {
         ticket_id: ticketId,
         ticket_type: ticket.type,
         amount_piastres: ticket.pricePaid,
         admin_id: session.user.id,
       });
-      serverAnalytics.capture("ticket_purchased", ticket.userId, {
-        ticket_id: ticketId,
-        ticket_type: ticket.type,
-        amount_piastres: ticket.pricePaid,
-        coupon_used: !!ticket.couponId,
-        offer_used: !!ticket.offerId,
-        payment_method: ticket.paymentMethod as
-          | "cash"
-          | "instapay"
-          | "bank_transfer",
-      });
+      if (ticket.userId) {
+        serverAnalytics.capture("ticket_purchased", ticket.userId, {
+          ticket_id: ticketId,
+          ticket_type: ticket.type,
+          amount_piastres: ticket.pricePaid,
+          coupon_used: !!ticket.couponId,
+          offer_used: !!ticket.offerId,
+          payment_method: ticket.paymentMethod as
+            | "cash"
+            | "instapay"
+            | "bank_transfer",
+        });
+      }
 
       void createAuditLog({
         category: "admin",
@@ -611,20 +621,28 @@ export async function reviewTicket(
         ? "Regular Package"
         : `${ticket.type.toUpperCase()} Package`);
 
-    notifyTicketRejected({
-      ticketId,
-      attendeeName: ticketRow.fullName ?? ticketRow.email,
-      attendeeEmail: ticketRow.email,
-      packageName,
-      pricePaid: ticket.pricePaid,
-      rejectionReason: rejectionReason ?? null,
-    });
+    const attendeeEmailForReject = ticketRow.email ?? ticket.attendeeEmail ?? "";
+    const attendeeNameForReject =
+      ticketRow.fullName ?? ticketRow.email ?? ticket.attendeeName ?? "Attendee";
 
-    serverAnalytics.capture("payment_rejected", ticket.userId, {
-      ticket_id: ticketId,
-      ticket_type: ticket.type,
-      reason: rejectionReason ?? undefined,
-    });
+    if (attendeeEmailForReject) {
+      notifyTicketRejected({
+        ticketId,
+        attendeeName: attendeeNameForReject,
+        attendeeEmail: attendeeEmailForReject,
+        packageName,
+        pricePaid: ticket.pricePaid,
+        rejectionReason: rejectionReason ?? null,
+      });
+    }
+
+    if (ticket.userId) {
+      serverAnalytics.capture("payment_rejected", ticket.userId, {
+        ticket_id: ticketId,
+        ticket_type: ticket.type,
+        reason: rejectionReason ?? undefined,
+      });
+    }
     serverAnalytics.capture("admin_payment_rejected", session.user.id, {
       ticket_id: ticketId,
       reason: rejectionReason ?? undefined,
@@ -788,7 +806,13 @@ export async function checkInTicket(params: CheckInInput): Promise<
 
 export async function getTicketById(
   ticketId: string,
-): Promise<ActionResponse<TicketWithRelations | null> | ErrorResponse> {
+): Promise<
+  | ActionResponse<{
+      ticket: Ticket;
+      user: { fullName: string | null; email: string; phone: string | null } | null;
+    } | null>
+  | ErrorResponse
+> {
   try {
     await requireAdminSession();
 
@@ -810,9 +834,14 @@ export async function getTicketById(
       return { success: true, data: null };
     }
 
+    const user =
+      row.user?.email != null
+        ? (row.user as { fullName: string | null; email: string; phone: string | null })
+        : null;
+
     return {
       success: true,
-      data: { ticket: row.ticket, user: row.user },
+      data: { ticket: row.ticket, user },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;

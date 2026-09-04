@@ -446,11 +446,11 @@ export async function createAdminAssistedOrder(
       summary:
         data.mode === "guest"
           ? `Admin-assisted guest order created for ${data.attendees.length} attendee(s)`
-          : `Admin-assisted order created for customer ${customer.email}`,
+          : `Admin-assisted order created for customer ${customer?.email ?? data.customerUserId}`,
       metadata: {
         mode: data.mode,
         customerUserId: data.customerUserId,
-        customerEmail: data.mode === "guest" ? null : customer.email,
+        customerEmail: data.mode === "guest" ? null : (customer?.email ?? null),
         packageId: data.packageId,
         packageName: pkg.name,
         promoCode: data.promoCode || null,
