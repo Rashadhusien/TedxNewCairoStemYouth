@@ -759,15 +759,22 @@ export const GetApplicablePromoCodesSchema = z.object({
 });
 
 export const CreateAdminOrderSchema = z.object({
-  customerUserId: z.string().uuid("Invalid customer user ID"),
+  mode: z.enum(["registered", "guest"]),
+  customerUserId: z.string().uuid("Invalid customer user ID").optional(),
   packageId: z.string().uuid("Invalid package ID"),
   promoCode: z.string().trim().max(50).optional(),
   attendees: z
     .array(
       z.object({
         name: z.string().trim().min(1, "Attendee name is required").max(255),
-        email: z.string().email("Invalid email address"),
-        phone: z.string().trim().min(1, "Phone number is required").max(20),
+        email: z.preprocess(
+          (val) => (val === "" ? undefined : val),
+          z.string().email("Invalid email address").optional(),
+        ),
+        phone: z.preprocess(
+          (val) => (val === "" ? undefined : val),
+          z.string().trim().max(20).optional(),
+        ),
       }),
     )
     .min(1, "At least one attendee is required"),

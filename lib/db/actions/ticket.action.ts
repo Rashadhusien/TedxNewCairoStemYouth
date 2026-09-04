@@ -417,7 +417,7 @@ export async function listTickets(params: TicketListInput): Promise<
     const [countRow] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(tickets)
-      .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(users, eq(tickets.userId, users.id))
       .where(whereClause);
 
     const rows = await db
@@ -430,7 +430,7 @@ export async function listTickets(params: TicketListInput): Promise<
         },
       })
       .from(tickets)
-      .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(users, eq(tickets.userId, users.id))
       .where(whereClause)
       .orderBy(desc(tickets.paymentSubmittedAt), desc(tickets.createdAt))
       .limit(pageSize)
@@ -486,7 +486,7 @@ export async function reviewTicket(
         order: orders,
       })
       .from(tickets)
-      .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(users, eq(tickets.userId, users.id))
       .leftJoin(orders, eq(tickets.orderId, orders.id))
       .where(eq(tickets.id, ticketId))
       .limit(1);
@@ -695,9 +695,10 @@ export async function checkInTicket(params: CheckInInput): Promise<
         .select({
           fullName: users.fullName,
           type: tickets.type,
+          attendeeName: tickets.attendeeName,
         })
         .from(tickets)
-        .innerJoin(users, eq(tickets.userId, users.id))
+        .leftJoin(users, eq(tickets.userId, users.id))
         .where(eq(tickets.id, updated.id))
         .limit(1);
 
@@ -707,14 +708,14 @@ export async function checkInTicket(params: CheckInInput): Promise<
         ...actorFromSession(session),
         entityType: "ticket",
         entityId: updated.id,
-        summary: `Checked in ticket ${updated.id} (${row?.fullName ?? "attendee"})`,
+        summary: `Checked in ticket ${updated.id} (${row?.fullName ?? row?.attendeeName ?? "attendee"})`,
       });
 
       return {
         success: true,
         data: {
           ticketId: updated.id,
-          attendeeName: row?.fullName ?? null,
+          attendeeName: row?.fullName ?? row?.attendeeName ?? null,
           ticketType: row?.type ?? "general",
           alreadyCheckedIn: false,
         },
@@ -726,9 +727,10 @@ export async function checkInTicket(params: CheckInInput): Promise<
       .select({
         ticket: tickets,
         fullName: users.fullName,
+        attendeeName: tickets.attendeeName,
       })
       .from(tickets)
-      .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(users, eq(tickets.userId, users.id))
       .where(eq(tickets.qrCode, qrCode))
       .limit(1);
 
@@ -752,7 +754,7 @@ export async function checkInTicket(params: CheckInInput): Promise<
         success: true,
         data: {
           ticketId: row.ticket.id,
-          attendeeName: row.fullName,
+          attendeeName: row.fullName ?? row.attendeeName,
           ticketType: row.ticket.type,
           alreadyCheckedIn: true,
         },
@@ -800,7 +802,7 @@ export async function getTicketById(
         },
       })
       .from(tickets)
-      .innerJoin(users, eq(tickets.userId, users.id))
+      .leftJoin(users, eq(tickets.userId, users.id))
       .where(eq(tickets.id, ticketId))
       .limit(1);
 
@@ -810,7 +812,7 @@ export async function getTicketById(
 
     return {
       success: true,
-      data: { ...row.ticket, user: row.user },
+      data: { ticket: row.ticket, user: row.user },
     };
   } catch (error) {
     return handleError(error) as ErrorResponse;

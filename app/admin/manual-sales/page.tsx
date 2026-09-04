@@ -56,6 +56,7 @@ interface Attendee {
 }
 
 export default function ManualSalesPage() {
+  const [mode, setMode] = useState<"registered" | "guest">("registered");
   const [step, setStep] = useState<
     | "search"
     | "customer"
@@ -159,7 +160,13 @@ export default function ManualSalesPage() {
       if (result.success && result.data) {
         setPromoCodes(result.data.promoCodes);
       }
-      setStep("promo");
+      // Skip promo step for guest mode, go directly to attendees
+      if (mode === "guest") {
+        setStep("attendees");
+        initializeAttendees(pkg);
+      } else {
+        setStep("promo");
+      }
     } catch (error) {
       toast.error("Failed to load promo codes");
       setStep("attendees");
@@ -201,13 +208,15 @@ export default function ManualSalesPage() {
   const initializeAttendees = (pkg: Package) => {
     const initialAttendees: Attendee[] = [];
     for (let i = 0; i < pkg.ticketCount; i++) {
-      if (i === 0 && selectedCustomer) {
+      if (i === 0 && mode === "registered" && selectedCustomer) {
+        // Pre-fill first attendee from customer data (registered mode only)
         initialAttendees.push({
           name: selectedCustomer.fullName || "",
           email: selectedCustomer.email,
           phone: selectedCustomer.phone || "",
         });
       } else {
+        // Empty fields for all other attendees and guest mode
         initialAttendees.push({
           name: "",
           email: "",
@@ -257,13 +266,16 @@ export default function ManualSalesPage() {
   };
 
   const handleConfirmPurchase = async () => {
-    if (!selectedCustomer || !selectedPackage) return;
+    if (!selectedPackage) return;
+    if (mode === "registered" && !selectedCustomer) return;
 
     setLoading(true);
     try {
       const operationId = crypto.randomUUID();
       const result = await createAdminAssistedOrder({
-        customerUserId: selectedCustomer.id,
+        mode,
+        customerUserId:
+          mode === "registered" ? selectedCustomer?.id : undefined,
         packageId: selectedPackage.id,
         promoCode: selectedPromoCode?.code || undefined,
         attendees,
@@ -313,7 +325,40 @@ export default function ManualSalesPage() {
         </p>
       </div>
 
+      {/* Mode Selection */}
       {step === "search" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Select Sale Mode</CardTitle>
+            <CardDescription>
+              Choose between registered customer or guest attendee
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex gap-4">
+            <Button
+              variant={mode === "registered" ? "default" : "outline"}
+              onClick={() => setMode("registered")}
+              className="flex-1"
+            >
+              Registered Customer
+            </Button>
+            <Button
+              variant={mode === "guest" ? "default" : "outline"}
+              onClick={() => {
+                setMode("guest");
+                setSelectedCustomer(null);
+                setStep("package");
+                loadPackages();
+              }}
+              className="flex-1"
+            >
+              Guest Attendee
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {step === "search" && mode === "registered" && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -509,6 +554,7 @@ export default function ManualSalesPage() {
                   onChange={(e) =>
                     handleAttendeeChange(index, "name", e.target.value)
                   }
+                  required
                 />
                 <Input
                   placeholder="Email"
@@ -517,6 +563,7 @@ export default function ManualSalesPage() {
                   onChange={(e) =>
                     handleAttendeeChange(index, "email", e.target.value)
                   }
+                  required={mode === "registered"}
                 />
                 <Input
                   placeholder="Phone"
@@ -524,12 +571,18 @@ export default function ManualSalesPage() {
                   onChange={(e) =>
                     handleAttendeeChange(index, "phone", e.target.value)
                   }
+                  required={mode === "registered"}
                 />
               </div>
             ))}
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep("promo")}>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  mode === "guest" ? setStep("package") : setStep("promo")
+                }
+              >
                 Back
               </Button>
               <Button onClick={() => setStep("confirm")}>Continue</Button>
@@ -538,7 +591,7 @@ export default function ManualSalesPage() {
         </Card>
       )}
 
-      {step === "confirm" && selectedCustomer && selectedPackage && (
+      {step === "confirm" && selectedPackage && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -550,17 +603,29 @@ export default function ManualSalesPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Customer</Label>
-              <div className="p-3 bg-accent rounded-lg">
-                <div className="font-medium">
-                  {selectedCustomer.fullName || "No name"}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {selectedCustomer.email}
+            {mode === "registered" && selectedCustomer && (
+              <div className="space-y-2">
+                <Label>Customer</Label>
+                <div className="p-3 bg-accent rounded-lg">
+                  <div className="font-medium">
+                    {selectedCustomer.fullName || "No name"}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedCustomer.email}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+            {mode === "guest" && (
+              <div className="space-y-2">
+                <Label>Customer</Label>
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="font-medium text-blue-800">
+                    Guest Attendee (no user account)
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label>Package</Label>

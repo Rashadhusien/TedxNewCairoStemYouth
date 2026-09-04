@@ -15,7 +15,14 @@ import type { z } from "zod";
 import { notifyTicketConfirmed } from "@/lib/email/send-ticket-emails";
 
 import { db } from "..";
-import { users, orders, tickets, promoCodes, promoCodeUsages } from "../schema";
+import {
+  users,
+  orders,
+  tickets,
+  promoCodes,
+  promoCodeUsages,
+  auditLogs,
+} from "../schema";
 import { requireAdminSession } from "./auth-guards";
 import { getPackageById } from "./package.action";
 import { getPromoCodeByCode } from "./promo-code.action";
@@ -127,21 +134,34 @@ export async function createAdminAssistedOrder(
   const data = validationResult.params as CreateAdminOrderInput;
 
   try {
-    // Validate customer
-    const [customer] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, data.customerUserId))
-      .limit(1);
+    // Validate customer (only for registered mode)
+    let customer = null;
+    if (data.mode === "registered") {
+      if (!data.customerUserId) {
+        return handleError(
+          new ValidationError({
+            customer: ["Customer user ID is required for registered mode"],
+          }),
+        ) as ErrorResponse;
+      }
 
-    if (!customer) {
-      return handleError(new NotFoundError("Customer")) as ErrorResponse;
-    }
+      const [customerRecord] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, data.customerUserId))
+        .limit(1);
 
-    if (!customer.isActive) {
-      return handleError(
-        new ValidationError({ customer: ["Customer account is inactive"] }),
-      ) as ErrorResponse;
+      if (!customerRecord) {
+        return handleError(new NotFoundError("Customer")) as ErrorResponse;
+      }
+
+      if (!customerRecord.isActive) {
+        return handleError(
+          new ValidationError({ customer: ["Customer account is inactive"] }),
+        ) as ErrorResponse;
+      }
+
+      customer = customerRecord;
     }
 
     // Validate package
@@ -163,35 +183,41 @@ export async function createAdminAssistedOrder(
       ) as ErrorResponse;
     }
 
-    // Validate attendee emails have accounts
-    const attendeeEmails = data.attendees.map((a) =>
-      a.email.toLowerCase().trim(),
-    );
-    const existingUsers = await db
-      .select({ email: users.email, id: users.id })
-      .from(users)
-      .where(inArray(users.email, attendeeEmails));
+    // Only validate user accounts for registered mode
+    let emailToUserIdMap: Record<string, string> = {};
+    if (data.mode === "registered") {
+      // Validate attendee emails have accounts
+      const attendeeEmails = data.attendees
+        .map((a) => a.email?.toLowerCase().trim())
+        .filter((email): email is string => email !== undefined);
+      const existingUsers = await db
+        .select({ email: users.email, id: users.id })
+        .from(users)
+        .where(inArray(users.email, attendeeEmails));
 
-    const existingEmails = existingUsers.map((u) => u.email.toLowerCase());
-    const missingAccounts = data.attendees
-      .filter((a) => !existingEmails.includes(a.email.toLowerCase().trim()))
-      .map((a) => a.email);
+      const existingEmails = existingUsers.map((u) => u.email.toLowerCase());
+      const missingAccounts = data.attendees
+        .filter(
+          (a) =>
+            a.email && !existingEmails.includes(a.email.toLowerCase().trim()),
+        )
+        .map((a) => a.email!);
 
-    if (missingAccounts.length > 0) {
-      return handleError(
-        new ValidationError({
-          attendees: [
-            `Attendee emails without accounts: ${missingAccounts.join(", ")}`,
-          ],
-        }),
-      ) as ErrorResponse;
+      if (missingAccounts.length > 0) {
+        return handleError(
+          new ValidationError({
+            attendees: [
+              `Attendee emails without accounts: ${missingAccounts.join(", ")}`,
+            ],
+          }),
+        ) as ErrorResponse;
+      }
+
+      // Create email to userId mapping
+      existingUsers.forEach((user) => {
+        emailToUserIdMap[user.email.toLowerCase()] = user.id;
+      });
     }
-
-    // Create email to userId mapping
-    const emailToUserIdMap: Record<string, string> = {};
-    existingUsers.forEach((user) => {
-      emailToUserIdMap[user.email.toLowerCase()] = user.id;
-    });
 
     // Check global ticket limit
     const capacity = await getTicketLimitSetting();
@@ -270,6 +296,28 @@ export async function createAdminAssistedOrder(
       finalAmountPiastres / pkg.ticketCount,
     );
 
+    // Check for existing operation (idempotency)
+    if (data.operationId) {
+      const [existingAudit] = await db
+        .select()
+        .from(auditLogs)
+        .where(
+          and(
+            eq(auditLogs.action, "admin_order.create"),
+            eq(auditLogs.actorUserId, adminUser.id),
+            sql`${auditLogs.metadata}->>'operationId' = ${data.operationId}`,
+          ),
+        )
+        .limit(1);
+
+      if (existingAudit && existingAudit.entityId) {
+        return {
+          success: true,
+          data: { orderId: existingAudit.entityId },
+        };
+      }
+    }
+
     // Create order and tickets in transaction
     const now = new Date();
     const result = await db.transaction(async (tx) => {
@@ -277,7 +325,7 @@ export async function createAdminAssistedOrder(
       const [order] = await tx
         .insert(orders)
         .values({
-          userId: data.customerUserId,
+          userId: data.mode === "guest" ? null : data.customerUserId,
           packageId: pkg.id,
           status: "paid",
           paidAt: now,
@@ -303,7 +351,11 @@ export async function createAdminAssistedOrder(
 
       for (const attendee of data.attendees) {
         const attendeeUserId =
-          emailToUserIdMap[attendee.email.toLowerCase().trim()];
+          data.mode === "guest"
+            ? null
+            : attendee.email
+              ? emailToUserIdMap[attendee.email.toLowerCase().trim()]
+              : null;
 
         const [ticket] = await tx
           .insert(tickets)
@@ -316,8 +368,8 @@ export async function createAdminAssistedOrder(
             currency: "EGP",
             paymentMethod: "admin_assisted",
             attendeeName: attendee.name,
-            attendeeEmail: attendee.email,
-            attendeePhone: attendee.phone,
+            attendeeEmail: attendee.email || null,
+            attendeePhone: attendee.phone || null,
             reviewedAt: now,
             createdAt: now,
             updatedAt: now,
@@ -370,15 +422,18 @@ export async function createAdminAssistedOrder(
 
     // Send emails (fire-and-forget, outside transaction)
     for (const ticket of result.ticketIds) {
-      notifyTicketConfirmed({
-        ticketId: ticket.id,
-        attendeeName: ticket.attendeeName,
-        attendeeEmail: ticket.attendeeEmail,
-        packageName: pkg.name,
-        pricePaid: pricePerTicketPiastres,
-        qrCode: ticket.qrCode,
-        ticketType: ticket.type,
-      });
+      // Only send email if attendee email is provided
+      if (ticket.attendeeEmail) {
+        notifyTicketConfirmed({
+          ticketId: ticket.id,
+          attendeeName: ticket.attendeeName,
+          attendeeEmail: ticket.attendeeEmail,
+          packageName: pkg.name,
+          pricePaid: pricePerTicketPiastres,
+          qrCode: ticket.qrCode,
+          ticketType: ticket.type,
+        });
+      }
     }
 
     // Audit log
@@ -388,10 +443,14 @@ export async function createAdminAssistedOrder(
       ...actorFromSession(session),
       entityType: "order",
       entityId: result.orderId,
-      summary: `Admin-assisted order created for customer ${customer.email}`,
+      summary:
+        data.mode === "guest"
+          ? `Admin-assisted guest order created for ${data.attendees.length} attendee(s)`
+          : `Admin-assisted order created for customer ${customer.email}`,
       metadata: {
+        mode: data.mode,
         customerUserId: data.customerUserId,
-        customerEmail: customer.email,
+        customerEmail: data.mode === "guest" ? null : customer.email,
         packageId: data.packageId,
         packageName: pkg.name,
         promoCode: data.promoCode || null,

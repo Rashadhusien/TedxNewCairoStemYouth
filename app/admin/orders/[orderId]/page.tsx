@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { ROUTES } from "@/constants/routes";
 import { getOrderWithTickets } from "@/lib/db/actions/order.action";
@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { formatPiastres } from "@/lib/pricing";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import TicketStatusBadge from "@/components/tickets/ticket-status-badge";
+import { Button } from "@/components/ui/button";
 
 interface AdminOrderDetailsPageProps {
   params: Promise<{ orderId: string }>;
@@ -43,6 +44,13 @@ export default async function AdminOrderDetailsPage({
             <CardTitle>Order Information</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
+            {!order.userId && (
+              <div className="col-span-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="text-blue-800 text-sm font-medium">
+                  Guest Order (no user account)
+                </div>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="text-sm text-muted-foreground">Package</div>
@@ -149,6 +157,12 @@ export default async function AdminOrderDetailsPage({
                         {ticket.qrCode.slice(0, 8)}...
                       </div>
                     </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href={`/admin/tickets/${ticket.id}/view`}>
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        View Ticket
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               ))}

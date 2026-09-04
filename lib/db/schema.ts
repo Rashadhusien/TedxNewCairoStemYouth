@@ -298,9 +298,9 @@ export const tickets = pgTable(
   "tickets",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
 
     type: ticketTypeEnum("type").notNull().default("general"),
     status: ticketStatusEnum("status").notNull().default("pending_payment"),
@@ -715,9 +715,9 @@ export const orders = pgTable(
     id: uuid("id").primaryKey().defaultRandom(),
 
     // The user who placed the order (buyer)
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id),
+    userId: uuid("user_id").references(() => users.id, {
+      onDelete: "set null",
+    }),
 
     // The admin who created this order (for admin-assisted purchases)
     adminUserId: uuid("admin_user_id").references(() => users.id),
