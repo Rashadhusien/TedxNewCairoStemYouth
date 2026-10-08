@@ -1,4 +1,5 @@
 import { MetadataRoute } from "next";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://www.tedxnewcairostemyouth.org";
@@ -11,12 +12,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
 
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
+    ...(PUBLIC_FEATURES.about
+      ? [
+          {
+            url: `${baseUrl}/about`,
+            lastModified: new Date(),
+            changeFrequency: "monthly" as const,
+            priority: 0.8,
+          },
+        ]
+      : []),
 
     {
       url: `${baseUrl}/contact`,
@@ -39,12 +44,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
 
-    {
-      url: `${baseUrl}/tickets`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
+    ...(PUBLIC_FEATURES.tickets
+      ? [
+          {
+            url: `${baseUrl}/tickets`,
+            lastModified: new Date(),
+            changeFrequency: "daily" as const,
+            priority: 0.9,
+          },
+        ]
+      : []),
 
     {
       url: `${baseUrl}/privacy-policy`,

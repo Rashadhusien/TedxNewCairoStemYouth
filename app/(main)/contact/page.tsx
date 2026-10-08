@@ -5,6 +5,7 @@ import { ROUTES } from "@/constants/routes";
 import { Mail, Phone, Ticket } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 export const metadata = {
   title: "Contact Us | TEDxNewCairoSTEMYouth",
   description:
@@ -27,14 +28,22 @@ const Contact = () => {
 
       {/* FORM + SOCIAL */}
       <section className="relative py-16">
-        <div className="max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 lg:grid-cols-5 gap-16">
-          {/* Form — 3 cols */}
-          <div className="lg:col-span-3">
-            <ContactForm />
-          </div>
+        <div
+          className={`max-w-6xl mx-auto px-6 lg:px-10 grid grid-cols-1 gap-16 ${
+            PUBLIC_FEATURES.contactForm
+              ? "lg:grid-cols-5"
+              : "lg:max-w-xl lg:mx-auto"
+          }`}
+        >
+          {PUBLIC_FEATURES.contactForm && (
+            <div className="lg:col-span-3">
+              <ContactForm />
+            </div>
+          )}
 
-          {/* Sidebar — 2 cols */}
-          <div className="lg:col-span-2 space-y-8">
+          <div
+            className={`space-y-8 ${PUBLIC_FEATURES.contactForm ? "lg:col-span-2" : ""}`}
+          >
             {/* Direct contact */}
             <div className="p-6 border border-white/5 bg-white/1 rounded-sm ">
               <h3 className="text-white font-bold text-sm tracking-wide mb-4">
@@ -101,21 +110,22 @@ const Contact = () => {
               </div>
             </div> */}
 
-            {/* Quick CTA */}
-            <div className="p-6 border border-primary/20 bg-primary/5 rounded-sm">
-              <h3 className="text-white font-bold text-sm tracking-wide mb-4">
-                Ready to Join?
-              </h3>
-              <p className="text-white/50 text-xs mb-4 leading-relaxed">
-                Secure your spot at Luminous Darkness 2026.
-              </p>
-              <Button size="sm" className="w-full" asChild>
-                <Link href={ROUTES.TICKETS}>
-                  <Ticket className="size-4 mr-2" />
-                  Get Tickets
-                </Link>
-              </Button>
-            </div>
+            {PUBLIC_FEATURES.tickets && (
+              <div className="p-6 border border-primary/20 bg-primary/5 rounded-sm">
+                <h3 className="text-white font-bold text-sm tracking-wide mb-4">
+                  Ready to Join?
+                </h3>
+                <p className="text-white/50 text-xs mb-4 leading-relaxed">
+                  Secure your spot at Luminous Darkness 2026.
+                </p>
+                <Button size="sm" className="w-full" asChild>
+                  <Link href={ROUTES.TICKETS}>
+                    <Ticket className="size-4 mr-2" />
+                    Get Tickets
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </section>

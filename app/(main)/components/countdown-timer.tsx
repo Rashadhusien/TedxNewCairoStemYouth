@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight, Ticket } from "lucide-react";
 import { ROUTES } from "@/constants/routes";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 const TARGET_DATE = new Date("2026-09-05T13:00:00");
 
@@ -148,16 +149,18 @@ export default function CountdownTimer() {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Button
-            size="lg"
-            className="w-full sm:w-auto py-5 px-6 text-base"
-            asChild
-          >
-            <Link href={ROUTES.TICKETS}>
-              <Ticket className="size-5 mr-2" />
-              Get Your Ticket
-            </Link>
-          </Button>
+          {PUBLIC_FEATURES.tickets && (
+            <Button
+              size="lg"
+              className="w-full sm:w-auto py-5 px-6 text-base"
+              asChild
+            >
+              <Link href={ROUTES.TICKETS}>
+                <Ticket className="size-5 mr-2" />
+                Get Your Ticket
+              </Link>
+            </Button>
+          )}
           <Button
             size="lg"
             variant="outline"

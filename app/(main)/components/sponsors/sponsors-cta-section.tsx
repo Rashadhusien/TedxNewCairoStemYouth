@@ -10,6 +10,7 @@ import { ArrowRight, Mail } from "lucide-react";
 import { SPONSOR_CONTACT_EMAIL } from "@/constants/sponsors-page";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants/routes";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -73,17 +74,19 @@ export default function SponsorsCtaSection() {
                   Contact partnerships
                 </Link>
               </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="h-12 gap-2 border-border px-8 text-xs font-bold uppercase tracking-[0.18em]"
-              >
-                <Link href={ROUTES.ABOUT}>
-                  About Us
-                  <ArrowRight className="size-4" aria-hidden />
-                </Link>
-              </Button>
+              {PUBLIC_FEATURES.about && (
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="h-12 gap-2 border-border px-8 text-xs font-bold uppercase tracking-[0.18em]"
+                >
+                  <Link href={ROUTES.ABOUT}>
+                    About Us
+                    <ArrowRight className="size-4" aria-hidden />
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>

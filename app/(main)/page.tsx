@@ -15,6 +15,7 @@ import FloatingOfferBanner from "./components/floating-offer-banner";
 
 import TheaterParallax from "./components/theater-parallex";
 import { auth } from "@/auth";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 const Home = async () => {
   const session = await auth();
@@ -55,7 +56,7 @@ const Home = async () => {
 
       {/* <FinalCTASection /> */}
 
-      <FloatingOfferBanner />
+      {PUBLIC_FEATURES.tickets && <FloatingOfferBanner />}
       {/* <OfferBanner /> */}
     </div>
   );

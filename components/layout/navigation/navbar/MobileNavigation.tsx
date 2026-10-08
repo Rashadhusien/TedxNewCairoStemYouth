@@ -13,6 +13,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ROUTES } from "@/constants/routes";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 import NavLinks from "./NavLinks";
 import { Menu, Ticket } from "lucide-react";
@@ -61,15 +62,16 @@ const MobileNavigation = async ({ session }: { session: Session | null }) => {
         </div>
 
         <div className="px-3 pb-6 pt-3 border-t border-border/30 flex flex-col gap-2">
-          {/* Prominent Ticket CTA */}
-          <SheetClose asChild>
-            <Link href={ROUTES.TICKETS} className="w-full">
-              <Button className="w-full rounded-lg h-10 text-sm font-semibold bg-primary text-primary-foreground">
-                <Ticket className="size-4 mr-2" />
-                Get Tickets
-              </Button>
-            </Link>
-          </SheetClose>
+          {PUBLIC_FEATURES.tickets && (
+            <SheetClose asChild>
+              <Link href={ROUTES.TICKETS} className="w-full">
+                <Button className="w-full rounded-lg h-10 text-sm font-semibold bg-primary text-primary-foreground">
+                  <Ticket className="size-4 mr-2" />
+                  Get Tickets
+                </Button>
+              </Link>
+            </SheetClose>
+          )}
 
           {session?.user ? (
             <UserDropdown session={session} isMobile />

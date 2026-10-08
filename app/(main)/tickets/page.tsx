@@ -6,6 +6,8 @@ import FaqSection from "../components/faq-section";
 import { getActivePackages } from "@/lib/db/actions/package.action";
 import { getMyTicket } from "@/lib/db/actions/ticket.action";
 import { auth } from "@/auth";
+import { notFound } from "next/navigation";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 export const metadata = {
   title: "Get Your Ticket",
@@ -14,6 +16,10 @@ export const metadata = {
 };
 
 export default async function TicketsPage() {
+  if (!PUBLIC_FEATURES.tickets) {
+    notFound();
+  }
+
   const packages = await getActivePackages();
   const session = await auth();
 

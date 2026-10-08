@@ -3,6 +3,8 @@ import AboutHeroStrip from "../components/about/about-hero-strip";
 import AboutStorySection from "../components/about/about-story-section";
 import AboutTeamSection from "../components/about/about-team-section";
 import AboutTedxSection from "../components/about/about-tedx-section";
+import { notFound } from "next/navigation";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 export const metadata = {
   title: "About Us | TEDxNewCairoSTEMYouth",
@@ -11,6 +13,10 @@ export const metadata = {
 };
 
 export default function AboutPage() {
+  if (!PUBLIC_FEATURES.about) {
+    notFound();
+  }
+
   return (
     <div className="pt-24">
       <div className="container mx-auto px-4 pb-8 sm:px-6 sm:pb-10 lg:px-8">

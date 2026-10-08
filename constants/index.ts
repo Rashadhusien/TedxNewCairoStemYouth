@@ -6,6 +6,7 @@ import {
   LinkIcon,
 } from "@animateicons/react/lucide";
 import { ROUTES } from "./routes";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 import { Flame, Clock, Users, PhoneIcon } from "lucide-react";
 import { IconBrandWhatsappFilled } from "@tabler/icons-react";
 
@@ -122,14 +123,22 @@ export const mainLinks = [
   //   route: ROUTES.SPONSORS,
   //   label: "Sponsors",
   // },
-  {
-    route: ROUTES.TICKETS,
-    label: "Tickets",
-  },
-  {
-    route: ROUTES.ABOUT,
-    label: "About Us",
-  },
+  ...(PUBLIC_FEATURES.tickets
+    ? [
+        {
+          route: ROUTES.TICKETS,
+          label: "Tickets",
+        },
+      ]
+    : []),
+  ...(PUBLIC_FEATURES.about
+    ? [
+        {
+          route: ROUTES.ABOUT,
+          label: "About Us",
+        },
+      ]
+    : []),
   {
     route: ROUTES.CONTACT,
     label: "Contact",

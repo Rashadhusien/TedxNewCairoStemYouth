@@ -21,6 +21,7 @@ import {
   SPONSOR_ONLY_PATHS,
   TICKET_REQUIRED_PATHS,
 } from "@/lib/auth/route-guards";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 function redirectToLogin(req: NextRequest, from: string): NextResponse {
   const url = new URL(ROUTES.LOGIN, req.url);
@@ -41,6 +42,17 @@ export default auth((req) => {
   const role = session?.user?.role ?? null;
   const isActive = session?.user?.isActive ?? false;
   const ticketStatus = session?.user?.ticketStatus ?? null;
+
+  if (!PUBLIC_FEATURES.about && pathname === ROUTES.ABOUT) {
+    return NextResponse.redirect(new URL(ROUTES.HOME, req.url));
+  }
+
+  if (
+    !PUBLIC_FEATURES.tickets &&
+    (pathname === ROUTES.TICKETS || pathname.startsWith(`${ROUTES.TICKETS}/`))
+  ) {
+    return NextResponse.redirect(new URL(ROUTES.HOME, req.url));
+  }
 
   if (pathname === ROUTES.ADMIN.LOGIN) {
     if (isLoggedIn && isActive && isAdminRole(role)) {

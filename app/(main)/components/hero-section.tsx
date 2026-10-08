@@ -10,6 +10,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ROUTES } from "@/constants/routes";
 import { socialLinks } from "@/constants";
 import { Session } from "next-auth";
+import { PUBLIC_FEATURES } from "@/lib/public-features";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -124,17 +125,21 @@ const Hero = ({ session }: { session: Session | null }) => {
 
           <div
             ref={buttonsRef}
-            className=" grid grid-cols-2 gap-4 w-full max-w-md max-sm:px-4"
+            className={`grid gap-4 w-full max-w-md max-sm:px-4 ${
+              PUBLIC_FEATURES.tickets ? "grid-cols-2" : "grid-cols-1"
+            }`}
           >
-            <Button
-              className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95"
-              asChild
-            >
-              <Link href={ROUTES.TICKETS}>
-                <Ticket className="size-5" />
-                Get Your Ticket
-              </Link>
-            </Button>
+            {PUBLIC_FEATURES.tickets && (
+              <Button
+                className="py-6 sm:text-base cursor-pointer transition-transform active:scale-95"
+                asChild
+              >
+                <Link href={ROUTES.TICKETS}>
+                  <Ticket className="size-5" />
+                  Get Your Ticket
+                </Link>
+              </Button>
+            )}
             {session ? (
               <Button
                 className="py-6 sm:text-base transition-transform active:scale-95 "
